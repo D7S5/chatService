@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+  cache:
+    type: none
+
+jwt:
+  secret: "12345678901234567890123456789012" # 32자 이상
+  access-token-expiry: 3600000
+  refresh-token-expiry: 86400000
