@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,11 +53,11 @@ public class DMService {
                 .room(room)
                 .senderId(senderId)
                 .content(content)
-                .sentAt(LocalDateTime.now())
+                .sentAt(OffsetDateTime.now())
                 .isRead(false)
                 .build();
 
-        room.setLastMessageTime(LocalDateTime.now());
+        room.setLastMessageTime(OffsetDateTime.now());
         roomRepository.save(room);
 
         return dmMessageRepository.save(msg);

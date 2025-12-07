@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Entity
 @Builder
@@ -23,5 +24,5 @@ public class DMRoom {
     private String userBId;
 
     @Builder.Default
-    private LocalDateTime lastMessageTime = LocalDateTime.now();
+    private OffsetDateTime lastMessageTime = OffsetDateTime.now();
 }

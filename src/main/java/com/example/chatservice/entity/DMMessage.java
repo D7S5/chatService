@@ -3,7 +3,7 @@ package com.example.chatservice.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "dm_messages")
@@ -26,7 +26,7 @@ public class DMMessage {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
     @Builder.Default
-    private LocalDateTime sentAt = LocalDateTime.now();
+    private OffsetDateTime sentAt = OffsetDateTime.now();
 
     @Column(name = "is_read")
     @Builder.Default

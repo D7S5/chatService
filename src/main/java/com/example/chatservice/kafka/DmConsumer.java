@@ -2,9 +2,11 @@ package com.example.chatservice.kafka;
 
 import com.example.chatservice.dto.DMMessageKafkaDto;
 import com.example.chatservice.entity.DMMessage;
+import com.example.chatservice.entity.DMMessageOutbox;
 import com.example.chatservice.entity.DMRoom;
 import com.example.chatservice.repository.DMMessageRepository;
 import com.example.chatservice.repository.DMRoomRepository;
+import com.example.chatservice.repository.OutboxRepository;
 import com.example.chatservice.service.DMService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +16,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 
 @Component
@@ -25,7 +28,6 @@ public class DmConsumer {
     private final DMMessageRepository messageRepository;
     private final DMService dmService;
     private final SimpMessagingTemplate messagingTemplate;
-
 
     @KafkaListener(
             topics = "dm-messages",
@@ -41,19 +43,20 @@ public class DmConsumer {
                         .room(room)
                         .senderId(dto.getSenderId())
                         .content(dto.getContent())
-                        .sentAt(LocalDateTime.now())
+                        .sentAt(OffsetDateTime.now())
                         .isRead(false)
                         .build();
 
-        room.setLastMessageTime(LocalDateTime.now());
+        room.setLastMessageTime(OffsetDateTime.now());
         messageRepository.save(message);
 
-        log.info("DM saved: room={}, sender={}", dto.getRoomId(), dto.getSenderId()); // debug
+        System.out.println("SentAt : " + message.getSentAt());
+        System.out.println("LocalDateTime : " + LocalDateTime.now());
+        System.out.println("OffsetDateTime : " + OffsetDateTime.now());
 
         String receiverId = dmService.getReceiverId(dto.getRoomId(), dto.getSenderId());
 
-        messagingTemplate.convertAndSendToUser(receiverId, "/queue/dm" , message);
-        messagingTemplate.convertAndSendToUser(dto.getSenderId(), "/queue/dm" , message);
-
+        messagingTemplate.convertAndSendToUser(receiverId, "/queue/dm", message);
+        messagingTemplate.convertAndSendToUser(dto.getSenderId(), "/queue/dm", message);
     }
 }

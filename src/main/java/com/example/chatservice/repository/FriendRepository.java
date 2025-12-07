@@ -25,11 +25,6 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
     @Query("SELECT f FROM Friend f JOIN FETCH f.friend u WHERE f.user.id = :userId AND f.status = 'PENDING'")
     List<Friend> findPendingRequestsSentByUserId(@Param("userId") String userId);
 
-    // 친구 목록용 (ACCEPTED)
-//    @Query("SELECT DISTINCT CASE WHEN f.user.id = :userId THEN f.friend ELSE f.user END " +
-//            "FROM Friend f WHERE (f.user.id = :userId OR f.friend.id = :userId) AND f.status = 'ACCEPTED'")
-//    List<User> findFriendsByUserId(@Param("userId") String userId);
-
     @Query("SELECT f FROM Friend f " +
             "LEFT JOIN FETCH f.user " +
             "LEFT JOIN FETCH f.friend " +
