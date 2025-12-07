@@ -5,10 +5,12 @@ import com.example.chatservice.entity.DMMessage;
 import com.example.chatservice.entity.DMRoom;
 import com.example.chatservice.repository.DMMessageRepository;
 import com.example.chatservice.repository.DMRoomRepository;
+import com.example.chatservice.service.DMService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cglib.core.Local;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -21,6 +23,9 @@ public class DmConsumer {
 
     private final DMRoomRepository roomRepository;
     private final DMMessageRepository messageRepository;
+    private final DMService dmService;
+    private final SimpMessagingTemplate messagingTemplate;
+
 
     @KafkaListener(
             topics = "dm-messages",
@@ -44,5 +49,11 @@ public class DmConsumer {
         messageRepository.save(message);
 
         log.info("DM saved: room={}, sender={}", dto.getRoomId(), dto.getSenderId()); // debug
+
+        String receiverId = dmService.getReceiverId(dto.getRoomId(), dto.getSenderId());
+
+        messagingTemplate.convertAndSendToUser(receiverId, "/queue/dm" , message);
+        messagingTemplate.convertAndSendToUser(dto.getSenderId(), "/queue/dm" , message);
+
     }
 }
