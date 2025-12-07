@@ -1,7 +1,6 @@
 package com.example.chatservice.config;
 
-import com.example.chatservice.dto.DirectMessageDto;
-import org.apache.kafka.clients.producer.Producer;
+import com.example.chatservice.dto.DMMessageKafkaDto;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +19,7 @@ import java.util.Map;
 public class KafkaProducerConfig {
 
     @Bean
-    public ProducerFactory<String, DirectMessageDto> producerFactory() {
+    public ProducerFactory<String, DMMessageKafkaDto> producerFactory() {
         Map<String, Object> config = new HashMap<>();
 
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
@@ -31,7 +30,7 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, DirectMessageDto> kafkaTemplate() {
+    public KafkaTemplate<String, DMMessageKafkaDto> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 }

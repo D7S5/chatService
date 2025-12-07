@@ -1,42 +1,48 @@
 package com.example.chatservice.kafka;
 
-import com.example.chatservice.dto.DirectMessageDto;
-import com.example.chatservice.entity.Message;
-import com.example.chatservice.entity.MessageEntity;
-import com.example.chatservice.repository.KafkaMessageRepository;
+import com.example.chatservice.dto.DMMessageKafkaDto;
+import com.example.chatservice.entity.DMMessage;
+import com.example.chatservice.entity.DMRoom;
+import com.example.chatservice.repository.DMMessageRepository;
+import com.example.chatservice.repository.DMRoomRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cglib.core.Local;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
+import java.time.LocalDateTime;
+
+
+@Component
 @RequiredArgsConstructor
+@Slf4j
 public class DmConsumer {
 
-    private final KafkaMessageRepository messageRepository;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final DMRoomRepository roomRepository;
+    private final DMMessageRepository messageRepository;
 
-    @KafkaListener(topics = "dm-messages", groupId = "chat-service")
-    public void consume(DirectMessageDto dto) {
-        MessageEntity saved = messageRepository.save(
-                MessageEntity.builder()
-                        .roomId(dto.getRoomId())
+    @KafkaListener(
+            topics = "dm-messages",
+            groupId = "chat-service",
+            containerFactory = "kafkaListenerContainerFactory"
+    )
+    public void consume(DMMessageKafkaDto dto) {
+
+        DMRoom room = roomRepository.findById(dto.getRoomId())
+                .orElseThrow(() -> new RuntimeException("Room not found"));
+
+        DMMessage message = DMMessage.builder()
+                        .room(room)
                         .senderId(dto.getSenderId())
-                        .receiverId(dto.getReceiverId())
                         .content(dto.getContent())
-                        .timestamp(dto.getTimestamp())
-                        .build()
-        );
+                        .sentAt(LocalDateTime.now())
+                        .isRead(false)
+                        .build();
 
-        messagingTemplate.convertAndSendToUser(
-                dto.getReceiverId(),
-                "/queue/dm",
-                saved
-        );
-        messagingTemplate.convertAndSendToUser(
-                dto.getSenderId(),
-                "/queue/dm",
-                saved
-        );
+        room.setLastMessageTime(LocalDateTime.now());
+        messageRepository.save(message);
+
+        log.info("DM saved: room={}, sender={}", dto.getRoomId(), dto.getSenderId()); // debug
     }
 }
