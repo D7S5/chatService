@@ -1,5 +1,6 @@
 package com.example.chatservice.kafka;
 
+import com.example.chatservice.converter.TimeConvert;
 import com.example.chatservice.dto.DMMessageKafkaDto;
 import com.example.chatservice.entity.DMMessage;
 import com.example.chatservice.entity.DMMessageOutbox;
@@ -39,15 +40,17 @@ public class DmConsumer {
         DMRoom room = roomRepository.findById(dto.getRoomId())
                 .orElseThrow(() -> new RuntimeException("Room not found"));
 
+        OffsetDateTime sentAt = TimeConvert.fromEpochMilliToKst(dto.getTimestamp());
+
         DMMessage message = DMMessage.builder()
                         .room(room)
                         .senderId(dto.getSenderId())
                         .content(dto.getContent())
-                        .sentAt(OffsetDateTime.now())
+                        .sentAt(sentAt)
                         .isRead(false)
                         .build();
 
-        room.setLastMessageTime(OffsetDateTime.now());
+        room.setLastMessageTime(sentAt);
         messageRepository.save(message);
 
         System.out.println("SentAt : " + message.getSentAt());

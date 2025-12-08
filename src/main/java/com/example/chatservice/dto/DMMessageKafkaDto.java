@@ -13,5 +13,5 @@ public class DMMessageKafkaDto {
     private String roomId;
     private String senderId;
     private String content;
-    private LocalDateTime sentAt;
+    private long timestamp;
  }
