@@ -13,34 +13,15 @@ import org.springframework.stereotype.Controller;
 @Slf4j
 public class KafkaDirectMessageController {
 
-    //    private final KafkaTemplate<String, DMMessageKafkaDto> kafkaTemplate;
     private static final String TOPIC = "dm-messages";
     private final DMProducerService dmProducerService;
 
-//    @MessageMapping("/dm.send")
-//    public void sendMessage(DMMessageKafkaDto dto) {
-//
-//        DMMessageKafkaDto kafkaDto = DMMessageKafkaDto.builder()
-//                        .roomId(dto.getRoomId())
-//                        .senderId(dto.getSenderId())
-//                        .content(dto.getContent())
-//                        .timestamp(System.currentTimeMillis())
-//                        .build();
-//
-//        kafkaTemplate.send(
-//                TOPIC,
-//                kafkaDto.getRoomId(),
-//                kafkaDto
-//        );
-//}
     @MessageMapping("/dm.send")
     public void send(DMMessageKafkaDto dto) {
-
-        if( dto.getTimestamp() == 0L)
-            dto.setTimestamp(System.currentTimeMillis());
+//        System.out.println("timestamp : " + dto.getSentAt()); debug
+        if ( dto.getSentAt() == 0L)
+            dto.setSentAt(System.currentTimeMillis());
 
         dmProducerService.publish(dto);
     }
-
-
 }
