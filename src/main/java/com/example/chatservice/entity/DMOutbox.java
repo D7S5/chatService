@@ -7,9 +7,11 @@ import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "dm_outbox")
-@Getter @Setter @Builder
-@AllArgsConstructor @NoArgsConstructor
-public class DMMessageOutbox {
+@Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class DMOutbox {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,8 +23,10 @@ public class DMMessageOutbox {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    private OffsetDateTime sentAt;
+    private long eventTimestamp;
 
-    @Builder.Default
-    private boolean processed = false;
+    private boolean processed;
+
+    private OffsetDateTime createAt;
+
 }

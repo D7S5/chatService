@@ -7,13 +7,18 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
   .profiles:
     active=prod:
-
+#logging:
+#  level:
+#    org.hibernate.SQL: OFF
+#    org.hibernate.orm.jdbc.bind: OFF
+#    org.hibernate.engine.jdbc.spi.SqlStatementLogger: OFF
+#    org.hibernate.type.descriptor.sql.BasicBinder: OFF
 jwt:
   secret: your-256-bit-secret-key-1234567890abcdef
   access-token-expiry: 900000   # 15분
