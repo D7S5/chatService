@@ -16,6 +16,8 @@ public class DMWebSocketController {
     private final DMService dmService;
     private final SimpMessagingTemplate messagingTemplate;
 
+
+    // DM V1
     @MessageMapping("/chat.private")
     public void sendPrivate(DMMessage payload, Principal principal) {
 
