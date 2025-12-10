@@ -13,7 +13,6 @@ import org.springframework.stereotype.Controller;
 @Slf4j
 public class KafkaDirectMessageController {
 
-    private static final String TOPIC = "dm-messages";
     private final DMProducerService dmProducerService;
 
     @MessageMapping("/dm.send")

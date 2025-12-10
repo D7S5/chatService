@@ -23,7 +23,7 @@ public class DMOutboxProcessor {
     private static final String TOPIC = "dm-messages";
 
     @Transactional
-    @Scheduled(fixedDelay = 100)
+    @Scheduled(fixedDelay = 50)
     public void processOutbox() {
 
         List<DMOutbox> list = outboxRepository
