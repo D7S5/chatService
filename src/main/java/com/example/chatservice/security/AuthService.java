@@ -111,18 +111,17 @@ public class AuthService {
         if (authentication != null) {
             email = authentication.getName();
             System.out.println("authentication email = " + email);
+        }
 
         if (email == null) {
-            System.out.println("authentication is null");
             email = cookieUtil.tryResolveUserFromRefreshCookie(request);
 
-                if (email == null) {
-                    System.out.println("Cannot resolve user From refresh cookie");
-                    cookieUtil.clearRefreshTokenCookie(response);
-                    return;
+            if (email == null) {
+                System.out.println("Cannot resolve user From refresh cookie");
+                cookieUtil.clearRefreshTokenCookie(response);
+                return;
                 }
             }
-        }
 
         User saved = userRepository.findByEmail(email)
                         .orElseThrow(() -> new IllegalArgumentException("User not found"));
