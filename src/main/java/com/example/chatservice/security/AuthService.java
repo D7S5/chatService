@@ -46,11 +46,12 @@ public class AuthService {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String accessToken = jwtTokenProvider.generateAccessToken(authentication);
-        String refreshToken = jwtTokenProvider.generateRefreshToken(request.email());
-
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+
+        String accessToken = jwtTokenProvider.generateAccessToken(authentication);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(user);
 
         user.setRefreshToken(refreshToken);
         userRepository.save(user);
@@ -78,7 +79,7 @@ public class AuthService {
         }
 
         String newAccessToken = jwtTokenProvider.generateAccessToken(user);
-        String newRefreshToken = jwtTokenProvider.generateRefreshToken(user.getEmail());
+        String newRefreshToken = jwtTokenProvider.generateRefreshToken(user);
 
         // 기존 Refresh Token 블랙리스트에 등록 (만료 시간까지)
         Claims claims = Jwts.parser()
@@ -102,7 +103,14 @@ public class AuthService {
         return new JwtResponse(newAccessToken);
     }
 
-    public void logout(HttpServletResponse response) {
+    public void logout(HttpServletResponse response, Authentication authentication) {
+        System.out.println("authentication = " + authentication.getName());
+
+        User saved = userRepository.findByEmail(authentication.getName())
+                        .orElseThrow();
+        saved.setRefreshToken(null);
+        userRepository.save(saved)
+        ;
         cookieUtil.clearRefreshTokenCookie(response);
     }
 
@@ -127,7 +135,7 @@ public class AuthService {
         }
 
         String newAccessToken = jwtTokenProvider.generateAccessToken(user);
-        String newRefreshToken = jwtTokenProvider.generateRefreshToken(email);
+        String newRefreshToken = jwtTokenProvider.generateRefreshToken(user);
 
         user.setRefreshToken(newRefreshToken);
         userRepository.save(user);

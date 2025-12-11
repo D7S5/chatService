@@ -85,41 +85,23 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String generateRefreshToken(String email) {
+    public String generateRefreshToken(User user) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + jwtConfig.getRefreshTokenExpiry());
 
+        List<String> roles = user.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList(); // 단일 role도 List로 처리
+
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(user.getEmail())
+                .claim("userId", user.getId())
+                .claim("roles", roles)
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(key)
                 .compact();
     }
-
-//    public String generateAccessToken(String email) {
-//        Date now = new Date();
-//        Date expiry = new Date(now.getTime() + jwtConfig.getAccessTokenExpiry());
-//
-//        return Jwts.builder()
-//                .subject(email) // 👈 사용자 식별자 저장
-//                .issuedAt(now)
-//                .expiration(expiry)
-//                .signWith(key)
-//                .compact();
-//    }
-
-//    public String generateRefreshToken(String email) {
-//        Date now = new Date();
-//        Date expiry = new Date(now.getTime() + jwtConfig.getRefreshTokenExpiry());
-//
-//        return Jwts.builder()
-//                .subject(email)
-//                .issuedAt(now)
-//                .expiration(expiry)
-//                .signWith(key)
-//                .compact();
-//    }
 
     public String getUsernameFromToken(String token) {
         return Jwts.parser()
@@ -184,6 +166,8 @@ public class JwtTokenProvider {
                 .getPayload();
         return claims.get("roles", List.class);
     }
+
+
 
     public String getUserId(String token) {
         try {

@@ -37,7 +37,7 @@ public class CookieUtil {
         response.addHeader("Set-cookie", cookie.toString());
     }
 
-    public static String getRefreshToken(HttpServletRequest request) {
+    public String getRefreshToken(HttpServletRequest request) {
         if (request.getCookies() == null) return null;
 
         for (Cookie cookie : request.getCookies()) {

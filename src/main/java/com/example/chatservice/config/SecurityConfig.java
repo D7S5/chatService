@@ -1,6 +1,7 @@
 package com.example.chatservice.config;
 
 import com.example.chatservice.security.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,9 +36,14 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(
                         SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(((request, response, authException) -> {
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                        })))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/register", "/api/csrf", "/login", "/api/user", "/ws", "/messages").permitAll()
+                        .requestMatchers("/ws/token", "/api/ws/token").permitAll()
                         .requestMatchers("/chat/**").authenticated()
                         .requestMatchers("/api/users/online").authenticated()
                         .requestMatchers("/auth/**", "/ws/**").permitAll()
