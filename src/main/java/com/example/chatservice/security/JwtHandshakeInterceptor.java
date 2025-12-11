@@ -30,7 +30,7 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
         }
 
         if (token == null || !jwtProvider.validateToken(token)) {
-            System.out.println("❌ WebSocket JWT 없음 또는 유효하지 않음");
+            System.out.println("WebSocket JWT 없음 또는 유효하지 않음");
             return false;
         }
 

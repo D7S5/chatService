@@ -112,6 +112,15 @@ public class JwtTokenProvider {
                 .getSubject();
     }
 
+    public String getEmail(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.getSubject();
+    }
     public boolean validateToken(String token) {
         if (token == null || token.isBlank()) return false;
         try {

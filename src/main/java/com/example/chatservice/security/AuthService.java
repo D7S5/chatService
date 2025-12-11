@@ -7,6 +7,7 @@ import com.example.chatservice.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -103,14 +104,32 @@ public class AuthService {
         return new JwtResponse(newAccessToken);
     }
 
-    public void logout(HttpServletResponse response, Authentication authentication) {
-        System.out.println("authentication = " + authentication.getName());
+    public void logout(HttpServletResponse response, Authentication authentication,
+                       HttpServletRequest request) {
+        String email = null;
 
-        User saved = userRepository.findByEmail(authentication.getName())
-                        .orElseThrow();
+        if (authentication != null) {
+            email = authentication.getName();
+            System.out.println("authentication email = " + email);
+
+        if (email == null) {
+            System.out.println("authentication is null");
+            email = cookieUtil.tryResolveUserFromRefreshCookie(request);
+
+                if (email == null) {
+                    System.out.println("Cannot resolve user From refresh cookie");
+                    cookieUtil.clearRefreshTokenCookie(response);
+                    return;
+                }
+            }
+        }
+
+        User saved = userRepository.findByEmail(email)
+                        .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
         saved.setRefreshToken(null);
-        userRepository.save(saved)
-        ;
+        userRepository.save(saved);
+
         cookieUtil.clearRefreshTokenCookie(response);
     }
 
