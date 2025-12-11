@@ -1,5 +1,7 @@
 package com.example.chatservice.security;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,12 +36,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String token = resolveToken(request);
+        try {
+            String token = resolveToken(request);
 
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            authenticateUser(token, request);
+            if (token != null && jwtTokenProvider.validateToken(token)) {
+                authenticateUser(token, request);
+            }
+        } catch (ExpiredJwtException e) {
+            request.setAttribute("expired", true);
+        } catch ( JwtException | IllegalArgumentException e) {
+            request.setAttribute("invalid", true);
         }
-
         filterChain.doFilter(request, response);
     }
 
