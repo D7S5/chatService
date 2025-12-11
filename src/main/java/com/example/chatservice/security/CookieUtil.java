@@ -16,6 +16,7 @@ public class CookieUtil {
 
     public void addRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
 
+        // 브라우저 호환 이전버전 삭제
         response.addHeader("Set-Cookie",
                 REFRESH_TOKEN_COOKIE + refreshToken + "; " +
                         "Path=/; " +
@@ -27,6 +28,7 @@ public class CookieUtil {
 
     public void clearRefreshTokenCookie(HttpServletResponse response) {
 
+        // 브라우저 호환 이전버전 삭제
         response.addHeader("Set-Cookie",
                 REFRESH_TOKEN_COOKIE + "=; " +
                         "Path=/; " +
@@ -57,5 +59,4 @@ public class CookieUtil {
         }
         return jwtTokenProvider.getEmail(refreshToken);
     }
-
 }
