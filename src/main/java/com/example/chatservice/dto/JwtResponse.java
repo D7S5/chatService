@@ -1,3 +1,3 @@
 package com.example.chatservice.dto;
 
-public record JwtResponse(String accessToken, String refreshToken) {}
+public record JwtResponse(String accessToken) {}

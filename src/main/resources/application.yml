@@ -21,7 +21,7 @@ spring:
 #    org.hibernate.type.descriptor.sql.BasicBinder: OFF
 jwt:
   secret: your-256-bit-secret-key-1234567890abcdef
-  access-token-expiry: 900000   # 15분
+  access-token-expiry: 45000   # 15분
   refresh-token-expiry: 604800000
 server:
   port: 9090

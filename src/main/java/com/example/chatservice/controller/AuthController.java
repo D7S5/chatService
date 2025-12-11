@@ -2,10 +2,14 @@ package com.example.chatservice.controller;
 
 import com.example.chatservice.dto.*;
 import com.example.chatservice.security.AuthService;
+import com.example.chatservice.security.CookieUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,23 +20,38 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+    private final CookieUtil cookieUtil;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        LoginResponse response = authService.login(request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> login(@RequestBody LoginRequest request,
+                                   HttpServletResponse response) {
+        LoginResponse res = authService.login(request, response);
+        return ResponseEntity.ok(res);
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<JwtResponse> refreshToken(@RequestBody RefreshTokenRequest request) {
+    public ResponseEntity<JwtResponse> refreshToken(HttpServletResponse response,
+                                                    HttpServletRequest request) {
         try {
-            JwtResponse jwtResponse = authService.rotateRefreshToken(request.getRefreshToken());
-            return ResponseEntity.ok(jwtResponse);
-        } catch (IllegalArgumentException ex) {
-            // 토큰 만료, 탈취 등
+            String refreshToken = cookieUtil.getRefreshToken(request);
+
+            if ( refreshToken == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new JwtResponse(null));
+            }
+
+            JwtResponse reissue = authService.reissue(refreshToken, response);
+
+            return ResponseEntity.ok(reissue);
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new JwtResponse(null, null));
+                    .body(new JwtResponse(null));
         }
+    }
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        authService.logout(response);
+        return ResponseEntity.ok().build();
     }
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {

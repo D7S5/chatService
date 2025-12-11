@@ -49,6 +49,7 @@ public class JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(trimmedSecret.getBytes(StandardCharsets.UTF_8));
         log.info("JWT Provider initialized. Secret length: {} chars", trimmedSecret.length());
     }
+
     public String generateAccessToken(Authentication authentication) {
         UserPrincipal user = (UserPrincipal) authentication.getPrincipal();
         Date now = new Date();
