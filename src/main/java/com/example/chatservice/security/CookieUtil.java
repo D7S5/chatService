@@ -16,26 +16,28 @@ public class CookieUtil {
 
     public void addRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
 
-        // 브라우저 호환 이전버전 삭제
-        response.addHeader("Set-Cookie",
-                REFRESH_TOKEN_COOKIE + refreshToken + "; " +
-                        "Path=/; " +
-                        "Max-Age=" + 60 * 60 * 24 * 14 + "; " + // 14일
-                        "HttpOnly; " +
-                        "Secure; " +
-                        "SameSite=None");
+        ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE, refreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .path("/")
+                .maxAge(60 * 60 * 24 * 7)
+                .build();
+
+        response.addHeader("Set-Cookie", cookie.toString());
     }
 
     public void clearRefreshTokenCookie(HttpServletResponse response) {
 
-        // 브라우저 호환 이전버전 삭제
-        response.addHeader("Set-Cookie",
-                REFRESH_TOKEN_COOKIE + "=; " +
-                        "Path=/; " +
-                        "Max-Age=0; " +
-                        "HttpOnly; " +
-                        "Secure; " +
-                        "SameSite=None");
+        ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE, "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("None")
+                .build();
+
+        response.addHeader("Set-cookie", cookie.toString());
     }
 
     public String getRefreshToken(HttpServletRequest request) {

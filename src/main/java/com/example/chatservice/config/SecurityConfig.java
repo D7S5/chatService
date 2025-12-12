@@ -39,9 +39,14 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(((request, response, authException) -> {
                             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                        }))
+                        .accessDeniedHandler(((request, response, accessDeniedException) -> {
+                            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden");
                         })))
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/refresh").permitAll()
                         .requestMatchers("/api/register", "/api/csrf", "/login", "/api/user", "/ws", "/messages").permitAll()
                         .requestMatchers("/ws/token", "/api/ws/token").permitAll()
                         .requestMatchers("/chat/**").authenticated()

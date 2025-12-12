@@ -29,6 +29,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomUserDetailsService userDetailsService;
 
+    private static final List<String> EXCLUDE_URLS = List.of(
+            "/api/auth/login",
+            "/api/auth/refresh",
+            "/api/auth/logout",
+            "/api/ws/token"   // 리프레시 기반 WebSocket token
+    );
+
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -80,5 +87,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             log.error("Cannot set user authentication: {}", e.getMessage());
         }
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+
+        return EXCLUDE_URLS.stream()
+                .anyMatch(url ->
+                        path.equals(url) || path.startsWith(url + "/")
+        );
     }
 }
