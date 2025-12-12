@@ -73,7 +73,7 @@ public class JwtTokenProvider {
 
         List<String> roles = user.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .toList(); // 단일 role도 List로 처리
+                .toList();
 
         return Jwts.builder()
                 .setSubject(user.getEmail())
@@ -91,7 +91,7 @@ public class JwtTokenProvider {
 
         List<String> roles = user.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .toList(); // 단일 role도 List로 처리
+                .toList();
 
         return Jwts.builder()
                 .setSubject(user.getEmail())
@@ -196,7 +196,7 @@ public class JwtTokenProvider {
         String bearerToken = request.getHeader("Authorization");
 
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7); // "Bearer " 제거
+            return bearerToken.substring(7);
         }
         return null;
     }
