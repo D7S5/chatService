@@ -1,5 +1,7 @@
 package com.example.chatservice.component;
 
+import com.example.chatservice.dto.UserDto;
+import com.example.chatservice.dto.UserEnterDto;
 import com.example.chatservice.entity.User;
 import com.example.chatservice.redis.OnlineStatusService;
 import com.example.chatservice.repository.UserRepository;
@@ -29,14 +31,22 @@ public class WebSocketConnectHandler implements ApplicationListener<SessionConne
         }
 
         String userId = (String) sessionAttrs.get("userId");
+        if (userId == null) {
+            System.out.println("WebSocket Connect: userId is NULL (HandshakeInterceptor failed)");
+            return;
+        }
 
         User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            System.out.println("WebSocket Connect: userId " + userId + " not found in DB");
+            return;
+        }
         String username = user != null ? user.getUsername() : null;
 
-//        System.out.println("Connected UserId: " + userId + " username: " + username); debug
+        UserEnterDto dto = new UserEnterDto(userId, username);
 
         if (userId != null) {
-            onlineStatusService.markOnline(userId, username);
+            onlineStatusService.markOnline(dto);
         }
     }
 }

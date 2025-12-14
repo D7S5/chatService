@@ -24,7 +24,7 @@ public class OnlineStatusService {
 
     private static final String ONLINE_HASH = "online:users";
     private static final String TTL_KEY_PREFIX = "online:ttl:";
-    private static final Duration EXPIRE_MINUTES = Duration.ofMinutes(2); // 10분 지나면 오프라인 처리
+    private static final Duration EXPIRE_MINUTES = Duration.ofMinutes(2);
 
     /**
      * 유저 온라인 등록
@@ -32,21 +32,11 @@ public class OnlineStatusService {
     public void markOnline(UserEnterDto dto) {
         String userKey = dto.getUuid();
 
-        // username 저장 (value 로)
         redisTemplate.opsForHash().put(ONLINE_HASH, userKey, dto.getUsername());
         String ttlKey = TTL_KEY_PREFIX + userKey;
         redisTemplate.opsForValue().set(ttlKey, "1", EXPIRE_MINUTES);
 
         broadcastOnlineUsers(dto.getUuid());
-    }
-
-    public void markOnline(String userId, String username) {
-
-        redisTemplate.opsForHash().put(ONLINE_HASH, userId, username);
-        String ttlKey = TTL_KEY_PREFIX + userId;
-        redisTemplate.opsForValue().set(ttlKey, "1", EXPIRE_MINUTES);
-
-        broadcastOnlineUsers(userId);
     }
 
     public void refreshTTL(String uuid) {

@@ -20,10 +20,15 @@ public class User implements UserDetails {
     @Column(length = 36, nullable = false)
     private String id = UUID.randomUUID().toString();
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = true, unique = true)
     private String username;
 
+    @Column(nullable = true, unique = true)
+    private String nickName;
+
     @Column(nullable = false)
+    private boolean nicknameCompleted = false;
+
     private String password;
 
     @Column(nullable = false, unique = true)
@@ -32,11 +37,17 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private boolean online = false;
 
+    @Column(nullable = false)
+    private String provider;
+
+    @Column(nullable = false)
+    private String providerId;
+
     @Column(name = "refresh_token", length = 1000)
     private String refreshToken;
 
-    @Column(nullable = false) // role 컬럼을 직접 매핑
-    private String role; // List<String> 대신 단일 String 사용
+    @Column(nullable = false)
+    private String role;
 
     // 기본 생성자
     public User() {}
@@ -46,6 +57,22 @@ public class User implements UserDetails {
         this.password = password;
         this.email = email;
         this.role = role;
+    }
+
+    public static User oauthUser(
+            String email,
+            String name,
+            String provider,
+            String providerId
+    ) {
+        User user = new User();
+        user.email = email;
+        user.username = name; // 최초 닉네임 (나중에 변경 가능)
+        user.password = null; // OAuth 전용
+        user.role = "USER";
+        user.provider = provider;
+        user.providerId = providerId;
+        return user;
     }
     public String getEmail() {
         return email;

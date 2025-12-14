@@ -1,20 +1,14 @@
 package com.example.chatservice.controller;
 
 import com.example.chatservice.dto.NicknameRequest;
-import com.example.chatservice.dto.UserDto;
 import com.example.chatservice.entity.User;
 import com.example.chatservice.repository.UserRepository;
 import com.example.chatservice.security.JwtTokenProvider;
-import com.example.chatservice.security.UserPrincipal;
-import com.example.chatservice.service.FriendService;
-import com.example.chatservice.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -42,6 +36,7 @@ public class UserController {
             return ResponseEntity.badRequest().body(Map.of("message", "이미 사용 중인 닉네임입니다."));
 
         user.setUsername(request.nickname());
+        user.setNicknameCompleted(true);
         userRepository.save(user);
         return ResponseEntity.ok(Map.of("nickname", user.getUsername()));
     }
