@@ -1,7 +1,10 @@
 package com.example.chatservice.config;
 
+import com.example.chatservice.oauth.CustomOAuth2UserService;
+import com.example.chatservice.oauth.OAuth2SuccessHandler;
 import com.example.chatservice.security.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,12 +26,13 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableCaching
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-    }
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -45,6 +49,9 @@ public class SecurityConfig {
                         })))
 
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/login/**", "/oauth2/**").permitAll()
+                        .requestMatchers("/api/user/nickname/check").permitAll()
+                        .requestMatchers("/api/user/oauth/nickname").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/auth/refresh").permitAll()
                         .requestMatchers("/api/register", "/api/csrf", "/login", "/api/user", "/ws", "/messages").permitAll()
@@ -58,6 +65,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/user/friends/**").authenticated()
                          .anyRequest().permitAll()
                 )
+                .oauth2Login(oauth -> oauth
+                        .userInfoEndpoint(user ->
+                        user.userService(customOAuth2UserService))
+                        .successHandler(oAuth2SuccessHandler))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

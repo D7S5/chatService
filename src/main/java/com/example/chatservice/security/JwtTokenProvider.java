@@ -56,11 +56,11 @@ public class JwtTokenProvider {
         Date expiry = new Date(now.getTime() + jwtConfig.getAccessTokenExpiry());
 
         return Jwts.builder()
-                .subject(user.email())
+                .subject(user.getEmail())
                 .claim("roles", user.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)
                         .collect(Collectors.toList()))
-                .claim("userId", user.id())
+                .claim("userId", user.getId())
                 .issuedAt(now)
                 .expiration(expiry)
                 .signWith(key)
@@ -76,11 +76,12 @@ public class JwtTokenProvider {
                 .toList();
 
         return Jwts.builder()
-                .setSubject(user.getEmail())
+                .subject(user.getEmail())
                 .claim("roles", roles)
                 .claim("userId", user.getId())
-                .setIssuedAt(now)
-                .setExpiration(expiry)
+                .claim("nicknameCompleted", user.isNicknameCompleted())
+                .issuedAt(now)
+                .expiration(expiry)
                 .signWith(key)
                 .compact();
     }
@@ -94,11 +95,11 @@ public class JwtTokenProvider {
                 .toList();
 
         return Jwts.builder()
-                .setSubject(user.getEmail())
+                .subject(user.getEmail())
                 .claim("userId", user.getId())
                 .claim("roles", roles)
-                .setIssuedAt(now)
-                .setExpiration(expiry)
+                .issuedAt(now)
+                .expiration(expiry)
                 .signWith(key)
                 .compact();
     }
@@ -114,10 +115,10 @@ public class JwtTokenProvider {
 
     public String getEmail(String token) {
         Claims claims = Jwts.parser()
-                .setSigningKey(key)
+                .verifyWith(key)
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
 
         return claims.getSubject();
     }
@@ -161,10 +162,10 @@ public class JwtTokenProvider {
 
     public String getSubject(String token) {
         return Jwts.parser()
-                .setSigningKey(key)
+                .verifyWith(key)
                 .build()
-                .parseClaimsJws(token)
-                .getBody()
+                .parseSignedClaims(token)
+                .getPayload()
                 .getSubject();
     }
         public List<String> getRolesFromToken(String token) {

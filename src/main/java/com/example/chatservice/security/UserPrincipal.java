@@ -1,22 +1,40 @@
 package com.example.chatservice.security;
 
 import com.example.chatservice.entity.User;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 
-public record UserPrincipal(
-        String id,
-        String username,
-        String email,
-        String password,
-        Collection<? extends GrantedAuthority> authorities
-) implements UserDetails {
+@Getter
+public class UserPrincipal implements UserDetails, OAuth2User {
+
+    private final String id;
+    private final String email;
+    private final String username;
+    private final String password;
+    private final Collection<? extends GrantedAuthority> authorities;
+    private Map<String, Object> attributes;
+
+    private UserPrincipal(
+            String id,
+            String email,
+            String username,
+            String password,
+            Collection<? extends GrantedAuthority> authorities
+    ) {
+        this.id = id;
+        this.email = email;
+        this.username = username;
+        this.password = password;
+        this.authorities = authorities;
+    }
 
     public static UserPrincipal from(User user) {
         List<GrantedAuthority> authorities = Collections.singletonList(
@@ -30,15 +48,62 @@ public record UserPrincipal(
                 authorities
         );
     }
-    public String getId() {
-        return id;
+
+    /* ================= JWT / 일반 로그인 ================= */
+
+    public static UserPrincipal create(User user) {
+        List<GrantedAuthority> authorities =
+                List.of(new SimpleGrantedAuthority("ROLE_USER"));
+
+        return new UserPrincipal(
+                user.getId(),
+                user.getEmail(),
+                user.getUsername(),
+                user.getPassword(),
+                authorities
+        );
     }
 
-    @Override public Collection<? extends GrantedAuthority> getAuthorities() { return authorities; }
-    @Override public String getPassword() { return password; }
-    @Override public String getUsername() { return email; }
-    @Override public boolean isAccountNonExpired() { return true; }
-    @Override public boolean isAccountNonLocked() { return true; }
-    @Override public boolean isCredentialsNonExpired() { return true; }
-    @Override public boolean isEnabled() { return true; }
+    /* ================= OAuth 로그인 ================= */
+
+    public static UserPrincipal create(User user, Map<String, Object> attributes) {
+        UserPrincipal principal = create(user);
+        principal.attributes = attributes;
+        return principal;
+    }
+
+    /* ================= OAuth2User ================= */
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    @Override
+    public String getName() {
+        // OAuth2User 필수 메서드
+        return String.valueOf(id);
+    }
+
+    /* ================= UserDetails ================= */
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }
