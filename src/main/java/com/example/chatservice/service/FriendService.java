@@ -9,6 +9,7 @@ import com.example.chatservice.repository.FriendRepository;
 import com.example.chatservice.repository.FriendRequestRepository;
 import com.example.chatservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import static java.util.stream.Collectors.toList;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class FriendService {
 
     private final UserRepository userRepository;
@@ -103,39 +105,20 @@ public class FriendService {
                 .distinct()
                 .toList();
     }
-    /** 친구 요청 수락 */
-//    @Transactional
-//    public String accept(Long requestId) {
-//
-//        Friend req = friendRepository.findById(requestId)
-//                .orElseThrow(() -> new IllegalArgumentException("요청 없음"));
-//
-//        if (req.getStatus() != Friend.FriendStatus.PENDING)
-//            throw new IllegalStateException("이미 처리됨");
-//
-//        req.setStatus(Friend.FriendStatus.ACCEPTED);
-//
-//        // 실시간 알림: 요청 보낸 사람에게 (user)
-//        eventPublisher.publishFriendEvent(
-//                req.getUser().getId(),
-//                Map.of(
-//                        "type", "FRIEND_ACCEPTED",
-//                        "friendId", req.getFriend().getId()
-//                )
-//        );
-//
-//        // 실시간 알림: 요청 받은 사람에게 (friend)
-//        eventPublisher.publishFriendEvent(
-//                req.getFriend().getId(),
-//                Map.of(
-//                        "type", "FRIEND_ACCEPTED",
-//                        "friendId", req.getUser().getId()
-//                )
-//        );
-//
-//        return "수락 완료";
-//    }
 
+    @Transactional
+    public void removeFriend(String me, String target) {
+
+        User userA = userRepository.findById(me)
+                .orElseThrow(() -> new IllegalArgumentException("user not found, me = "  + me + " target id = " + target));
+        User userB = userRepository.findById(target)
+                .orElseThrow(() -> new IllegalArgumentException("user not found, me = "  + me + " target id = " + target));
+
+        List<Friend> friends = friendRepository.findFriendRelation(userA, userB);
+
+        friends.forEach(friendRepository::delete);
+
+    }
     @Transactional
     public String acceptFriendRequest(Long requestId) {
         Friend request = friendRepository.findById(requestId)
