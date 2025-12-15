@@ -70,11 +70,6 @@ public class FriendService {
                 .build();
     }
 
-//    @Transactional(readOnly = true)
-//    public List<Friend> getReceivedRequests(String userId) {
-//        return friendRepository.findPendingRequestsReceivedByUserId(userId);
-//    }
-
     @Transactional
     public List<FriendRequestDto> getReceivedRequests(String userId) {
         List<Friend> requests = friendRepository.findPendingRequestsReceivedByUserId(userId);

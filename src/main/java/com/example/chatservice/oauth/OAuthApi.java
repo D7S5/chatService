@@ -42,10 +42,11 @@ public class OAuthApi {
 
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 
-        log.info("ME API → id={}, username={}, nicknameCompleted={}",
+        log.info("ME API → id={}, username={}, nicknameCompleted={}, email={}",
                 principal.getId(),
                 principal.getUsername(),
-                principal.isNicknameCompleted()
+                principal.isNicknameCompleted(),
+                principal.getEmail()
         );
 
         User user = userRepository.findById(principal.getId())

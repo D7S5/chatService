@@ -90,6 +90,8 @@ public class UserPrincipal implements UserDetails, OAuth2User {
         return String.valueOf(id);
     }
 
+
+
     /* ================= UserDetails ================= */
 
     @Override

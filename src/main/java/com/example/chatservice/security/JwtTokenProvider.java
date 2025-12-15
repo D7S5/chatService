@@ -76,9 +76,9 @@ public class JwtTokenProvider {
                 .toList();
 
         return Jwts.builder()
-                .subject(user.getEmail())
+                .subject(user.getId())
                 .claim("roles", roles)
-                .claim("userId", user.getId())
+                .claim("email", user.getEmail())
                 .claim("nicknameCompleted", user.isNicknameCompleted())
                 .issuedAt(now)
                 .expiration(expiry)
@@ -95,9 +95,10 @@ public class JwtTokenProvider {
                 .toList();
 
         return Jwts.builder()
-                .subject(user.getEmail())
-                .claim("userId", user.getId())
+                .subject(user.getId())
+                .claim("email", user.getEmail())
                 .claim("roles", roles)
+                .claim("nicknameCompleted", user.isNicknameCompleted())
                 .issuedAt(now)
                 .expiration(expiry)
                 .signWith(key)
@@ -120,7 +121,7 @@ public class JwtTokenProvider {
                 .parseSignedClaims(token)
                 .getPayload();
 
-        return claims.getSubject();
+        return claims.get("email", String.class);
     }
     public boolean validateToken(String token) {
         if (token == null || token.isBlank()) return false;
@@ -175,22 +176,6 @@ public class JwtTokenProvider {
                 .parseSignedClaims(token)
                 .getPayload();
         return claims.get("roles", List.class);
-    }
-
-
-
-    public String getUserId(String token) {
-        try {
-            Claims body = Jwts.parser()
-                    .verifyWith(key)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-
-            return body.get("userId", String.class);  // ✔ UUID 추출
-        } catch (JwtException e) {
-            throw new RuntimeException("Invalid JWT token", e);
-        }
     }
 
     public String resolveToken(HttpServletRequest request) {
