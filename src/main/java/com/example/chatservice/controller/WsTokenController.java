@@ -29,7 +29,7 @@ public class WsTokenController {
             return ResponseEntity.status(401).build();
         }
 
-        String userId = jwtTokenProvider.getUserId(refreshToken);
+        String userId = jwtTokenProvider.getSubject(refreshToken);
         String token = wsTokenService.createTokenForUser(userId);
 
         return ResponseEntity.ok

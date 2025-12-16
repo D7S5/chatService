@@ -12,17 +12,14 @@ public class UserDto {
     private String email;
     private String role;
     private boolean online;
+    private boolean nicknameCompleted;
 
-    public UserDto(String id, String username) {
-        this.id = id;
-        this.username = username;
-    }
-
-    public UserDto(String id, String username, String email, String role) {
+    public UserDto(String id, String username, String email, String role, boolean nicknameCompleted) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.role = role;
+        this.nicknameCompleted = nicknameCompleted;
     }
 
     public static UserDto from(User user) {
@@ -30,7 +27,8 @@ public class UserDto {
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getRole()
+                user.getRole(),
+                user.isNicknameCompleted()
         );
     }
 }

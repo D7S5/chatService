@@ -59,6 +59,6 @@ public class CookieUtil {
         if (!jwtTokenProvider.validateToken(refreshToken)) {
             return null;
         }
-        return jwtTokenProvider.getEmail(refreshToken);
+        return jwtTokenProvider.getSubject(refreshToken);
     }
 }

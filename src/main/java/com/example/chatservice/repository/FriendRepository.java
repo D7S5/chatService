@@ -17,6 +17,15 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
     boolean existsByUserAndFriend(User user, User friend);
     List<Friend> findByFriend_Id(String friendId);
 
+    @Query("""
+            SELECT f FROM Friend f
+            WHERE (f.user = :me AND f.friend = :target)
+               OR (f.user = :target AND f.friend = :me)
+            """)
+    List<Friend> findFriendRelation(
+            @Param("me") User me,
+            @Param("target") User target
+    );
     // 또는 더 안전하게 @Query 사용 (추천!)
     @Query("SELECT f FROM Friend f JOIN FETCH f.user u WHERE f.friend.id = :userId AND f.status = 'PENDING'")
     List<Friend> findPendingRequestsReceivedByUserId(@Param("userId") String userId);

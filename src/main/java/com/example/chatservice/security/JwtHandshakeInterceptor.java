@@ -35,7 +35,7 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
         }
 
         // JWT에서 userId(UUID) 추출
-        String userId = jwtProvider.getUserId(token);
+        String userId = jwtProvider.getSubject(token);
 
         // Principal 저장
         attributes.put("userId", userId);

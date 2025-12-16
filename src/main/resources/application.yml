@@ -46,7 +46,7 @@ spring:
 
 jwt:
   secret: your-256-bit-secret-key-1234567890abcdef
-  access-token-expiry: 450000   # 15분
+  access-token-expiry: 450000   # 7분
   refresh-token-expiry: 604800000
 server:
   port: 9090

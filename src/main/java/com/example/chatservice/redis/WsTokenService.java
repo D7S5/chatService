@@ -1,5 +1,6 @@
 package com.example.chatservice.redis;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -7,15 +8,12 @@ import java.time.Duration;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class WsTokenService {
     private static final String KEY_PREFIX = "ws_token:";
     private static final long TTL_SECONDS = 120;
 
-    private final RedisTemplate<String, String> redisTemplate;
-
-    public WsTokenService(RedisTemplate<String, String> redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
+    private final RedisTemplate<String, Object> redisTemplate;
 
     public String createTokenForUser(String userId) {
         String token = UUID.randomUUID().toString();
@@ -27,7 +25,7 @@ public class WsTokenService {
     // 조회 (and delete to enforce 1회용)
     public String consumeToken(String token) {
         String key = KEY_PREFIX + token;
-        String userId = redisTemplate.opsForValue().get(key);
+        String userId = (String) redisTemplate.opsForValue().get(key);
         if (userId != null) {
             // 1회용: 즉시 삭제
             redisTemplate.delete(key);
@@ -36,6 +34,6 @@ public class WsTokenService {
     }
 
     public String peekToken(String token) {
-        return redisTemplate.opsForValue().get(KEY_PREFIX + token);
+        return (String) redisTemplate.opsForValue().get(KEY_PREFIX + token);
     }
 }

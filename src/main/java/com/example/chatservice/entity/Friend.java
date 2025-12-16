@@ -28,6 +28,9 @@ public class Friend {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private User friend;
 
+    @ManyToOne
+    private User blockedBy; // 누가 차단했는지
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private FriendStatus status;

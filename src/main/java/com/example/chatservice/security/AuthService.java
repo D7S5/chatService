@@ -2,7 +2,6 @@ package com.example.chatservice.security;
 
 import com.example.chatservice.dto.*;
 import com.example.chatservice.entity.User;
-import com.example.chatservice.repository.RefreshTokenRepository;
 import com.example.chatservice.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.*;
@@ -47,21 +46,22 @@ public class AuthService {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        User user = userRepository.findByEmail(request.email())
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+
+        User user = userRepository.findById(principal.getId())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-
-        String accessToken = jwtTokenProvider.generateAccessToken(authentication);
+        String accessToken = jwtTokenProvider.generateAccessToken(user);
         String refreshToken = jwtTokenProvider.generateRefreshToken(user);
 
-        user.setRefreshToken(refreshToken);
-        userRepository.save(user);
+//        user.setRefreshToken(refreshToken);
+//        userRepository.save(user);
 
         cookieUtil.addRefreshTokenCookie(response, refreshToken);
 
         LoginResponse res = new LoginResponse(
                 accessToken,
-                new UserDto(user.getId(), user.getUsername()));
+                UserDto.from(user));
 
         return res;
     }
@@ -106,28 +106,28 @@ public class AuthService {
 
     public void logout(HttpServletResponse response, Authentication authentication,
                        HttpServletRequest request) {
-        String email = null;
+        String userId = null;
 
-        if (authentication != null) {
-            email = authentication.getName();
-            System.out.println("authentication email = " + email);
+        if (authentication != null && authentication.getPrincipal() instanceof UserPrincipal principal) {
+            userId = principal.getId();
+            System.out.println("authentication userId = " + userId);
         }
 
-        if (email == null) {
-            email = cookieUtil.tryResolveUserFromRefreshCookie(request);
+        if (userId == null) {
+            userId = cookieUtil.tryResolveUserFromRefreshCookie(request);
 
-            if (email == null) {
+            if (userId == null) {
                 System.out.println("Cannot resolve user From refresh cookie");
                 cookieUtil.clearRefreshTokenCookie(response);
                 return;
                 }
             }
 
-        User saved = userRepository.findByEmail(email)
+        User saved = userRepository.findById(userId)
                         .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        saved.setRefreshToken(null);
-        userRepository.save(saved);
+//        saved.setRefreshToken(null);
+//        userRepository.save(saved);
 
         cookieUtil.clearRefreshTokenCookie(response);
     }
@@ -142,9 +142,9 @@ public class AuthService {
             throw new RuntimeException("invalid Refresh Token");
         }
 
-        String email = jwtTokenProvider.getSubject(oldRefreshToken);
+        String userId = jwtTokenProvider.getSubject(oldRefreshToken);
 
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (user.getRefreshToken() == null ||
@@ -155,8 +155,8 @@ public class AuthService {
         String newAccessToken = jwtTokenProvider.generateAccessToken(user);
         String newRefreshToken = jwtTokenProvider.generateRefreshToken(user);
 
-        user.setRefreshToken(newRefreshToken);
-        userRepository.save(user);
+//        user.setRefreshToken(newRefreshToken);
+//        userRepository.save(user);
 
         Cookie cookie = new Cookie("refreshToken", newRefreshToken);
         cookie.setHttpOnly(true);

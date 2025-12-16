@@ -67,10 +67,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private void authenticateUser(String token, HttpServletRequest request) {
         try {
-            String username = jwtTokenProvider.getUsernameFromToken(token);
             List<String> roles = jwtTokenProvider.getRolesFromToken(token);
 
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            String email = jwtTokenProvider.getEmail(token);
+
+            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
@@ -82,8 +83,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
+
 //            log.info("Token from header: {}", token); debug
 //            log.info("Authenticated user: {}", username); debug
+
         } catch (Exception e) {
             log.error("Cannot set user authentication: {}", e.getMessage());
         }

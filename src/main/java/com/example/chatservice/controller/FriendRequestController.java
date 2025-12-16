@@ -1,14 +1,18 @@
 package com.example.chatservice.controller;
 
 import com.example.chatservice.dto.FriendRequestSendDto;
+import com.example.chatservice.security.UserPrincipal;
 import com.example.chatservice.service.FriendService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/user/friends")
 @RequiredArgsConstructor
+@Slf4j
 public class FriendRequestController {
 
     private final FriendService friendService;
@@ -36,5 +40,16 @@ public class FriendRequestController {
     @GetMapping("/list/{userId}")
     public ResponseEntity<?> friendList(@PathVariable String userId) {
         return ResponseEntity.ok(friendService.getFriendList(userId));
+    }
+
+    @DeleteMapping("/{friendUserId}")
+    public ResponseEntity<?> removeFriend(
+            @PathVariable String friendUserId,
+            Authentication authentication
+    ) {
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        friendService.removeFriend(principal.getId(), friendUserId);
+
+        return ResponseEntity.ok().build();
     }
 }

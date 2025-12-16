@@ -19,6 +19,7 @@ public class UserPrincipal implements UserDetails, OAuth2User {
     private final String email;
     private final String username;
     private final String password;
+    private final boolean nicknameCompleted;
     private final Collection<? extends GrantedAuthority> authorities;
     private Map<String, Object> attributes;
 
@@ -27,12 +28,14 @@ public class UserPrincipal implements UserDetails, OAuth2User {
             String email,
             String username,
             String password,
+            boolean nicknameCompleted,
             Collection<? extends GrantedAuthority> authorities
     ) {
         this.id = id;
         this.email = email;
         this.username = username;
         this.password = password;
+        this.nicknameCompleted = nicknameCompleted;
         this.authorities = authorities;
     }
 
@@ -42,9 +45,10 @@ public class UserPrincipal implements UserDetails, OAuth2User {
         );
         return new UserPrincipal(
                 user.getId(),
-                user.getUsername(),
                 user.getEmail(),
+                user.getUsername(),
                 user.getPassword(),
+                user.isNicknameCompleted(),
                 authorities
         );
     }
@@ -60,6 +64,7 @@ public class UserPrincipal implements UserDetails, OAuth2User {
                 user.getEmail(),
                 user.getUsername(),
                 user.getPassword(),
+                user.isNicknameCompleted(),
                 authorities
         );
     }
@@ -84,6 +89,8 @@ public class UserPrincipal implements UserDetails, OAuth2User {
         // OAuth2User 필수 메서드
         return String.valueOf(id);
     }
+
+
 
     /* ================= UserDetails ================= */
 
