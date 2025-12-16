@@ -46,21 +46,22 @@ public class AuthService {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 
+        User user = userRepository.findById(principal.getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         String accessToken = jwtTokenProvider.generateAccessToken(user);
         String refreshToken = jwtTokenProvider.generateRefreshToken(user);
 
-        user.setRefreshToken(refreshToken);
-        userRepository.save(user);
+//        user.setRefreshToken(refreshToken);
+//        userRepository.save(user);
 
         cookieUtil.addRefreshTokenCookie(response, refreshToken);
 
         LoginResponse res = new LoginResponse(
                 accessToken,
-                new UserDto(user.getId(), user.getUsername(), user.getEmail(), user.getRole(), user.isNicknameCompleted()));
+                UserDto.from(user));
 
         return res;
     }
@@ -125,8 +126,8 @@ public class AuthService {
         User saved = userRepository.findById(userId)
                         .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        saved.setRefreshToken(null);
-        userRepository.save(saved);
+//        saved.setRefreshToken(null);
+//        userRepository.save(saved);
 
         cookieUtil.clearRefreshTokenCookie(response);
     }
@@ -154,8 +155,8 @@ public class AuthService {
         String newAccessToken = jwtTokenProvider.generateAccessToken(user);
         String newRefreshToken = jwtTokenProvider.generateRefreshToken(user);
 
-        user.setRefreshToken(newRefreshToken);
-        userRepository.save(user);
+//        user.setRefreshToken(newRefreshToken);
+//        userRepository.save(user);
 
         Cookie cookie = new Cookie("refreshToken", newRefreshToken);
         cookie.setHttpOnly(true);
