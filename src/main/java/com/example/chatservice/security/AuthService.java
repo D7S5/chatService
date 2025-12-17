@@ -4,12 +4,14 @@ import com.example.chatservice.dto.*;
 import com.example.chatservice.entity.User;
 import com.example.chatservice.repository.UserRepository;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,11 +22,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.crypto.SecretKey;
 import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class AuthService {
 
     private final AuthenticationManager authenticationManager;
@@ -35,7 +39,10 @@ public class AuthService {
 
     private final CookieUtil cookieUtil;
 
-    private final String REDIS_BLACKLIST_PREFIX = "blacklist:";
+    @Value("${jwt.refresh-token-expiry}")
+    private long jwtRefreshTokenExpiry;
+    private static final String REDIS_CURRENT_PREFIX = "RT:current:";
+    private static final String REDIS_BLACKLIST_PREFIX = "RT:blacklist:";
 
     public LoginResponse login(LoginRequest request,
                                HttpServletResponse response) {
@@ -54,8 +61,14 @@ public class AuthService {
         String accessToken = jwtTokenProvider.generateAccessToken(user);
         String refreshToken = jwtTokenProvider.generateRefreshToken(user);
 
-//        user.setRefreshToken(refreshToken);
-//        userRepository.save(user);
+        String hash = TokenHashUtil.hash(refreshToken);
+
+        redisTemplate.opsForValue().set(
+                REDIS_CURRENT_PREFIX + user.getId(),
+                hash,
+                jwtRefreshTokenExpiry,
+                TimeUnit.MILLISECONDS
+        );
 
         cookieUtil.addRefreshTokenCookie(response, refreshToken);
 
@@ -65,73 +78,6 @@ public class AuthService {
 
         return res;
     }
-
-    @Transactional
-    public JwtResponse rotateRefreshToken(String oldRefreshToken, HttpServletResponse response) {
-
-        User user = userRepository.findByRefreshToken(oldRefreshToken)
-                .orElseThrow(() -> new IllegalArgumentException("Refresh Token Not Found"));
-
-        if (Boolean.TRUE.equals(redisTemplate.hasKey(REDIS_BLACKLIST_PREFIX + oldRefreshToken)))
-            throw new IllegalArgumentException("Refresh Token Reused (Blacklist");
-
-        if (!jwtTokenProvider.validateToken(oldRefreshToken)) {
-            throw new IllegalArgumentException("Refresh Token Expired");
-        }
-
-        String newAccessToken = jwtTokenProvider.generateAccessToken(user);
-        String newRefreshToken = jwtTokenProvider.generateRefreshToken(user);
-
-        // 기존 Refresh Token 블랙리스트에 등록 (만료 시간까지)
-        Claims claims = Jwts.parser()
-                .setSigningKey(jwtTokenProvider.getKey()).build()
-                .parseClaimsJws(oldRefreshToken)
-                .getBody();
-
-        long expireMillis = claims.getExpiration().getTime() - System.currentTimeMillis();
-        redisTemplate.opsForValue().set(
-                REDIS_BLACKLIST_PREFIX + oldRefreshToken,
-                "BLACKLISTED",
-                expireMillis,
-                TimeUnit.MILLISECONDS
-        );
-
-        user.setRefreshToken(newRefreshToken);
-        userRepository.save(user);
-
-        cookieUtil.addRefreshTokenCookie(response, newRefreshToken);
-
-        return new JwtResponse(newAccessToken);
-    }
-
-    public void logout(HttpServletResponse response, Authentication authentication,
-                       HttpServletRequest request) {
-        String userId = null;
-
-        if (authentication != null && authentication.getPrincipal() instanceof UserPrincipal principal) {
-            userId = principal.getId();
-            System.out.println("authentication userId = " + userId);
-        }
-
-        if (userId == null) {
-            userId = cookieUtil.tryResolveUserFromRefreshCookie(request);
-
-            if (userId == null) {
-                System.out.println("Cannot resolve user From refresh cookie");
-                cookieUtil.clearRefreshTokenCookie(response);
-                return;
-                }
-            }
-
-        User saved = userRepository.findById(userId)
-                        .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-//        saved.setRefreshToken(null);
-//        userRepository.save(saved);
-
-        cookieUtil.clearRefreshTokenCookie(response);
-    }
-
     public JwtResponse reissue(String oldRefreshToken, HttpServletResponse response) {
 
         if ( oldRefreshToken == null || oldRefreshToken.isBlank() ) {
@@ -143,20 +89,43 @@ public class AuthService {
         }
 
         String userId = jwtTokenProvider.getSubject(oldRefreshToken);
+        String oldHash = TokenHashUtil.hash(oldRefreshToken);
+
+        // Reuse 감지
+        if (redisTemplate.hasKey(REDIS_BLACKLIST_PREFIX + oldHash)) {
+            redisTemplate.delete(REDIS_CURRENT_PREFIX + userId);
+            cookieUtil.clearRefreshTokenCookie(response);
+            throw new SecurityException("Refresh Token Reuse Detected");
+        }
+
+        String key = REDIS_CURRENT_PREFIX + userId;
+        String savedHash = redisTemplate.opsForValue().get(key);
+        if (!oldHash.equals(savedHash)) {
+            redisTemplate.delete(key);
+            cookieUtil.clearRefreshTokenCookie(response);
+            throw new SecurityException("Refresh token Mismatch");
+        }
+
+        redisTemplate.opsForValue().set(
+                REDIS_BLACKLIST_PREFIX + oldHash,
+                "USED",
+                remainingTTL(oldRefreshToken),
+                TimeUnit.MILLISECONDS
+        );
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (user.getRefreshToken() == null ||
-                !user.getRefreshToken().equals(oldRefreshToken)) {
-            throw new RuntimeException("Refresh token mismatch");
-        }
-
         String newAccessToken = jwtTokenProvider.generateAccessToken(user);
         String newRefreshToken = jwtTokenProvider.generateRefreshToken(user);
+        String newHash = TokenHashUtil.hash(newRefreshToken);
 
-//        user.setRefreshToken(newRefreshToken);
-//        userRepository.save(user);
+        redisTemplate.opsForValue().set(
+                REDIS_CURRENT_PREFIX + userId,
+                newHash,
+                jwtRefreshTokenExpiry,
+                TimeUnit.MILLISECONDS
+        );
 
         Cookie cookie = new Cookie("refreshToken", newRefreshToken);
         cookie.setHttpOnly(true);
@@ -168,7 +137,27 @@ public class AuthService {
         return new JwtResponse(newAccessToken);
     }
 
+    public void logout(HttpServletResponse response, Authentication authentication,
+                       HttpServletRequest request) {
+        String userId = null;
 
+        if (authentication != null && authentication.getPrincipal() instanceof UserPrincipal principal) {
+            userId = principal.getId();
+//            System.out.println("authentication userId = " + userId);
+        }
+
+        if (userId == null) {
+            userId = cookieUtil.tryResolveUserFromRefreshCookie(request);
+
+            if (userId == null) {
+                System.out.println("Cannot resolve user From refresh cookie");
+                cookieUtil.clearRefreshTokenCookie(response);
+                return;
+            }
+        }
+        redisTemplate.delete(REDIS_CURRENT_PREFIX + userId);
+        cookieUtil.clearRefreshTokenCookie(response);
+    }
 
     public void register(@Valid RegisterRequest request) {
 
@@ -189,4 +178,18 @@ public class AuthService {
         System.out.println("User before save: username=" + user.getUsername() + ", email=" + user.getEmail() + ", role=" + user.getRole());
         userRepository.save(user);
     }
+
+    private long remainingTTL(String refreshToken) {
+        Claims claims = Jwts.parser()
+                .verifyWith(jwtTokenProvider.getKey())
+                .build()
+                .parseSignedClaims(refreshToken)
+                .getPayload();
+
+        long expirationTime = claims.getExpiration().getTime();
+        long now = System.currentTimeMillis();
+
+        return Math.max(expirationTime - now, 0);
+    }
 }
+

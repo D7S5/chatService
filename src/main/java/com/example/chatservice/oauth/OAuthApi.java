@@ -42,44 +42,16 @@ public class OAuthApi {
 
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 
-        log.info("ME API → id={}, username={}, nicknameCompleted={}, email={}",
-                principal.getId(),
-                principal.getUsername(),
-                principal.isNicknameCompleted(),
-                principal.getEmail()
-        );
+//        log.info("ME API → id={}, username={}, nicknameCompleted={}, email={}",
+//                principal.getId(),
+//                principal.getUsername(),
+//                principal.isNicknameCompleted(),
+//                principal.getEmail()
+//        );
 
         User user = userRepository.findById(principal.getId())
                 .orElseThrow();
 
         return ResponseEntity.ok(UserDto.from(user));
-    }
-
-    @GetMapping("/user/nickname/check")
-    public ResponseEntity<?> checkNickname(@RequestParam String nickname) {
-
-        String trimmed = nickname.trim();
-
-        if (trimmed.length() < 2 || trimmed.length() > 20) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of(
-                            "available", false,
-                            "message", "닉네임은 2~20자 사이여야 합니다."
-                    ));
-        }
-
-        boolean exists = userRepository.existsByUsernameIgnoreCase(trimmed);
-
-        if (exists) {
-            return ResponseEntity.ok(Map.of(
-                    "available", false,
-                    "message", "이미 사용 중인 닉네임입니다."
-            ));
-        }
-
-        return ResponseEntity.ok(Map.of(
-                "available", true,
-                "message", "사용 가능한 닉네임입니다."
-        ));
     }
 }

@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -133,7 +132,7 @@ public class JwtTokenProvider {
         } catch (MalformedJwtException e) {
             log.error("Invalid JWT token: {}", e.getMessage());
         } catch (ExpiredJwtException e) {
-            log.error("JWT token is expired: {}", e.getMessage());
+//            log.error("JWT token is expired: {}", e.getMessage());
         } catch (UnsupportedJwtException e) {
             log.error("JWT token is unsupported: {}", e.getMessage());
         } catch (IllegalArgumentException e) {
@@ -189,7 +188,7 @@ public class JwtTokenProvider {
         return null;
     }
 
-    public Key getKey() {
+    public SecretKey getKey() {
         return key;
     }
 }
