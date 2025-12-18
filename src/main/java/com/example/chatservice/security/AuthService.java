@@ -3,6 +3,7 @@ package com.example.chatservice.security;
 import com.example.chatservice.dto.*;
 import com.example.chatservice.entity.User;
 import com.example.chatservice.repository.UserRepository;
+import com.sun.security.auth.UserPrincipal;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.Cookie;
@@ -55,7 +56,7 @@ public class AuthService {
 
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 
-        User user = userRepository.findById(principal.getId())
+        User user = userRepository.findById(principal.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         String accessToken = jwtTokenProvider.generateAccessToken(user);
@@ -142,7 +143,7 @@ public class AuthService {
         String userId = null;
 
         if (authentication != null && authentication.getPrincipal() instanceof UserPrincipal principal) {
-            userId = principal.getId();
+            userId = principal.getName(); // getId
 //            System.out.println("authentication userId = " + userId);
         }
 

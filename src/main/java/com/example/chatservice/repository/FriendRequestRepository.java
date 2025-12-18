@@ -17,7 +17,4 @@ public interface FriendRequestRepository extends JpaRepository<FriendRequest, Lo
             "WHERE fr.toUser.id = :userId AND fr.status = 'PENDING'")
     List<FriendRequest> findReceivedRequests(@Param("userId") String userId);
 
-    //    @Query("SELECT fr FROM FriendRequest fr " +
-//            "WHERE fr.toUser.id = :userId AND fr.status = 'PENDING'")
-//    List<FriendRequest> findReceivedRequests(@Param("userId") String userId);
 }

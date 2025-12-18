@@ -20,12 +20,18 @@ public class OAuthAttributes {
     public static OAuthAttributes of(String registrationId,
                                      Map<String, Object> attributes) {
 
-        if ("naver".equals(registrationId)) {
-            return ofNaver(attributes);
+        switch (registrationId) {
+            case "google":
+                return ofGoogle(attributes);
+            case "naver":
+                return ofNaver(attributes);
+            case "kakao":
+                return ofKakao(attributes);
+            default:
+                throw new IllegalArgumentException(
+                        "Unsupported OAuth provider: " + registrationId);
         }
-        return ofGoogle(attributes);
     }
-
     private static OAuthAttributes ofGoogle(Map<String, Object> attributes) {
         return new OAuthAttributes(
                 (String) attributes.get("email"),
@@ -49,9 +55,21 @@ public class OAuthAttributes {
         );
     }
 
+    private static OAuthAttributes ofKakao(Map<String, Object> attributes) {
+        Map<String, Object> kakaoAccount =
+                (Map<String, Object>) attributes.get("kakao_account");
+        Map<String, Object> profile =
+                (Map<String, Object>) kakaoAccount.get("profile");
+        return new OAuthAttributes(
+                (String) kakaoAccount.get("email"),
+                (String) profile.get("nickname"),
+                "kakao",
+                String.valueOf(attributes.get("id"))
+        );
+    }
+
     public String getEmail() { return email; }
     public String getName() { return name; }
     public String getProvider() { return provider; }
     public String getProviderId() { return providerId; }
 }
-

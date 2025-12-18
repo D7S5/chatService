@@ -1,6 +1,7 @@
 package com.example.chatservice.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
@@ -43,8 +44,8 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String providerId;
 
-    @Column(name = "refresh_token", length = 1000)
-    private String refreshToken;
+//    @Column(name = "refresh_token", length = 1000)
+//    private String refreshToken;
 
     @Column(nullable = false)
     private String role;
@@ -76,13 +77,6 @@ public class User implements UserDetails {
     }
     public String getEmail() {
         return email;
-    }
-
-    public String getRefreshToken() {
-        return refreshToken;
-    }
-    public void setRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
     }
 
     public String getRole() { return role; }
