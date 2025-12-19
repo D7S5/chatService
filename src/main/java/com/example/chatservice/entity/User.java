@@ -1,10 +1,8 @@
 package com.example.chatservice.entity;
 
+import com.example.chatservice.oauth.OAuthAttributes;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,9 +14,13 @@ import java.util.UUID;
 @Entity
 @Table(name = "users")
 @Getter @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class User implements UserDetails {
     @Id
     @Column(length = 36, nullable = false)
+    @Builder.Default
     private String id = UUID.randomUUID().toString();
 
     @Column(nullable = true, unique = true)
@@ -27,6 +29,7 @@ public class User implements UserDetails {
     @Column(nullable = true, unique = true)
     private String nickName;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean nicknameCompleted = false;
 
@@ -35,23 +38,17 @@ public class User implements UserDetails {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean online = false;
 
-    @Column(nullable = false)
-    private String provider;
+    @Enumerated(EnumType.STRING)
+    private AuthProvider provider;
 
-    @Column(nullable = false)
     private String providerId;
-
-//    @Column(name = "refresh_token", length = 1000)
-//    private String refreshToken;
 
     @Column(nullable = false)
     private String role;
-
-    // 기본 생성자
-    public User() {}
 
     public User(String username, String password, String email, String role) {
         this.username = username;
@@ -63,7 +60,7 @@ public class User implements UserDetails {
     public static User oauthUser(
             String email,
             String name,
-            String provider,
+            AuthProvider provider,
             String providerId
     ) {
         User user = new User();
@@ -81,6 +78,13 @@ public class User implements UserDetails {
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
+
+    public User updateOAuth(OAuthAttributes attributes) {
+        this.username = attributes.getUsername();
+        this.provider = attributes.getProvider();
+        this.providerId = attributes.getProviderId();
+        return this;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

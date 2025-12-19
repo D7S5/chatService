@@ -22,11 +22,31 @@ public class CustomOAuth2UserService
     public OAuth2User loadUser(OAuth2UserRequest request) {
         OAuth2User oAuth2User = super.loadUser(request);
 
+//        OAuthAttributes attributes =
+//                OAuthAttributes.of(
+//                        request.getClientRegistration().getRegistrationId(),
+//                        oAuth2User.getAttributes()
+//                );
+        String registrationId =
+                request.getClientRegistration().getRegistrationId();
+
+        String userNameAttributeName =
+                request.getClientRegistration()
+                        .getProviderDetails()
+                        .getUserInfoEndpoint()
+                        .getUserNameAttributeName();
+
         OAuthAttributes attributes =
                 OAuthAttributes.of(
-                        request.getClientRegistration().getRegistrationId(),
+                        registrationId,
+                        userNameAttributeName,
                         oAuth2User.getAttributes()
                 );
+
+        User user = userRepository.findByEmail(attributes.getEmail())
+                .map(entity -> entity.updateOAuth(attributes))
+                .orElseGet(() -> userRepository.save(attributes.toEntity()));
+
 
 //        log.info("OAuth attributes = {}", oAuth2User.getAttributes());
 //        log.info("Parsed email={}, name={}, provider={}",
@@ -34,19 +54,6 @@ public class CustomOAuth2UserService
 //                attributes.getName(),
 //                attributes.getProvider());
 
-        User user = userRepository.findByProviderAndProviderId(
-                              attributes.getProvider(),
-                              attributes.getProviderId())
-                .orElseGet(() -> {
-                    User u = User.oauthUser(
-                            attributes.getEmail(),
-                            attributes.getName(),
-                            attributes.getProvider(),
-                            attributes.getProviderId()
-                    );
-                    u.setNicknameCompleted(false);
-                    return userRepository.save(u);
-                });
 
         return UserPrincipal.create(user, oAuth2User.getAttributes());
     }

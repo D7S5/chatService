@@ -1,9 +1,9 @@
 package com.example.chatservice.security;
 
 import com.example.chatservice.dto.*;
+import com.example.chatservice.entity.AuthProvider;
 import com.example.chatservice.entity.User;
 import com.example.chatservice.repository.UserRepository;
-import com.sun.security.auth.UserPrincipal;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.Cookie;
@@ -23,7 +23,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.crypto.SecretKey;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -56,7 +55,7 @@ public class AuthService {
 
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 
-        User user = userRepository.findById(principal.getName())
+        User user = userRepository.findByEmail(principal.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         String accessToken = jwtTokenProvider.generateAccessToken(user);
@@ -143,7 +142,7 @@ public class AuthService {
         String userId = null;
 
         if (authentication != null && authentication.getPrincipal() instanceof UserPrincipal principal) {
-            userId = principal.getName(); // getId
+            userId = principal.getId(); // getId
 //            System.out.println("authentication userId = " + userId);
         }
 
@@ -164,19 +163,21 @@ public class AuthService {
 
         System.out.println("RegisterRequest: username=" + request.username() + ", email=" + request.email());
         if (userRepository.existsByUsername(request.username())) {
-            throw new IllegalArgumentException("이미 존재하는 아이디입니다");
+            throw new IllegalArgumentException("이미 존재하는 닉네임입니다");
         }
         if (userRepository.existsByEmail(request.email())) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다");
         }
 
-        User user = new User();
-        user.setUsername(request.username());
-        user.setPassword(passwordEncoder.encode(request.password()));
-        user.setEmail(request.email());
-        user.setRole("USER");
-        user.setOnline(false);
-        System.out.println("User before save: username=" + user.getUsername() + ", email=" + user.getEmail() + ", role=" + user.getRole());
+        User user = User.builder()
+                            .username(request.username())
+                            .password(passwordEncoder.encode(request.password()))
+                            .email(request.email())
+                            .role("USER")
+                            .online(false)
+                            .provider(AuthProvider.LOCAL)
+                            .providerId(null)
+                            .build();
         userRepository.save(user);
     }
 
