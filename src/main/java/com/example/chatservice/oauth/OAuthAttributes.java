@@ -48,11 +48,19 @@ public class OAuthAttributes {
     private static OAuthAttributes ofGoogle(
             String userNameAttributeName,
             Map<String, Object> attributes) {
+        String providerId = (String) attributes.get("sub");
+        String email = (String) attributes.get("email");
+        String username = (String) attributes.get("name");
+
+        if ( username == null || username.isBlank()) {
+            username = "google_" + providerId;
+        }
+
         return OAuthAttributes.builder()
                 .provider(AuthProvider.GOOGLE)
-                .providerId((String) attributes.get("sub"))
-                .email((String) attributes.get("email"))
-                .username((String) attributes.get("name"))
+                .providerId(providerId)
+                .email(email)
+                .username(username)
                 .attributes(attributes)
                 .nameAttributeKey(userNameAttributeName)
                 .build();
@@ -67,29 +75,60 @@ public class OAuthAttributes {
         Map<String, Object> response =
                 (Map<String, Object>) attributes.get("response");
 
+        if (response == null) {
+            throw new IllegalArgumentException("Naver response is null");
+        }
+
+        String providerId = (String) response.get("id");
+        String email = (String) response.get("email");
+        String username = (String) response.get("name");
+
+        if (username == null || username.isBlank()) {
+            username = "naver_" + providerId;
+        }
+
         return OAuthAttributes.builder()
                 .provider(AuthProvider.NAVER)
-                .providerId((String) response.get("id"))
-                .email((String) response.get("email"))
-                .username((String) response.get("name"))
+                .providerId(providerId)
+                .email(email)
+                .username(username)
                 .attributes(attributes)
                 .nameAttributeKey(userNameAttributeName)
                 .build();
     }
 
+    @SuppressWarnings("unchecked")
     private static OAuthAttributes ofKakao(
             String userNameAttributeName,
             Map<String, Object> attributes) {
 
         Map<String, Object> kakaoAccount =
                 (Map<String, Object>) attributes.get("kakao_account");
+
+        if (kakaoAccount == null) {
+            throw new IllegalArgumentException("Kakao account is null");
+        }
+
         Map<String, Object> profile =
                 (Map<String, Object>) kakaoAccount.get("profile");
+
+        String providerId = String.valueOf(attributes.get("id"));
+        String email = (String) kakaoAccount.get("email");
+
+        String username = null;
+
+        if (profile != null) {
+            username = (String) profile.get("nickname");
+        }
+
+        if (username == null || username.isBlank()) {
+            username = "kakao_" + providerId;
+        }
         return OAuthAttributes.builder()
                 .provider(AuthProvider.KAKAO)
-                .providerId(String.valueOf(attributes.get("id")))
-                .email((String) kakaoAccount.get("email"))
-                .username((String) profile.get("nickname"))
+                .providerId(providerId)
+                .email(email)
+                .username(username)
                 .attributes(attributes)
                 .nameAttributeKey(userNameAttributeName)
                 .build();

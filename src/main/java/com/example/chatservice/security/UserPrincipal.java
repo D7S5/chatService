@@ -97,11 +97,9 @@ public class UserPrincipal implements UserDetails, OAuth2User {
 
     @Override
     public String getName() {
-        if (email != null && !email.isBlank()) {
-            return email;
-        }
-        // fallback (절대 비지 않음)
-        return provider + "_" + providerId;
+        return email != null && !email.isBlank()
+            ? email
+            : provider.name().toLowerCase() + "_" + providerId;
     }
 
     public String getId() {

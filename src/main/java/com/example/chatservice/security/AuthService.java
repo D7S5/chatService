@@ -1,6 +1,7 @@
 package com.example.chatservice.security;
 
 import com.example.chatservice.dto.*;
+import com.example.chatservice.entity.AuthProvider;
 import com.example.chatservice.entity.User;
 import com.example.chatservice.repository.UserRepository;
 import io.jsonwebtoken.Claims;
@@ -54,7 +55,7 @@ public class AuthService {
 
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 
-        User user = userRepository.findById(principal.getName())
+        User user = userRepository.findByEmail(principal.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         String accessToken = jwtTokenProvider.generateAccessToken(user);
@@ -162,7 +163,7 @@ public class AuthService {
 
         System.out.println("RegisterRequest: username=" + request.username() + ", email=" + request.email());
         if (userRepository.existsByUsername(request.username())) {
-            throw new IllegalArgumentException("이미 존재하는 아이디입니다");
+            throw new IllegalArgumentException("이미 존재하는 닉네임입니다");
         }
         if (userRepository.existsByEmail(request.email())) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다");
@@ -174,7 +175,7 @@ public class AuthService {
                             .email(request.email())
                             .role("USER")
                             .online(false)
-                            .provider(null)
+                            .provider(AuthProvider.LOCAL)
                             .providerId(null)
                             .build();
         userRepository.save(user);
