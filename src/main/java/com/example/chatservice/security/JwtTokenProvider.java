@@ -49,23 +49,6 @@ public class JwtTokenProvider {
         log.info("JWT Provider initialized. Secret length: {} chars", trimmedSecret.length());
     }
 
-    public String generateAccessToken(Authentication authentication) {
-        UserPrincipal user = (UserPrincipal) authentication.getPrincipal();
-        Date now = new Date();
-        Date expiry = new Date(now.getTime() + jwtConfig.getAccessTokenExpiry());
-
-        return Jwts.builder()
-                .subject(user.getEmail())
-                .claim("roles", user.getAuthorities().stream()
-                        .map(GrantedAuthority::getAuthority)
-                        .collect(Collectors.toList()))
-                .claim("userId", user.getId())
-                .issuedAt(now)
-                .expiration(expiry)
-                .signWith(key)
-                .compact();
-    }
-
     public String generateAccessToken(User user) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + jwtConfig.getAccessTokenExpiry());

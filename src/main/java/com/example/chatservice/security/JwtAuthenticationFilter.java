@@ -33,7 +33,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/auth/login",
             "/api/auth/refresh",
             "/api/auth/logout",
-            "/api/ws/token"   // 리프레시 기반 WebSocket token
+            "/api/ws/token",
+            "/login/oauth2/",
+            "/oauth2/"
     );
 
     @Override

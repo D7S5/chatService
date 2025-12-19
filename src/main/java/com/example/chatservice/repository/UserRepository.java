@@ -12,8 +12,7 @@ public interface UserRepository extends JpaRepository<User, String> {
     Optional<User> findByEmail(String email); // 이메일로 조회
     Optional<User> findById(String id);
 
+    Optional<User> findByProviderAndProviderId(String provider, String providerId);
     boolean existsByUsernameIgnoreCase(String username);
 
-    // RefreshToken 으로 사용자 찾기 (재발급 시 필요)
-    Optional<User> findByRefreshToken(String refreshToken);
 }
