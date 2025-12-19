@@ -28,11 +28,11 @@ public class CustomOAuth2UserService
                         oAuth2User.getAttributes()
                 );
 
-        log.info("OAuth attributes = {}", oAuth2User.getAttributes());
-        log.info("Parsed email={}, name={}, provider={}",
-                attributes.getEmail(),
-                attributes.getName(),
-                attributes.getProvider());
+//        log.info("OAuth attributes = {}", oAuth2User.getAttributes());
+//        log.info("Parsed email={}, name={}, provider={}",
+//                attributes.getEmail(),
+//                attributes.getName(),
+//                attributes.getProvider());
 
         User user = userRepository.findByProviderAndProviderId(
                               attributes.getProvider(),

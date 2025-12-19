@@ -48,7 +48,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String userId = principal.getId();
         User user = userRepository.findById(userId).orElseThrow();
 
-
         // JWT 발급
         String accessToken = jwtTokenProvider.generateAccessToken(user);
 

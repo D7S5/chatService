@@ -60,7 +60,6 @@ spring:
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me
 
-            # 🔥 반드시 id 로 지정
             user-name-attribute: id
 #logging:
 #  level:
