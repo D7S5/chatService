@@ -1,5 +1,6 @@
 package com.example.chatservice.security;
 
+import com.example.chatservice.entity.AuthProvider;
 import com.example.chatservice.entity.User;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,6 +21,8 @@ public class UserPrincipal implements UserDetails, OAuth2User {
     private final String username;
     private final String password;
     private final boolean nicknameCompleted;
+    private final AuthProvider provider;
+    private final String providerId;
     private final Collection<? extends GrantedAuthority> authorities;
     private Map<String, Object> attributes;
 
@@ -29,6 +32,8 @@ public class UserPrincipal implements UserDetails, OAuth2User {
             String username,
             String password,
             boolean nicknameCompleted,
+            AuthProvider provider,
+            String providerId,
             Collection<? extends GrantedAuthority> authorities
     ) {
         this.id = id;
@@ -36,6 +41,8 @@ public class UserPrincipal implements UserDetails, OAuth2User {
         this.username = username;
         this.password = password;
         this.nicknameCompleted = nicknameCompleted;
+        this.provider = provider;
+        this.providerId = providerId;
         this.authorities = authorities;
     }
 
@@ -49,7 +56,9 @@ public class UserPrincipal implements UserDetails, OAuth2User {
                 user.getUsername(),
                 user.getPassword(),
                 user.isNicknameCompleted(),
-                authorities
+                user.getProvider(),
+                user.getProviderId()
+                , authorities
         );
     }
 
@@ -65,6 +74,8 @@ public class UserPrincipal implements UserDetails, OAuth2User {
                 user.getUsername(),
                 user.getPassword(),
                 user.isNicknameCompleted(),
+                user.getProvider(),
+                user.getProviderId(),
                 authorities
         );
     }
@@ -86,11 +97,16 @@ public class UserPrincipal implements UserDetails, OAuth2User {
 
     @Override
     public String getName() {
-        // OAuth2User 필수 메서드
-        return String.valueOf(id);
+        if (email != null && !email.isBlank()) {
+            return email;
+        }
+        // fallback (절대 비지 않음)
+        return provider + "_" + providerId;
     }
 
-
+    public String getId() {
+        return String.valueOf(id);
+    }
 
     /* ================= UserDetails ================= */
 
