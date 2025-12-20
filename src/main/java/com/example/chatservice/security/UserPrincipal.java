@@ -57,8 +57,8 @@ public class UserPrincipal implements UserDetails, OAuth2User {
                 user.getPassword(),
                 user.isNicknameCompleted(),
                 user.getProvider(),
-                user.getProviderId()
-                , authorities
+                user.getProviderId(),
+                authorities
         );
     }
 
