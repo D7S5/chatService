@@ -1,6 +1,7 @@
 package com.example.chatservice.oauth;
 
 import com.example.chatservice.entity.AuthProvider;
+import com.example.chatservice.entity.Role;
 import com.example.chatservice.entity.User;
 import lombok.Builder;
 
@@ -48,9 +49,22 @@ public class OAuthAttributes {
     private static OAuthAttributes ofGoogle(
             String userNameAttributeName,
             Map<String, Object> attributes) {
+
         String providerId = (String) attributes.get("sub");
+
+        if ( providerId == null || providerId.isBlank()) {
+            throw new IllegalArgumentException("Google providerId(Sub) is null");
+        }
+
         String email = (String) attributes.get("email");
+
+        String safeEmail = email != null
+                ? email
+                : AuthProvider.GOOGLE.name().toLowerCase() + "_" + providerId.substring(0, 8) + "@oauth.local";
+
         String username = (String) attributes.get("name");
+
+
 
         if ( username == null || username.isBlank()) {
             username = "google_" + providerId;
@@ -59,13 +73,12 @@ public class OAuthAttributes {
         return OAuthAttributes.builder()
                 .provider(AuthProvider.GOOGLE)
                 .providerId(providerId)
-                .email(email)
+                .email(safeEmail)
                 .username(username)
                 .attributes(attributes)
                 .nameAttributeKey(userNameAttributeName)
                 .build();
     }
-
 
     @SuppressWarnings("unchecked")
     private static OAuthAttributes ofNaver(
@@ -80,7 +93,16 @@ public class OAuthAttributes {
         }
 
         String providerId = (String) response.get("id");
+
+        if ( providerId == null || providerId.isBlank()) {
+            throw new IllegalArgumentException("Naver providerId(id) is null");
+        }
+
         String email = (String) response.get("email");
+        String safeEmail = email != null
+                ? email
+                : AuthProvider.NAVER.name().toLowerCase() + "_" + providerId.substring(0, 8) + "@oauth.local";
+
         String username = (String) response.get("name");
 
         if (username == null || username.isBlank()) {
@@ -90,7 +112,7 @@ public class OAuthAttributes {
         return OAuthAttributes.builder()
                 .provider(AuthProvider.NAVER)
                 .providerId(providerId)
-                .email(email)
+                .email(safeEmail)
                 .username(username)
                 .attributes(attributes)
                 .nameAttributeKey(userNameAttributeName)
@@ -112,7 +134,12 @@ public class OAuthAttributes {
         Map<String, Object> profile =
                 (Map<String, Object>) kakaoAccount.get("profile");
 
-        String providerId = String.valueOf(attributes.get("id"));
+        Object rawId = attributes.get("id");
+        if ( rawId == null) {
+            throw new IllegalArgumentException("Kakao providerId(id) is null");
+        }
+        String providerId = String.valueOf(rawId);
+
         String email = (String) kakaoAccount.get("email");
 
         String username = null;
@@ -124,10 +151,16 @@ public class OAuthAttributes {
         if (username == null || username.isBlank()) {
             username = "kakao_" + providerId;
         }
+
+        String safeEmail = email != null
+                ? email
+                : AuthProvider.KAKAO.name().toLowerCase() + "_" + providerId.substring(0, 8) + "@oauth.local";
+
+
         return OAuthAttributes.builder()
                 .provider(AuthProvider.KAKAO)
                 .providerId(providerId)
-                .email(email)
+                .email(safeEmail)
                 .username(username)
                 .attributes(attributes)
                 .nameAttributeKey(userNameAttributeName)
@@ -140,7 +173,7 @@ public class OAuthAttributes {
                 .username(username)
                 .provider(provider)
                 .providerId(providerId)
-                .role("USER")
+                .role(Role.USER)
                 .nicknameCompleted(false)
                 .build();
     }

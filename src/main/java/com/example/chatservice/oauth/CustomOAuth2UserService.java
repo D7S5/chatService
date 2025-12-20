@@ -22,11 +22,6 @@ public class CustomOAuth2UserService
     public OAuth2User loadUser(OAuth2UserRequest request) {
         OAuth2User oAuth2User = super.loadUser(request);
 
-//        OAuthAttributes attributes =
-//                OAuthAttributes.of(
-//                        request.getClientRegistration().getRegistrationId(),
-//                        oAuth2User.getAttributes()
-//                );
         String registrationId =
                 request.getClientRegistration().getRegistrationId();
 

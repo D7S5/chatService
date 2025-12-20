@@ -48,9 +48,10 @@ public class User implements UserDetails {
     private String providerId;
 
     @Column(nullable = false)
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
-    public User(String username, String password, String email, String role) {
+    public User(String username, String password, String email, Role role) {
         this.username = username;
         this.password = password;
         this.email = email;
@@ -67,7 +68,7 @@ public class User implements UserDetails {
         user.email = email;
         user.username = name; // 최초 닉네임 (나중에 변경 가능)
         user.password = null; // OAuth 전용
-        user.role = "USER";
+        user.role = Role.USER;
         user.provider = provider;
         user.providerId = providerId;
         return user;
@@ -75,9 +76,6 @@ public class User implements UserDetails {
     public String getEmail() {
         return email;
     }
-
-    public String getRole() { return role; }
-    public void setRole(String role) { this.role = role; }
 
     public User updateOAuth(OAuthAttributes attributes) {
         this.username = attributes.getUsername();

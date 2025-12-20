@@ -2,6 +2,7 @@ package com.example.chatservice.security;
 
 import com.example.chatservice.dto.*;
 import com.example.chatservice.entity.AuthProvider;
+import com.example.chatservice.entity.Role;
 import com.example.chatservice.entity.User;
 import com.example.chatservice.repository.UserRepository;
 import io.jsonwebtoken.Claims;
@@ -173,7 +174,7 @@ public class AuthService {
                             .username(request.username())
                             .password(passwordEncoder.encode(request.password()))
                             .email(request.email())
-                            .role("USER")
+                            .role(Role.USER)
                             .online(false)
                             .provider(AuthProvider.LOCAL)
                             .providerId(null)

@@ -1,5 +1,6 @@
 package com.example.chatservice.dto;
 
+import com.example.chatservice.entity.Role;
 import com.example.chatservice.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,11 +11,11 @@ public class UserDto {
     private String id;
     private String username;
     private String email;
-    private String role;
+    private Role role;
     private boolean online;
     private boolean nicknameCompleted;
 
-    public UserDto(String id, String username, String email, String role, boolean nicknameCompleted) {
+    public UserDto(String id, String username, String email, Role role, boolean nicknameCompleted) {
         this.id = id;
         this.username = username;
         this.email = email;
