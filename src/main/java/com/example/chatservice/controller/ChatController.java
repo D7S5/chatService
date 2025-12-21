@@ -46,26 +46,26 @@ public class ChatController {
         messagingTemplate.convertAndSend("/topic/room." + chatMessage.getRoomId(), chatMessage);
     }
 
-    @GetMapping("/rooms")
-    public ResponseEntity<List<ChatRoom>> getChatRooms() {
-        try {
-            List<ChatRoom> rooms = chatRoomService.getAllRooms();
-//            log.info("채팅방 목록 반환: count= {} ", rooms.size()); debug
-            return ResponseEntity.ok(rooms);
-        } catch (Exception e) {
-//            log.error("채팅방 목록 조회 실패 {}", e.getMessage(), e); debug
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-    @PostMapping("/rooms")
-    public ResponseEntity<ChatRoom> createChatRoom(@RequestBody ChatRoomRequest request) {
-        String roomName = request.getName();
-        if (roomName == null || roomName.trim().isEmpty()) {
-            return ResponseEntity.badRequest().body(null);
-        }
-        ChatRoom newRoom = chatRoomService.createPublicRoom(roomName.trim());
-        return ResponseEntity.ok(newRoom);
-    }
+//    @GetMapping("/rooms")
+//    public ResponseEntity<List<ChatRoom>> getChatRooms() {
+//        try {
+//            List<ChatRoom> rooms = chatRoomService.getAllRooms();
+////            log.info("채팅방 목록 반환: count= {} ", rooms.size()); debug
+//            return ResponseEntity.ok(rooms);
+//        } catch (Exception e) {
+////            log.error("채팅방 목록 조회 실패 {}", e.getMessage(), e); debug
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//        }
+//    }
+//    @PostMapping("/rooms")
+//    public ResponseEntity<ChatRoom> createChatRoom(@RequestBody ChatRoomRequest request) {
+//        String roomName = request.getName();
+//        if (roomName == null || roomName.trim().isEmpty()) {
+//            return ResponseEntity.badRequest().body(null);
+//        }
+//        ChatRoom newRoom = chatRoomService.createPublicRoom(roomName.trim());
+//        return ResponseEntity.ok(newRoom);
+//    }
 
     @GetMapping("/check-username")
     public ResponseEntity<Boolean> checkUsername(@RequestParam String username,

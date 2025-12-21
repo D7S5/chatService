@@ -28,9 +28,11 @@ public class KafkaProducerConfig {
 
         return new DefaultKafkaProducerFactory<>(config);
     }
-
     @Bean
     public KafkaTemplate<String, DMMessageKafkaDto> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
+
+
+
 }
