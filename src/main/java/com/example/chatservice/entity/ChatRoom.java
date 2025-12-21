@@ -23,17 +23,14 @@ public class ChatRoom {
     @Column(nullable = false)
     private ChatRoomType type; // "PUBLIC" or "PRIVATE"
 
-    private String dmKey;
-
     public ChatRoom(String name) {
         this.roomId = UUID.randomUUID().toString();
         this.name = name;
     }
-    public ChatRoom(String name, ChatRoomType type, String dmKey) {
+    public ChatRoom(String name, ChatRoomType type) {
         this.roomId = UUID.randomUUID().toString();
         this.name = name;
         this.type = type;
-        this.dmKey = dmKey;
     }
 
     public enum ChatRoomType {

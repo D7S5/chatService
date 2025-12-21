@@ -13,7 +13,7 @@ public final class GroupMessage {
     private final String roomId;      // partition key
     private final String senderId;
     private final String content;
-    private final OffsetDateTime createdAt;   // epoch millis
+    private final Long createdAt;   // epoch millis
 
     public static GroupMessage of(String roomId,
                                   String senderId,
@@ -22,8 +22,7 @@ public final class GroupMessage {
                 roomId,
                 senderId,
                 content,
-                OffsetDateTime.now()
+                Instant.now().toEpochMilli()
         );
     }
-
 }

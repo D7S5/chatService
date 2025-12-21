@@ -10,7 +10,4 @@ import java.util.Optional;
 
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, String> {
     boolean existsByName(String name);
-
-    @Query("SELECT c FROM ChatRoom c WHERE c.type = 'PRIVATE' AND (c.dmKey LIKE %:username% )")
-    List<ChatRoom> findAllDMs(@Param("username") String username);
 }

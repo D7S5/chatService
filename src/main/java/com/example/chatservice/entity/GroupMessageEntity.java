@@ -6,7 +6,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 @Entity
 @Table(name = "group_messages")
@@ -35,7 +37,10 @@ public class GroupMessageEntity {
         e.roomId = message.getRoomId();
         e.senderId = message.getSenderId();
         e.content = message.getContent();
-        e.createdAt = message.getCreatedAt();
+        e.createdAt = OffsetDateTime.ofInstant(
+                Instant.ofEpochMilli(message.getCreatedAt()),
+                ZoneOffset.UTC
+        );
         return e;
     }
 }

@@ -22,7 +22,7 @@ public class ChatRoomService {
         if (chatRoomRepository.existsByName(name)) {
             throw new IllegalArgumentException("이미 존재하는 채팅방 이름입니다.");
         }
-        ChatRoom room = new ChatRoom(name, ChatRoom.ChatRoomType.PUBLIC, null);
+        ChatRoom room = new ChatRoom(name, ChatRoom.ChatRoomType.PUBLIC);
         return chatRoomRepository.save(room);
     }
 

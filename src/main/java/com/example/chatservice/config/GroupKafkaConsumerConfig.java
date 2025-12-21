@@ -17,8 +17,8 @@ import java.util.Map;
 @Configuration
 public class GroupKafkaConsumerConfig {
 
-    @Bean
-    public ConsumerFactory<String, GroupMessage> consumerFactory() {
+    @Bean(name = "groupConsumerFactory")
+    public ConsumerFactory<String, GroupMessage> groupConsumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
@@ -31,14 +31,12 @@ public class GroupKafkaConsumerConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, GroupMessage>
-    kafkaListenerContainerFactory() {
+    groupKafkaListenerContainerFactory() {
 
         ConcurrentKafkaListenerContainerFactory<String, GroupMessage> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
 
-        factory.setConsumerFactory(consumerFactory());
+        factory.setConsumerFactory(groupConsumerFactory());
         return factory;
     }
-
-
 }
