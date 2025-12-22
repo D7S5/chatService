@@ -1,6 +1,7 @@
 package com.example.chatservice.kafka;
 
 import com.example.chatservice.dto.GroupMessage;
+import com.example.chatservice.dto.GroupMessageDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -12,17 +13,19 @@ public class GroupMessageProducer {
     private final KafkaTemplate<String, GroupMessage> groupKafkaTemplate;
     private static final String TOPIC = "group-message-topic";
 
-    public void send(String roomId, String senderId, String content) {
+    public void send(GroupMessageDto dto) {
 
-        GroupMessage message = GroupMessage.of(
-                roomId,
-                senderId,
-                content
+        GroupMessage message = new GroupMessage(
+                dto.getRoomId(),
+                dto.getSenderId(),
+                dto.getSenderName(),
+                dto.getContent(),
+                System.currentTimeMillis()
         );
 
         groupKafkaTemplate.send(
                 TOPIC,
-                roomId,  // partition key
+                dto.getRoomId(),  // partition key
                 message
         );
     }

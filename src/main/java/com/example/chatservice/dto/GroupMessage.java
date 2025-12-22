@@ -2,27 +2,18 @@ package com.example.chatservice.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.time.Instant;
-import java.time.OffsetDateTime;
-
-@Getter
+@Getter @Setter
+@NoArgsConstructor(force = true)
 @AllArgsConstructor
-public final class GroupMessage {
+public class GroupMessage {
 
-    private final String roomId;      // partition key
-    private final String senderId;
-    private final String content;
-    private final Long createdAt;   // epoch millis
+    private String roomId;      // partition key
+    private String senderId;
+    private String senderName;
+    private String content;
 
-    public static GroupMessage of(String roomId,
-                                  String senderId,
-                                  String content) {
-        return new GroupMessage(
-                roomId,
-                senderId,
-                content,
-                Instant.now().toEpochMilli()
-        );
-    }
+    private Long createdAt;   // epoch millis
 }

@@ -7,11 +7,11 @@ import java.time.OffsetDateTime;
 
 @Getter
 @AllArgsConstructor
-public class GroupMessageWsDto {
+public class GroupMessageDto {
 
-    private long messageId;
     private String roomId;
     private String senderId;
+    private String senderName;
     private String content;
     private OffsetDateTime createdAt;
 }
