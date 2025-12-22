@@ -9,6 +9,7 @@ public class ChatMessageResponse {
 
     private String roomId;
     private String senderId;
+    private String senderName;
     private String content;
     private long createdAt;
 
@@ -17,6 +18,7 @@ public class ChatMessageResponse {
                 e.getRoomId(),
                 e.getSenderId(),
                 e.getContent(),
+                e.getSenderId(),
                 e.getCreatedAt().toInstant().toEpochMilli()
         );
     }

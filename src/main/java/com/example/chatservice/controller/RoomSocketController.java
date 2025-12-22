@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 
-import java.security.Principal;
-
 @Controller
 @RequiredArgsConstructor
 public class RoomSocketController {
@@ -15,8 +13,8 @@ public class RoomSocketController {
     private final ChatRoomV2Service roomV2Service;
 
     @MessageMapping("/room.enter")
-    public void enter(RoomEnterDto dto, Principal principal) {
-        roomV2Service.enter(dto.getRoomId(), dto.getUserId(), principal.getName());
+    public void enter(RoomEnterDto dto) {
+        roomV2Service.enter(dto.getRoomId(), dto.getUserId(), dto.getUsername());
     }
 
     @MessageMapping("/room.leave")
