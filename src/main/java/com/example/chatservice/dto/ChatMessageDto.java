@@ -10,14 +10,14 @@ import java.time.OffsetDateTime;
 public class ChatMessageDto {
     private String type; // CHAT, JOIN, LEAVE...
     private String roomId;
-    private String sender;
+    private String senderId;
     private String senderName;
     private String content;
     private OffsetDateTime createdAt; // optional
 
-    public ChatMessageDto(String roomId, String sender, String senderName, String content, OffsetDateTime createdAt) {
+    public ChatMessageDto(String roomId, String senderId, String senderName, String content, OffsetDateTime createdAt) {
         this.roomId = roomId;
-        this.sender = sender;
+        this.senderId = senderId;
         this.senderName = senderName;
         this.content = content;
         this.createdAt = createdAt;

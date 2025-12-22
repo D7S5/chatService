@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 
-import java.security.Principal;
-
 @Controller
 @RequiredArgsConstructor
 public class RoomSocketController {

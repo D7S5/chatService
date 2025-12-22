@@ -34,7 +34,7 @@ public class ChatControllerV2 {
                 "/topic/chat/" + dto.getRoomId(),
                 new ChatMessageDto(
                         dto.getRoomId(),
-                        dto.getSender(),
+                        dto.getSenderId(),
                         dto.getSenderName(),
                         dto.getContent(),
                         OffsetDateTime.now()
