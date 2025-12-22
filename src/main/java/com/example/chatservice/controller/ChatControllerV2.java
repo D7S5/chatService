@@ -48,9 +48,4 @@ public class ChatControllerV2 {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
-    /*
-    @GetMapping
-    public List<RoomResponse> rooms() {
-    }*/
 }

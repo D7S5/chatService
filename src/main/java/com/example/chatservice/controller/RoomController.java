@@ -1,6 +1,5 @@
 package com.example.chatservice.controller;
 
-import com.example.chatservice.dto.ChatMessageDto;
 import com.example.chatservice.dto.ParticipantDto;
 import com.example.chatservice.entity.ChatMessageResponse;
 import com.example.chatservice.entity.ChatRoomV2;
