@@ -3,7 +3,6 @@ package com.example.chatservice.service;
 import com.example.chatservice.dto.CreateRoomRequest;
 import com.example.chatservice.dto.ParticipantDto;
 import com.example.chatservice.dto.RoomResponse;
-import com.example.chatservice.entity.ChatRoom;
 import com.example.chatservice.entity.ChatRoomV2;
 import com.example.chatservice.repository.ChatRoomV2Repository;
 import lombok.RequiredArgsConstructor;
@@ -49,30 +48,45 @@ public class ChatRoomV2Service {
         chatRoomV2Repository.save(room);
         return RoomResponse.from(room);
     }
-    /* 입장 */
+
+    /* ======================
+       입장
+    ====================== */
     public void enter(String roomId, String userId, String username) {
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("username must not be null or blank");
+        }
+
         redis.opsForHash().put(usersKey(roomId), userId, username);
-
-        Long count = redis.opsForHash().size(usersKey(roomId));
-        redis.opsForValue().set(countKey(roomId), String.valueOf(count));
-
+        updateCount(roomId);
         broadcast(roomId);
     }
 
-    /* 퇴장 */
+    /* ======================
+       퇴장
+    ====================== */
     public void leave(String roomId, String userId) {
         redis.opsForHash().delete(usersKey(roomId), userId);
-
-        Long count = redis.opsForHash().size(usersKey(roomId));
-        redis.opsForValue().set(countKey(roomId), String.valueOf(count));
-
+        updateCount(roomId);
         broadcast(roomId);
     }
 
-    /* 공통 broadcast */
+    /* ======================
+       인원 수 갱신
+    ====================== */
+    private int updateCount(String roomId) {
+        Long count = redis.opsForHash().size(usersKey(roomId));
+        int current = count != null ? count.intValue() : 0;
+        redis.opsForValue().set(countKey(roomId), String.valueOf(current));
+        return current;
+    }
+
+    /* ======================
+       공통 broadcast
+    ====================== */
     private void broadcast(String roomId) {
         int current = Optional
-                .of(redis.opsForValue().get(countKey(roomId)))
+                .ofNullable(redis.opsForValue().get(countKey(roomId)))
                 .map(Integer::parseInt)
                 .orElse(0);
 
@@ -80,17 +94,17 @@ public class ChatRoomV2Service {
         messagingTemplate.convertAndSend(
                 "/topic/room-count/" + roomId,
                 Map.of("current", current)
-                        );
+        );
 
-        // 참여자
+        // 참여자 목록
         List<ParticipantDto> users =
                 redis.opsForHash().entries(usersKey(roomId))
-                        .entrySet().stream()
+                        .entrySet()
+                        .stream()
                         .map(e -> new ParticipantDto(
-                                e.getKey().toString(),
-                                e.getValue().toString()
+                                e.getKey().toString(),   // userId
+                                e.getValue().toString() // username
                         ))
-
                         .toList();
 
         messagingTemplate.convertAndSend(
@@ -99,9 +113,11 @@ public class ChatRoomV2Service {
         );
     }
 
+    /* REST 조회용 */
     public List<ParticipantDto> getParticipants(String roomId) {
         return redis.opsForHash().entries(usersKey(roomId))
-                .entrySet().stream()
+                .entrySet()
+                .stream()
                 .map(e -> new ParticipantDto(
                         e.getKey().toString(),
                         e.getValue().toString()

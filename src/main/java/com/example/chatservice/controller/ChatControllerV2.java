@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Controller
@@ -31,10 +32,15 @@ public class ChatControllerV2 {
     public void send(ChatMessageDto dto) {
         messaging.convertAndSend(
                 "/topic/chat/" + dto.getRoomId(),
-                dto
+                new ChatMessageDto(
+                        dto.getRoomId(),
+                        dto.getSender(),
+                        dto.getSenderName(),
+                        dto.getContent(),
+                        OffsetDateTime.now()
+                )
         );
     }
-
     @PostMapping("/rooms")
     public RoomResponse create(@RequestBody CreateRoomRequest request) {
         return chatRoomV2Service.createV2(request);

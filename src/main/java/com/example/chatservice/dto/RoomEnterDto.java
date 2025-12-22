@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class RoomEnterDto {
     private String roomId;
     private String userId;
+    private String username;
 }

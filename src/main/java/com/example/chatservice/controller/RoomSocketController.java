@@ -15,8 +15,8 @@ public class RoomSocketController {
     private final ChatRoomV2Service roomV2Service;
 
     @MessageMapping("/room.enter")
-    public void enter(RoomEnterDto dto, Principal principal) {
-        roomV2Service.enter(dto.getRoomId(), dto.getUserId(), principal.getName());
+    public void enter(RoomEnterDto dto) {
+        roomV2Service.enter(dto.getRoomId(), dto.getUserId(), dto.getUsername());
     }
 
     @MessageMapping("/room.leave")
