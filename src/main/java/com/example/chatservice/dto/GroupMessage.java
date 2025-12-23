@@ -1,19 +1,16 @@
 package com.example.chatservice.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter @Setter
 @NoArgsConstructor(force = true)
 @AllArgsConstructor
+@Builder
 public class GroupMessage {
 
     private String roomId;      // partition key
     private String senderId;
     private String senderName;
     private String content;
-
-    private Long createdAt;   // epoch millis
+    private Long sentAt;   // epoch millis
 }

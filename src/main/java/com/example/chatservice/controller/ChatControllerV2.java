@@ -29,6 +29,7 @@ public class ChatControllerV2 {
     private final GroupMessageProducer groupMessageProducer;
     @MessageMapping("/chat.send")
     public void send(GroupMessageDto msg) {
+        System.out.println("sentAt = " + msg.getSentAt());
         groupMessageProducer.send(msg);
     }
 

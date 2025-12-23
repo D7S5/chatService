@@ -1,8 +1,10 @@
 package com.example.chatservice.entity;
 
 import com.example.chatservice.dto.GroupMessage;
+import com.example.chatservice.dto.GroupMessageDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -32,13 +34,13 @@ public class GroupMessageEntity {
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
 
-    public static GroupMessageEntity from(GroupMessage message) {
+    public static GroupMessageEntity from(GroupMessageDto message) {
         GroupMessageEntity e = new GroupMessageEntity();
         e.roomId = message.getRoomId();
         e.senderId = message.getSenderId();
         e.content = message.getContent();
         e.createdAt = OffsetDateTime.ofInstant(
-                Instant.ofEpochMilli(message.getCreatedAt()),
+                Instant.ofEpochMilli(message.getSentAt()),
                 ZoneOffset.UTC
         );
         return e;

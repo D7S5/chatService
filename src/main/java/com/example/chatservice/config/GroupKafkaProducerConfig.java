@@ -1,6 +1,7 @@
 package com.example.chatservice.config;
 
 import com.example.chatservice.dto.GroupMessage;
+import com.example.chatservice.dto.GroupMessageDto;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -18,7 +19,7 @@ import java.util.Map;
 public class GroupKafkaProducerConfig {
 
     @Bean
-    public ProducerFactory<String, GroupMessage> groupProducerFactory() {
+    public ProducerFactory<String, GroupMessageDto> groupProducerFactory() {
         Map<String, Object> props = new HashMap<>();
 
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
@@ -32,7 +33,7 @@ public class GroupKafkaProducerConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, GroupMessage> groupKafkaTemplate() {
+    public KafkaTemplate<String, GroupMessageDto> groupKafkaTemplate() {
         return new KafkaTemplate<>(groupProducerFactory());
     }
 }
