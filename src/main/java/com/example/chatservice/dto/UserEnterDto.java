@@ -1,8 +1,7 @@
 package com.example.chatservice.dto;
 
+import com.example.chatservice.entity.GroupMessageEntity;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -10,4 +9,26 @@ import java.time.LocalDateTime;
 public class UserEnterDto {
     private String uuid;
     private String username;
+
+    @Getter
+    @AllArgsConstructor
+    @Builder
+    public static class ChatMessageResponse {
+
+        private String roomId;
+        private String senderId;
+        private String senderName;
+        private String content;
+        private long createdAt;
+
+        public static ChatMessageResponse from(GroupMessageEntity e) {
+            return ChatMessageResponse.builder()
+                    .roomId(e.getRoomId())
+                    .senderId(e.getSenderId())
+                    .content(e.getContent())
+                    .createdAt(e.getCreatedAt().toInstant().toEpochMilli())
+                    .build();
+
+        }
+    }
 }

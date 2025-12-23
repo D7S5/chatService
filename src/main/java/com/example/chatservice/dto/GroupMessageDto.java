@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class GroupMessageDto {
 
-    private String roomId;
+    private String roomId; // partition key
     private String senderId;
     private String senderName;
     private String content;
-    private long sentAt;
+    private long sentAt; // epoch millis
 }

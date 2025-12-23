@@ -1,8 +1,6 @@
 package com.example.chatservice.config;
 
-import com.example.chatservice.dto.DMMessageKafkaDto;
-import com.example.chatservice.dto.GroupMessage;
-import io.confluent.kafka.serializers.KafkaAvroDeserializer;
+import com.example.chatservice.dto.GroupMessageDto;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +17,7 @@ import java.util.Map;
 public class GroupKafkaConsumerConfig {
 
     @Bean(name = "groupConsumerFactory")
-    public ConsumerFactory<String, GroupMessage> groupConsumerFactory() {
+    public ConsumerFactory<String, GroupMessageDto> groupConsumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
@@ -32,10 +30,10 @@ public class GroupKafkaConsumerConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, GroupMessage>
+    public ConcurrentKafkaListenerContainerFactory<String, GroupMessageDto>
     groupKafkaListenerContainerFactory() {
 
-        ConcurrentKafkaListenerContainerFactory<String, GroupMessage> factory =
+        ConcurrentKafkaListenerContainerFactory<String, GroupMessageDto> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
 
         factory.setConsumerFactory(groupConsumerFactory());

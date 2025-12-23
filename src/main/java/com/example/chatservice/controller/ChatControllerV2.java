@@ -29,7 +29,6 @@ public class ChatControllerV2 {
     private final GroupMessageProducer groupMessageProducer;
     @MessageMapping("/chat.send")
     public void send(GroupMessageDto msg) {
-        System.out.println("sentAt = " + msg.getSentAt());
         groupMessageProducer.send(msg);
     }
 
@@ -37,6 +36,7 @@ public class ChatControllerV2 {
     public RoomResponse create(@RequestBody CreateRoomRequest request) {
         return chatRoomV2Service.createV2(request);
     }
+
     @GetMapping("/rooms")
     public ResponseEntity<List<ChatRoomV2>> getChatRooms() {
         try {
