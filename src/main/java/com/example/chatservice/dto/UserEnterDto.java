@@ -25,6 +25,7 @@ public class UserEnterDto {
             return ChatMessageResponse.builder()
                     .roomId(e.getRoomId())
                     .senderId(e.getSenderId())
+                    .senderName(e.getSenderName())
                     .content(e.getContent())
                     .createdAt(e.getCreatedAt().toInstant().toEpochMilli())
                     .build();
