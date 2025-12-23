@@ -13,14 +13,13 @@ import java.time.OffsetDateTime;
 public class GroupMessageProducer {
 
     private final GroupMessageOutboxRepository outboxRepository;
-    private static final String TOPIC = "group-message-topic";
-
 
     public void send(GroupMessageDto dto) {
 
         GroupOutbox message = GroupOutbox.builder()
                         .roomId(dto.getRoomId())
                         .senderId(dto.getSenderId())
+                        .senderName(dto.getSenderName())
                         .content(dto.getContent())
                         .eventTimestamp(dto.getSentAt())
                         .processed(false)

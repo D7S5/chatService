@@ -1,8 +1,6 @@
 package com.example.chatservice.config;
 
-import com.example.chatservice.dto.GroupMessage;
 import com.example.chatservice.dto.GroupMessageDto;
-import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;

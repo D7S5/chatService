@@ -1,10 +1,7 @@
 package com.example.chatservice.entity;
 
-import com.example.chatservice.dto.GroupMessage;
 import com.example.chatservice.dto.GroupMessageDto;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -28,6 +25,9 @@ public class GroupMessageEntity {
     @Column(name = "sender_id", nullable = false)
     private String senderId;
 
+    @Column(name = "sender_name", nullable = false)
+    private String senderName;
+
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
@@ -38,6 +38,7 @@ public class GroupMessageEntity {
         GroupMessageEntity e = new GroupMessageEntity();
         e.roomId = message.getRoomId();
         e.senderId = message.getSenderId();
+        e.senderName = message.getSenderName();
         e.content = message.getContent();
         e.createdAt = OffsetDateTime.ofInstant(
                 Instant.ofEpochMilli(message.getSentAt()),

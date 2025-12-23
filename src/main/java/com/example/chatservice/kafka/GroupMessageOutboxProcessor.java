@@ -1,6 +1,5 @@
 package com.example.chatservice.kafka;
 
-import com.example.chatservice.dto.GroupMessage;
 import com.example.chatservice.dto.GroupMessageDto;
 import com.example.chatservice.entity.GroupOutbox;
 import com.example.chatservice.repository.GroupMessageOutboxRepository;
@@ -37,6 +36,7 @@ public class GroupMessageOutboxProcessor {
                 GroupMessageDto message = GroupMessageDto.builder()
                         .roomId(box.getRoomId())
                         .senderId(box.getSenderId())
+                        .senderName(box.getSenderName())
                         .sentAt(box.getEventTimestamp())
                         .content(box.getContent())
                         .build();

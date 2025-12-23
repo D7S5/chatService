@@ -1,7 +1,7 @@
 package com.example.chatservice.controller;
 
 import com.example.chatservice.dto.ParticipantDto;
-import com.example.chatservice.entity.ChatMessageResponse;
+import com.example.chatservice.dto.UserEnterDto;
 import com.example.chatservice.entity.ChatRoomV2;
 import com.example.chatservice.entity.GroupMessageEntity;
 import com.example.chatservice.repository.ChatRoomV2Repository;
@@ -18,7 +18,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/rooms")
-public class RoomController {
+public class GroupRoomController {
 
     private final ChatRoomV2Repository chatRoomV2Repository;
     private final ChatRoomV2Service roomV2Service;
@@ -37,7 +37,7 @@ public class RoomController {
     }
 
     @GetMapping("/{roomId}/messages")
-    public List<ChatMessageResponse> messages(
+    public List<UserEnterDto.ChatMessageResponse> messages(
             @PathVariable String roomId,
             @RequestParam(defaultValue = "50") int limit
     ) {
@@ -52,7 +52,7 @@ public class RoomController {
         Collections.reverse(entities);
 
         return entities.stream()
-                .map(ChatMessageResponse::from)
+                .map(UserEnterDto.ChatMessageResponse::from)
                 .toList();
     }
 }

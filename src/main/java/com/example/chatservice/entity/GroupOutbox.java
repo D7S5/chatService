@@ -19,6 +19,7 @@ public class GroupOutbox {
 
     private String roomId;
     private String senderId;
+    private String senderName;
 
     @Column(columnDefinition = "TEXT")
     private String content;

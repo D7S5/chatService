@@ -1,6 +1,5 @@
 package com.example.chatservice.kafka;
 
-import com.example.chatservice.dto.GroupMessage;
 import com.example.chatservice.dto.GroupMessageDto;
 import com.example.chatservice.entity.GroupMessageEntity;
 import com.example.chatservice.repository.GroupMessageRepository;
@@ -27,7 +26,6 @@ public class GroupMessageConsumer {
 
         GroupMessageEntity message = GroupMessageEntity.from(dto);
 
-        System.out.println("save");
         groupMessageRepository.save(message);
 
         messagingTemplate.convertAndSend(
