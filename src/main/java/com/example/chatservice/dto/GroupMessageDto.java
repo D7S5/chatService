@@ -1,17 +1,19 @@
 package com.example.chatservice.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-
-import java.time.OffsetDateTime;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor
-public class GroupMessageWsDto {
+@Builder
+public class GroupMessageDto {
 
-    private long messageId;
     private String roomId;
     private String senderId;
+    private String senderName;
     private String content;
-    private OffsetDateTime createdAt;
+    private long sentAt;
 }

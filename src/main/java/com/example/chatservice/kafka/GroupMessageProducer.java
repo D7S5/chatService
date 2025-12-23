@@ -1,29 +1,33 @@
 package com.example.chatservice.kafka;
 
-import com.example.chatservice.dto.GroupMessage;
+import com.example.chatservice.dto.GroupMessageDto;
+import com.example.chatservice.entity.GroupOutbox;
+import com.example.chatservice.repository.GroupMessageOutboxRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+
+import java.time.OffsetDateTime;
 
 @Service
 @RequiredArgsConstructor
 public class GroupMessageProducer {
 
-    private final KafkaTemplate<String, GroupMessage> groupKafkaTemplate;
+    private final GroupMessageOutboxRepository outboxRepository;
     private static final String TOPIC = "group-message-topic";
 
-    public void send(String roomId, String senderId, String content) {
 
-        GroupMessage message = GroupMessage.of(
-                roomId,
-                senderId,
-                content
-        );
+    public void send(GroupMessageDto dto) {
 
-        groupKafkaTemplate.send(
-                TOPIC,
-                roomId,  // partition key
-                message
-        );
+        GroupOutbox message = GroupOutbox.builder()
+                        .roomId(dto.getRoomId())
+                        .senderId(dto.getSenderId())
+                        .content(dto.getContent())
+                        .eventTimestamp(dto.getSentAt())
+                        .processed(false)
+                        .createAt(OffsetDateTime.now())
+                        .build();
+
+        outboxRepository.save(message);
+
     }
 }

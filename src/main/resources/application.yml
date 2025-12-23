@@ -14,6 +14,11 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
   .profiles:
     active: prod
+  kafka:
+    consumer:
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+
 
   security:
     oauth2:

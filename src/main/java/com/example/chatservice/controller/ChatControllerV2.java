@@ -1,10 +1,8 @@
 package com.example.chatservice.controller;
 
-import com.example.chatservice.dto.ChatMessageDto;
-import com.example.chatservice.dto.CreateRoomRequest;
-import com.example.chatservice.dto.RoomResponse;
-import com.example.chatservice.entity.ChatRoom;
+import com.example.chatservice.dto.*;
 import com.example.chatservice.entity.ChatRoomV2;
+import com.example.chatservice.kafka.GroupMessageProducer;
 import com.example.chatservice.service.ChatRoomV2Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,19 +26,13 @@ public class ChatControllerV2 {
     private final SimpMessagingTemplate messaging;
 
     private final ChatRoomV2Service chatRoomV2Service;
+    private final GroupMessageProducer groupMessageProducer;
     @MessageMapping("/chat.send")
-    public void send(ChatMessageDto dto) {
-        messaging.convertAndSend(
-                "/topic/chat/" + dto.getRoomId(),
-                new ChatMessageDto(
-                        dto.getRoomId(),
-                        dto.getSenderId(),
-                        dto.getSenderName(),
-                        dto.getContent(),
-                        OffsetDateTime.now()
-                )
-        );
+    public void send(GroupMessageDto msg) {
+        System.out.println("sentAt = " + msg.getSentAt());
+        groupMessageProducer.send(msg);
     }
+
     @PostMapping("/rooms")
     public RoomResponse create(@RequestBody CreateRoomRequest request) {
         return chatRoomV2Service.createV2(request);
