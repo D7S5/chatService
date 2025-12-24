@@ -12,15 +12,27 @@ public class RoomResponse {
     private String name;
     private RoomType type;
     private int maxParticipants;
-    private boolean largeRoom;
+    private int currentCount;
+//    private boolean largeRoom;
 
-    public static RoomResponse from(ChatRoomV2 r) {
+    public static RoomResponse create(ChatRoomV2 r) {
         return new RoomResponse(
                 r.getRoomId(),
                 r.getName(),
                 r.getType(),
                 r.getMaxParticipants(),
-                r.isLargeRoom()
+                0
+//                r.isLargeRoom()
+        );
+    }
+    public static RoomResponse from(ChatRoomV2 r, int currentCount) {
+        return new RoomResponse(
+                r.getRoomId(),
+                r.getName(),
+                r.getType(),
+                r.getMaxParticipants(),
+                currentCount
+//                r.isLargeRoom()
         );
     }
 }

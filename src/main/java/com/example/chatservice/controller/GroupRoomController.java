@@ -1,6 +1,7 @@
 package com.example.chatservice.controller;
 
 import com.example.chatservice.dto.ParticipantDto;
+import com.example.chatservice.dto.RoomResponse;
 import com.example.chatservice.dto.UserEnterDto;
 import com.example.chatservice.entity.ChatRoomV2;
 import com.example.chatservice.entity.GroupMessageEntity;
@@ -12,8 +13,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Key;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,8 +30,8 @@ public class GroupRoomController {
 
     @GetMapping("/{roomId}")
     public ChatRoomV2 getRoom(@PathVariable String roomId) {
-        return chatRoomV2Repository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("getRoom"));
+        return chatRoomV2Repository.findByRoomId(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("Room is not found"));
     }
 
     @GetMapping("/{roomId}/participants")
@@ -53,6 +56,39 @@ public class GroupRoomController {
 
         return entities.stream()
                 .map(UserEnterDto.ChatMessageResponse::from)
+                .toList();
+    }
+
+//    @GetMapping("/rooms/with-count")
+//    public List<RoomResponse> getRoomsWithCount() {
+//        return chatRoomV2Repository.findAll().stream()
+//                .map(room -> {
+//                    String key = "room:" + room.getRoomId() + ":count";
+//                    int count = Optional.ofNullable(redisTemplate.opsForValue().get(key))
+//                            .map(Integer::parseInt)
+//                            .orElse(0);
+//                    return RoomResponse.from(room, count);
+//                })
+//                .toList();
+//    }
+
+    @GetMapping("/with-count")
+    public List<RoomResponse> getRoomsWithCount() {
+        return chatRoomV2Repository.findAll().stream()
+                .map(room -> {
+                    String key = "room:" + room.getRoomId() + ":count";
+                    int count = Optional.ofNullable(redisTemplate.opsForValue().get(key))
+                            .map(v -> {
+                                try {
+                                    return Integer.parseInt(v);
+                                } catch (Exception e) {
+                                    return 0;
+                                }
+                            })
+                            .orElse(0);
+
+                    return RoomResponse.from(room, count);
+                })
                 .toList();
     }
 }

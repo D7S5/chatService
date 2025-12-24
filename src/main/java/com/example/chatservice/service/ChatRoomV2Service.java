@@ -46,7 +46,7 @@ public class ChatRoomV2Service {
         );
 
         chatRoomV2Repository.save(room);
-        return RoomResponse.from(room);
+        return RoomResponse.create(room);
     }
 
     /* ======================
@@ -61,6 +61,8 @@ public class ChatRoomV2Service {
         updateCount(roomId);
         broadcast(roomId);
     }
+
+
 
     /* ======================
        퇴장
@@ -84,6 +86,7 @@ public class ChatRoomV2Service {
     /* ======================
        공통 broadcast
     ====================== */
+
     private void broadcast(String roomId) {
         int current = Optional
                 .ofNullable(redis.opsForValue().get(countKey(roomId)))
