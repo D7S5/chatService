@@ -12,7 +12,7 @@ public class ChatRateLimiter {
 
     private final StringRedisTemplate redis;
 
-    private static final int USER_LIMIT_PER_SEC = 5;
+    private static final int USER_LIMIT_PER_SEC = 7;
     private static final int ROOM_LIMIT_PER_SEC = 1000;
 
     private static final int BAN_SECONDS = 30;
@@ -83,5 +83,4 @@ public class ChatRateLimiter {
 
         return count != null && count <= ROOM_LIMIT_PER_SEC;
     }
-
 }
