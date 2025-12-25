@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -52,6 +53,8 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/login/**", "/oauth2/**", "/login/oauth2/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/rooms").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/rooms").permitAll()
                         .requestMatchers("/api/user/nickname/check").permitAll()
                         .requestMatchers("/api/user/oauth/nickname").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()

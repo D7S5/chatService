@@ -44,9 +44,12 @@ public class ChatRoomV2Service {
                 req.getType(),
                 req.getMaxParticipants()
         );
-
         chatRoomV2Repository.save(room);
-        return RoomResponse.create(room);
+        RoomResponse res = RoomResponse.create(room);
+
+        System.out.println(res);
+
+        return res;
     }
 
     /* ======================

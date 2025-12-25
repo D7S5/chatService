@@ -33,6 +33,7 @@ public class GroupMessageOutboxProcessor {
         for (GroupOutbox box : list) {
 
             try {
+
                 GroupMessageDto message = GroupMessageDto.builder()
                         .roomId(box.getRoomId())
                         .senderId(box.getSenderId())

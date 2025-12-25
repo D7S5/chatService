@@ -30,7 +30,7 @@ public class GroupRoomController {
 
     @GetMapping("/{roomId}")
     public ChatRoomV2 getRoom(@PathVariable String roomId) {
-        return chatRoomV2Repository.findByRoomId(roomId)
+        return chatRoomV2Repository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("Room is not found"));
     }
 
