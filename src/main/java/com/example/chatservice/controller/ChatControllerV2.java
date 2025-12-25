@@ -24,7 +24,7 @@ import java.util.Map;
 @Controller
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/rooms")
 public class ChatControllerV2 {
 
     private final SimpMessagingTemplate messagingTemplate;
@@ -59,17 +59,17 @@ public class ChatControllerV2 {
                             "retryAfter", ttl
                     )
             );
-            return;
+//            return;
         }
         groupMessageProducer.send(msg);
     }
 
-    @PostMapping("/rooms")
+    @PostMapping
     public RoomResponse create(@RequestBody CreateRoomRequest request) {
         return chatRoomV2Service.createV2(request);
     }
 
-    @GetMapping("/rooms")
+    @GetMapping
     public ResponseEntity<List<ChatRoomV2>> getChatRooms() {
         try {
             List<ChatRoomV2> rooms = chatRoomV2Service.getAllRooms();
