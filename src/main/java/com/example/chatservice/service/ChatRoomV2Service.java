@@ -7,6 +7,7 @@ import com.example.chatservice.entity.ChatRoomV2;
 import com.example.chatservice.repository.ChatRoomV2Repository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -26,9 +27,9 @@ public class ChatRoomV2Service {
         return "room:" + roomId + ":users";
     }
 
-    private String countKey(String roomId) {
-        return "room:" + roomId + ":count";
-    }
+//    private String countKey(String roomId) {
+//        return "room:" + roomId + ":count";
+//    }
 
     public List<ChatRoomV2> getAllRooms() {
         return chatRoomV2Repository.findAll();
@@ -56,45 +57,66 @@ public class ChatRoomV2Service {
        입장
     ====================== */
     public void enter(String roomId, String userId, String username) {
+
         if (username == null || username.isBlank()) {
             throw new IllegalArgumentException("username must not be null or blank");
         }
+        ChatRoomV2 room = getRoomOrThrow(roomId);
+
+        int current = getCurrentCount(roomId);
+        if (current >= room.getMaxParticipants()) {
+            throw new IllegalStateException("Room is full");
+        }
 
         redis.opsForHash().put(usersKey(roomId), userId, username);
-        updateCount(roomId);
         broadcast(roomId);
     }
 
 
+    private ChatRoomV2 getRoomOrThrow(String roomId) {
+        return chatRoomV2Repository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("Room is not found"));
+    }
 
     /* ======================
        퇴장
     ====================== */
     public void leave(String roomId, String userId) {
+
+        getRoomOrThrow(roomId);
+
         redis.opsForHash().delete(usersKey(roomId), userId);
-        updateCount(roomId);
+
+        if (getCurrentCount(roomId) == 0) {
+            redis.delete(usersKey(roomId));
+        }
+
         broadcast(roomId);
     }
 
     /* ======================
        인원 수 갱신
     ====================== */
-    private int updateCount(String roomId) {
+//    private int updateCount(String roomId) {
+//        Long count = redis.opsForHash().size(usersKey(roomId));
+//        int current = count != null ? count.intValue() : 0;
+//        redis.opsForValue().set(countKey(roomId), String.valueOf(current));
+//        return current;
+//    }
+
+    private int getCurrentCount(String roomId) {
         Long count = redis.opsForHash().size(usersKey(roomId));
-        int current = count != null ? count.intValue() : 0;
-        redis.opsForValue().set(countKey(roomId), String.valueOf(current));
-        return current;
+        return count != null ? count.intValue() : 0;
     }
+
+
 
     /* ======================
        공통 broadcast
     ====================== */
 
     private void broadcast(String roomId) {
-        int current = Optional
-                .ofNullable(redis.opsForValue().get(countKey(roomId)))
-                .map(Integer::parseInt)
-                .orElse(0);
+        int current = getCurrentCount(roomId);
 
         // 인원 수
         messagingTemplate.convertAndSend(

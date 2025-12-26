@@ -1,23 +1,24 @@
 package com.example.chatservice.controller;
 
 import com.example.chatservice.component.ChatRateLimiter;
-import com.example.chatservice.dto.*;
+import com.example.chatservice.dto.CreateRoomRequest;
+import com.example.chatservice.dto.GroupMessageDto;
+import com.example.chatservice.dto.RoomResponse;
 import com.example.chatservice.entity.ChatRoomV2;
 import com.example.chatservice.kafka.GroupMessageProducer;
+import com.example.chatservice.repository.ChatRoomV2Repository;
 import com.example.chatservice.service.ChatRoomV2Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +30,11 @@ public class ChatControllerV2 {
 
     private final SimpMessagingTemplate messagingTemplate;
 
+
     private final ChatRoomV2Service chatRoomV2Service;
+    private final ChatRoomV2Repository chatRoomV2Repository;
+
+    private final StringRedisTemplate redis;
     private final GroupMessageProducer groupMessageProducer;
 
     private final ChatRateLimiter chatRateLimiter;
@@ -78,4 +83,15 @@ public class ChatControllerV2 {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+//    @GetMapping("/{roomId}")
+//    public RoomResponse getRoom(@PathVariable String roomId) {
+//        ChatRoomV2 room = chatRoomV2Repository.findByRoomId(roomId)
+//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+//
+//        String key = "room:" + roomId + ":users";
+//
+//        int currentCount = redis.opsForHash().size(key).intValue();
+//        System.out.println("currentCount = " + currentCount);
+//        return RoomResponse.from(room, currentCount);
+//    }
 }
