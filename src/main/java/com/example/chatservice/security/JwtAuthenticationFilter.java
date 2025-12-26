@@ -100,7 +100,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         return EXCLUDE_URLS.stream()
                 .anyMatch(url ->
-                        path.equals(url) || path.startsWith(url + "/")
+                           path.equals(url) || path.startsWith(url + "/")
         );
     }
 }

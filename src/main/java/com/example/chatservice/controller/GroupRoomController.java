@@ -59,35 +59,18 @@ public class GroupRoomController {
                 .toList();
     }
 
-//    @GetMapping("/rooms/with-count")
-//    public List<RoomResponse> getRoomsWithCount() {
-//        return chatRoomV2Repository.findAll().stream()
-//                .map(room -> {
-//                    String key = "room:" + room.getRoomId() + ":count";
-//                    int count = Optional.ofNullable(redisTemplate.opsForValue().get(key))
-//                            .map(Integer::parseInt)
-//                            .orElse(0);
-//                    return RoomResponse.from(room, count);
-//                })
-//                .toList();
-//    }
-
     @GetMapping("/with-count")
     public List<RoomResponse> getRoomsWithCount() {
         return chatRoomV2Repository.findAll().stream()
                 .map(room -> {
-                    String key = "room:" + room.getRoomId() + ":count";
-                    int count = Optional.ofNullable(redisTemplate.opsForValue().get(key))
-                            .map(v -> {
-                                try {
-                                    return Integer.parseInt(v);
-                                } catch (Exception e) {
-                                    return 0;
-                                }
-                            })
-                            .orElse(0);
+                    String key = "room:" + room.getRoomId() + ":users";
 
-                    return RoomResponse.from(room, count);
+                    int currentCount = Optional
+                                    .ofNullable(redisTemplate.opsForHash()
+                                            .size(key))
+                                    .map(Long::intValue)
+                                    .orElse(0);
+                    return RoomResponse.from(room, currentCount);
                 })
                 .toList();
     }

@@ -37,5 +37,4 @@ public class RoomResponse {
                 r.isLargeRoom()
         );
     }
-
 }
