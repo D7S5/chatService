@@ -25,10 +25,6 @@ public class WebSocketConnectHandler implements ApplicationListener<SessionConne
 
         // HandshakeInterceptor 에서 저장된 값
         var sessionAttrs = accessor.getSessionAttributes();
-        if (sessionAttrs == null) {
-            System.out.println("SessionAttributes is NULL");
-            return;
-        }
 
         String userId = (String) sessionAttrs.get("userId");
         if (userId == null) {
@@ -41,7 +37,7 @@ public class WebSocketConnectHandler implements ApplicationListener<SessionConne
             System.out.println("WebSocket Connect: userId " + userId + " not found in DB");
             return;
         }
-        String username = user != null ? user.getUsername() : null;
+        String username = user.getUsername();
 
         UserEnterDto dto = new UserEnterDto(userId, username);
 

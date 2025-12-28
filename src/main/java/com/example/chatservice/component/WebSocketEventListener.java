@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
@@ -23,27 +24,30 @@ public class WebSocketEventListener {
 
     private final OnlineStatusService onlineStatusService;
     private final ChatRoomV2Service chatRoomV2Service;
+    private final StringRedisTemplate redis;
 
     @EventListener
     public void handleSessionDisconnected(SessionDisconnectEvent event) {
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
-//        String userId = getUserIdFromAccessor(accessor);
 
-        Map<String, Object> session =
-                accessor.getSessionAttributes();
+        StompHeaderAccessor accessor =
+                StompHeaderAccessor.wrap(event.getMessage());
 
-        if (session == null) return;
+        String sessionId = accessor.getSessionId();
+        if (sessionId == null) return;
 
-        String userId = (String) session.get("userId");
-        String roomId = (String) session.get("roomId");
+        String roomId =
+                redis.opsForValue().get("session:" + sessionId + ":room");
+        String userId =
+                redis.opsForValue().get("session:" + sessionId + ":user");
 
         if (userId != null) {
             onlineStatusService.markOffline(userId);
         }
 
-        if (userId != null && roomId != null) {
-            chatRoomV2Service.leave(roomId, userId);
-            log.info("WS disconnect → leave room={}, user={}", roomId, userId);
+        if (roomId != null && userId != null) {
+            chatRoomV2Service.leaveBySession(roomId, sessionId);
+            log.info("WS disconnect → leave room={}, user={}, session={}",
+                    roomId, userId, sessionId);
         }
     }
 }
