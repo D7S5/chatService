@@ -83,15 +83,4 @@ public class ChatControllerV2 {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-//    @GetMapping("/{roomId}")
-//    public RoomResponse getRoom(@PathVariable String roomId) {
-//        ChatRoomV2 room = chatRoomV2Repository.findByRoomId(roomId)
-//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-//
-//        String key = "room:" + roomId + ":users";
-//
-//        int currentCount = redis.opsForHash().size(key).intValue();
-//        System.out.println("currentCount = " + currentCount);
-//        return RoomResponse.from(room, currentCount);
-//    }
 }

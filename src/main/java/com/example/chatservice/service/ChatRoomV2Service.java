@@ -2,20 +2,24 @@ package com.example.chatservice.service;
 
 import com.example.chatservice.dto.CreateRoomRequest;
 import com.example.chatservice.dto.ParticipantDto;
+import com.example.chatservice.dto.RoomEnterDto;
 import com.example.chatservice.dto.RoomResponse;
 import com.example.chatservice.entity.ChatRoomV2;
 import com.example.chatservice.repository.ChatRoomV2Repository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ChatRoomV2Service {
 
@@ -26,10 +30,6 @@ public class ChatRoomV2Service {
     private String usersKey(String roomId) {
         return "room:" + roomId + ":users";
     }
-
-//    private String countKey(String roomId) {
-//        return "room:" + roomId + ":count";
-//    }
 
     public List<ChatRoomV2> getAllRooms() {
         return chatRoomV2Repository.findAll();
@@ -72,48 +72,91 @@ public class ChatRoomV2Service {
         broadcast(roomId);
     }
 
+    public void enter(RoomEnterDto dto, SimpMessageHeaderAccessor accessor) {
+
+        String sessionId = accessor.getSessionId();
+        String roomId = dto.getRoomId();
+        String userId = dto.getUserId();
+        String username = dto.getUsername();
+
+        String existingRoom =
+                redis.opsForValue().get("session:" + sessionId + ":room");
+
+        if (existingRoom != null) {
+            log.debug("already entered room={}, session={}", existingRoom, sessionId);
+            return;
+        }
+
+        redis.opsForValue().set(
+                "session:" + sessionId + ":room",
+                roomId
+        );
+
+        redis.opsForValue().set(
+                "session:" + sessionId + ":user",
+                userId
+        );
+
+        redis.opsForHash().put(
+                "room:" + roomId + ":sessions",
+                sessionId,
+                userId
+        );
+
+//      username 캐싱
+        redis.opsForValue().set(
+                "user:" + userId + ":username",
+                username,
+                Duration.ofHours(1)
+        );
+
+        log.info("ENTER room={}, user={}, session={}", roomId, userId, sessionId);
+    }
 
     private ChatRoomV2 getRoomOrThrow(String roomId) {
         return chatRoomV2Repository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("Room is not found"));
     }
+    public void leave(SimpMessageHeaderAccessor accessor) {
 
-    /* ======================
-       퇴장
-    ====================== */
-    public void leave(String roomId, String userId) {
+        String sessionId = accessor.getSessionId();
 
-        getRoomOrThrow(roomId);
+        String roomId =
+                redis.opsForValue().get("session:" + sessionId + ":room");
+        String userId =
+                redis.opsForValue().get("session:" + sessionId + ":user");
 
-        redis.opsForHash().delete(usersKey(roomId), userId);
+        if (roomId == null || userId == null) return;
 
-        if (getCurrentCount(roomId) == 0) {
-            redis.delete(usersKey(roomId));
-        }
+        redis.opsForHash().delete(
+                "room:" + roomId + ":sessions",
+                sessionId
+        );
+
+        redis.delete("session:" + sessionId + ":room");
+        redis.delete("session:" + sessionId + ":user");
+
+        log.info("LEAVE room={}, user={}, session={}", roomId, userId, sessionId);
+    }
+
+    public void leaveBySession(String roomId, String sessionId) {
+
+        redis.opsForHash().delete(
+                "room:" + roomId + ":sessions",
+                sessionId
+        );
+
+        redis.delete("session:" + sessionId + ":room");
+        redis.delete("session:" + sessionId + ":user");
 
         broadcast(roomId);
     }
 
-    /* ======================
-       인원 수 갱신
-    ====================== */
-//    private int updateCount(String roomId) {
-//        Long count = redis.opsForHash().size(usersKey(roomId));
-//        int current = count != null ? count.intValue() : 0;
-//        redis.opsForValue().set(countKey(roomId), String.valueOf(current));
-//        return current;
-//    }
 
     private int getCurrentCount(String roomId) {
         Long count = redis.opsForHash().size(usersKey(roomId));
         return count != null ? count.intValue() : 0;
     }
-
-
-
-    /* ======================
-       공통 broadcast
-    ====================== */
 
     private void broadcast(String roomId) {
         int current = getCurrentCount(roomId);

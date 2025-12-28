@@ -63,7 +63,7 @@ public class GroupRoomController {
     public List<RoomResponse> getRoomsWithCount() {
         return chatRoomV2Repository.findAll().stream()
                 .map(room -> {
-                    String key = "room:" + room.getRoomId() + ":users";
+                    String key = "room:" + room.getRoomId() + ":sessions";
 
                     int currentCount = Optional
                                     .ofNullable(redisTemplate.opsForHash()
