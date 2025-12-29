@@ -30,18 +30,18 @@ public class OnlineStatusService {
      * 유저 온라인 등록
      */
     public void markOnline(UserEnterDto dto) {
-        String userKey = dto.getUuid();
+        String userKey = dto.getUserId();
 
         redisTemplate.opsForHash().put(ONLINE_HASH, userKey, dto.getUsername());
         String ttlKey = TTL_KEY_PREFIX + userKey;
         redisTemplate.opsForValue().set(ttlKey, "1", EXPIRE_MINUTES);
 
-        broadcastOnlineUsers(dto.getUuid());
+        broadcastOnlineUsers(dto.getUserId());
     }
 
-    public void refreshTTL(String uuid) {
-        String key = TTL_KEY_PREFIX + uuid;
-//        System.out.println("TTL 갱신 " + uuid); debug
+    public void refreshTTL(String userId) {
+        String key = TTL_KEY_PREFIX + userId;
+        System.out.println("TTL 갱신 " + userId);  // debug
         redisTemplate.expire(key , EXPIRE_MINUTES);
     }
     /**
@@ -91,6 +91,7 @@ public class OnlineStatusService {
 
     public void broadcastOnlineUsers(String currentUserId) {
         Set<OnlineStatusDto> set = getAllOnlineUsers(currentUserId);
+        System.out.println(set);
         messagingTemplate.convertAndSend("/topic/online-users", set);
     }
 
@@ -106,8 +107,6 @@ public class OnlineStatusService {
 
             if (!Boolean.TRUE.equals(redisTemplate.hasKey(ttlKey))) {
                 redisTemplate.opsForHash().delete(ONLINE_HASH, userId);
-
-                redisTemplate.delete(ttlKey);
 
                 changed = true;
             }

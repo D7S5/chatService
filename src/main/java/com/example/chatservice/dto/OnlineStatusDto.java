@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class OnlineStatusDto {
-    private String uuid;
+    private String userId;
     private String username;
     private boolean online;
 

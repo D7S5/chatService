@@ -7,7 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserEnterDto {
-    private String uuid;
+    private String userId;
     private String username;
 
     @Getter

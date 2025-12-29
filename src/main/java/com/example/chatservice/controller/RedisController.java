@@ -18,23 +18,22 @@ public class RedisController {
 
     private final OnlineStatusService onlineStatusService;
     private final RoomUserCountService roomUserCountService;
-    private final SimpMessagingTemplate messagingTemplate;
 
     @MessageMapping("/user.enter")
     public void userEnter(UserEnterDto dto) {
-        if (dto.getUuid() == null || dto.getUsername() == null) return;
+        if (dto.getUserId() == null || dto.getUsername() == null) return;
         onlineStatusService.markOnline(dto);
     }
     @MessageMapping("/user.heartbeat")
     public void heartbeat(Map<String, String> payload) {
-        String uuid = payload.get("uuid");
-        onlineStatusService.refreshTTL(uuid);
+        String userId = payload.get("userId");
+        onlineStatusService.refreshTTL(userId);
     }
 
-    @MessageMapping("/user/leave")
+    @MessageMapping("/user.leave")
     public void leave(Map<String, String> payload) {
-        String uuid = payload.get("uuid");
-        if ( uuid != null ) onlineStatusService.markOffline(uuid);
+        String userId = payload.get("userId");
+        if ( userId != null ) onlineStatusService.markOffline(userId);
     }
 
 //    @MessageMapping("/room.enter")

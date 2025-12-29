@@ -8,7 +8,7 @@ import lombok.Setter;
 @Data
 @AllArgsConstructor
 public class OnlineUser {
-    private String uuid;
+    private String userId;
     private String username;
 
     public OnlineUser() {}
@@ -18,11 +18,11 @@ public class OnlineUser {
         if (this == o) return true;
         if (!(o instanceof OnlineUser)) return false;
         OnlineUser that = (OnlineUser) o;
-        return uuid.equals(that.uuid);
+        return userId.equals(that.userId);
     }
 
     @Override
     public int hashCode() {
-        return uuid.hashCode();
+        return userId.hashCode();
     }
 }
