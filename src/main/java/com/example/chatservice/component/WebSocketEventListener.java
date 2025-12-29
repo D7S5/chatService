@@ -41,13 +41,19 @@ public class WebSocketEventListener {
                 redis.opsForValue().get("session:" + sessionId + ":user");
 
         if (userId != null) {
-            onlineStatusService.markOffline(userId);
+            onlineStatusService.removeSession(sessionId);
         }
 
         if (roomId != null && userId != null) {
             chatRoomV2Service.leaveBySession(roomId, sessionId);
-            log.info("WS disconnect → leave room={}, user={}, session={}",
-                    roomId, userId, sessionId);
         }
+
+        redis.delete(
+                "session:" + sessionId + ":user");
+        redis.delete(
+                "session:" + sessionId + ":room");
+
+        log.info("WS disconnect → leave room={}, user={}, session={}",
+                roomId, userId, sessionId);
     }
 }

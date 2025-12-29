@@ -6,6 +6,7 @@ import com.example.chatservice.redis.RoomUserCountService;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,25 +18,37 @@ import java.util.Set;
 public class RedisController {
 
     private final OnlineStatusService onlineStatusService;
-    private final RoomUserCountService roomUserCountService;
-    private final SimpMessagingTemplate messagingTemplate;
 
-    @MessageMapping("/user.enter")
-    public void userEnter(UserEnterDto dto) {
-        if (dto.getUuid() == null || dto.getUsername() == null) return;
-        onlineStatusService.markOnline(dto);
-    }
-    @MessageMapping("/user.heartbeat")
-    public void heartbeat(Map<String, String> payload) {
-        String uuid = payload.get("uuid");
-        onlineStatusService.refreshTTL(uuid);
+    @MessageMapping("/lobby.enter")
+    public void enterLobby(LobbyEnterDto dto,
+            SimpMessageHeaderAccessor accessor) {
+        String sessionId = accessor.getSessionId();
+
+        if (dto.getUserId() == null || sessionId == null || dto.getUsername() == null) return;
+
+        onlineStatusService.addSession(dto.getUserId(), dto.getUsername(), sessionId);
     }
 
-    @MessageMapping("/user/leave")
-    public void leave(Map<String, String> payload) {
-        String uuid = payload.get("uuid");
-        if ( uuid != null ) onlineStatusService.markOffline(uuid);
+    @MessageMapping("/lobby.leave")
+    public void leaveLobby(SimpMessageHeaderAccessor accessor) {
     }
+
+//    @MessageMapping("/user.enter")
+//    public void userEnter(UserEnterDto dto) {
+//        if (dto.getUuid() == null || dto.getUsername() == null) return;
+//        onlineStatusService.markOnline(dto);
+//    }
+//    @MessageMapping("/user.heartbeat")
+//    public void heartbeat(Map<String, String> payload) {
+//        String uuid = payload.get("uuid");
+//        onlineStatusService.refreshTTL(uuid);
+//    }
+//
+//    @MessageMapping("/user.leave")
+//    public void leave(Map<String, String> payload) {
+//        String uuid = payload.get("uuid");
+//        if ( uuid != null ) onlineStatusService.markOffline(uuid);
+//    }
 
 //    @MessageMapping("/room.enter")
 //    public void enterRoom(RoomEnterDto dto) {

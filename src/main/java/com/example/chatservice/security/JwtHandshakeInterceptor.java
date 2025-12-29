@@ -1,5 +1,7 @@
 package com.example.chatservice.security;
 
+import com.example.chatservice.entity.User;
+import com.example.chatservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -14,6 +16,7 @@ import java.util.Map;
 public class JwtHandshakeInterceptor implements HandshakeInterceptor {
 
     private final JwtTokenProvider jwtProvider;
+    private final UserRepository userRepository;
 
     @Override
     public boolean beforeHandshake(ServerHttpRequest request,
@@ -34,15 +37,15 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
             return false;
         }
 
-        // JWT에서 userId(UUID) 추출
         String userId = jwtProvider.getSubject(token);
+        User username = userRepository.findById(userId).orElse(null);
 
         // Principal 저장
         attributes.put("userId", userId);
+        attributes.put("username", username);
 
         return true;
     }
-
     @Override
     public void afterHandshake(ServerHttpRequest request,
                                ServerHttpResponse response,

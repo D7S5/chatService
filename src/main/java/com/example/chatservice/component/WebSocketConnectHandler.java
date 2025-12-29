@@ -16,33 +16,21 @@ import org.springframework.web.socket.messaging.SessionConnectEvent;
 public class WebSocketConnectHandler implements ApplicationListener<SessionConnectEvent> {
 
     private final OnlineStatusService onlineStatusService;
-    private final UserRepository userRepository;
 
     @Override
     public void onApplicationEvent(SessionConnectEvent event) {
 
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
 
-        // HandshakeInterceptor 에서 저장된 값
         var sessionAttrs = accessor.getSessionAttributes();
+        if (sessionAttrs == null) return;
 
         String userId = (String) sessionAttrs.get("userId");
-        if (userId == null) {
-            System.out.println("WebSocket Connect: userId is NULL (HandshakeInterceptor failed)");
-            return;
-        }
+        String username = (String) sessionAttrs.get("username");
+        String sessionId = accessor.getSessionId();
 
-        User user = userRepository.findById(userId).orElse(null);
-        if (user == null) {
-            System.out.println("WebSocket Connect: userId " + userId + " not found in DB");
-            return;
-        }
-        String username = user.getUsername();
+        if (userId == null && sessionId == null) return;
 
-        UserEnterDto dto = new UserEnterDto(userId, username);
-
-        if (userId != null) {
-            onlineStatusService.markOnline(dto);
-        }
+        onlineStatusService.addSession(userId, username, sessionId);
     }
 }

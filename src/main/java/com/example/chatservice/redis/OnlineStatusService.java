@@ -1,125 +1,95 @@
 package com.example.chatservice.redis;
 
-import com.example.chatservice.dto.OnlineStatusDto;
-import com.example.chatservice.dto.OnlineUser;
-import com.example.chatservice.dto.UserEnterDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class OnlineStatusService {
 
-    private final StringRedisTemplate redisTemplate;
+    private final StringRedisTemplate redis;
     private final SimpMessagingTemplate messagingTemplate;
 
-    private static final String ONLINE_HASH = "online:users";
-    private static final String TTL_KEY_PREFIX = "online:ttl:";
-    private static final Duration EXPIRE_MINUTES = Duration.ofMinutes(2);
+    public void addSession(String userId, String username, String sessionId) {
+        String sessionKey = "session:" + sessionId + ":user";
+        String existingUser = redis.opsForValue().get(sessionKey);
 
-    /**
-     * 유저 온라인 등록
-     */
-    public void markOnline(UserEnterDto dto) {
-        String userKey = dto.getUuid();
-
-        redisTemplate.opsForHash().put(ONLINE_HASH, userKey, dto.getUsername());
-        String ttlKey = TTL_KEY_PREFIX + userKey;
-        redisTemplate.opsForValue().set(ttlKey, "1", EXPIRE_MINUTES);
-
-        broadcastOnlineUsers(dto.getUuid());
-    }
-
-    public void refreshTTL(String uuid) {
-        String key = TTL_KEY_PREFIX + uuid;
-//        System.out.println("TTL 갱신 " + uuid); debug
-        redisTemplate.expire(key , EXPIRE_MINUTES);
-    }
-    /**
-     * 유저 활동 업데이트(=온라인 유지)
-     */
-    public void updateActivity(UserEnterDto dto) {
-        markOnline(dto);
-    }
-
-    /**
-     * 유저 오프라인 처리
-     */
-    public void markOffline(String userId) {
-        redisTemplate.opsForHash().delete(ONLINE_HASH, userId);
-        redisTemplate.delete(TTL_KEY_PREFIX + userId);
-
-        broadcastOnlineUsers(userId);
-    }
-
-    /**
-     * 전체 온라인 유저 목록 (자기 자신 제외)
-     */
-    public Set<OnlineUser> getOnlineUsers(String currentUserId) {
-        return redisTemplate.opsForHash().entries(ONLINE_HASH)
-                .entrySet()
-                .stream()
-                .filter(e -> !e.getKey().equals(currentUserId))  // 본인은 제외
-                .map(e -> new OnlineUser(e.getKey().toString(), e.getValue().toString()))
-                .collect(Collectors.toSet());
-    }
-
-    /**
-     * 특정 사용자 온라인 여부
-     */
-    public boolean isOnline(String userId) {
-        return Boolean.TRUE.equals(redisTemplate.hasKey(TTL_KEY_PREFIX + userId));
-    }
-
-    public Set<OnlineStatusDto> getAllOnlineUsers(String currentUserId) {
-        Map<Object, Object> entries = redisTemplate.opsForHash().entries(ONLINE_HASH);
-
-        return entries.entrySet().stream()
-                .filter(e -> !e.getKey().equals(currentUserId))
-                .map(e -> new OnlineStatusDto((String) e.getKey(), (String) e.getValue(), true))
-                .collect(Collectors.toSet());
-    }
-
-    public void broadcastOnlineUsers(String currentUserId) {
-        Set<OnlineStatusDto> set = getAllOnlineUsers(currentUserId);
-        messagingTemplate.convertAndSend("/topic/online-users", set);
-    }
-
-    @Scheduled(fixedRate = 5000)
-    public void cleanExpiredUsersV2() {
-        Set<Object> allUsers = redisTemplate.opsForHash().keys(ONLINE_HASH);
-
-        boolean changed = false;
-
-        for (Object userIdObj : allUsers) {
-            String userId = userIdObj.toString();
-            String ttlKey = TTL_KEY_PREFIX + userId;
-
-            if (!Boolean.TRUE.equals(redisTemplate.hasKey(ttlKey))) {
-                redisTemplate.opsForHash().delete(ONLINE_HASH, userId);
-
-                redisTemplate.delete(ttlKey);
-
-                changed = true;
-            }
+        if (existingUser != null && !existingUser.equals(userId)) {
+            throw new IllegalStateException("Session already bound to another user");
         }
 
-        if (changed) {
-            Map<Object, Object> onlineUsers = redisTemplate.opsForHash().entries(ONLINE_HASH);
+        redis.opsForValue().set(sessionKey, userId);
 
+        Long size = redis.opsForSet()
+                .add("user:" + userId + ":sessions", sessionId);
+
+        if (size != null && size == 1) {
+            redis.opsForValue().set("user:" + userId + ":online", "1");
+            notifyFriends(userId, true);
+//            broadcastLobbyOnlineCount();
+        }
+    }
+
+    public void removeSession(String sessionId) {
+        String sessionKey = "session:" + sessionId + ":user";
+        String userId = redis.opsForValue().get(sessionKey);
+
+        if (userId == null) return;
+
+        redis.delete(sessionKey);
+
+        redis.opsForSet()
+                .remove("user:" + userId + ":sessions", sessionId);
+
+        Long remain = redis.opsForSet()
+                .size("user:" + userId + ":sessions");
+
+        if (remain == null || remain == 0) {
+            redis.delete("user:" + userId + ":online");
+            notifyFriends(userId, false);
+//            broadcastLobbyOnlineCount();
+        }
+    }
+
+    public void notifyFriends(String userId, boolean online) {
+
+        Set<String> friends =
+                redis.opsForSet().members("user:" + userId + ":friends");
+
+        if ( friends == null || friends.isEmpty()) return;
+
+        Map<String, Object> payload = Map.of(
+                "userId", userId,
+                "online", online
+        );
+
+        for (String friendId : friends) {
             messagingTemplate.convertAndSend(
-                    "/topic/online-users",
-                    onlineUsers
+                    "/topic/friends/status/" + friendId,
+                    payload
             );
         }
     }
+
+//    private void broadcastLobbyOnlineCount() {
+//        Set<String> keys = redis.keys("user:*:sessions");
+//        if (keys == null) return;
+//
+//        int onlineCount = (int) keys.stream()
+//                .filter(k -> {
+//                    Long size = redis.opsForSet().size(k);
+//                    return size != null && size > 0;
+//                })
+//                .count();
+//
+//        messagingTemplate.convertAndSend(
+//                "/topic/lobby/online-count",
+//                Map.of("count", onlineCount)
+//        );
+//    }
 }
