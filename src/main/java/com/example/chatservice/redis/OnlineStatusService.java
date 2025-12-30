@@ -1,7 +1,6 @@
 package com.example.chatservice.redis;
 
 import com.example.chatservice.dto.OnlineStatusDto;
-import com.example.chatservice.dto.OnlineUser;
 import com.example.chatservice.dto.UserEnterDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -10,7 +9,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -36,19 +34,13 @@ public class OnlineStatusService {
         String ttlKey = TTL_KEY_PREFIX + userKey;
         redisTemplate.opsForValue().set(ttlKey, "1", EXPIRE_MINUTES);
 
-        broadcastOnlineUsers(dto.getUserId());
+        broadcastOnlineUsers();
     }
 
     public void refreshTTL(String userId) {
         String key = TTL_KEY_PREFIX + userId;
-        System.out.println("TTL 갱신 " + userId);  // debug
-        redisTemplate.expire(key , EXPIRE_MINUTES);
-    }
-    /**
-     * 유저 활동 업데이트(=온라인 유지)
-     */
-    public void updateActivity(UserEnterDto dto) {
-        markOnline(dto);
+//        System.out.println("TTL 갱신 " + userId);  // debug
+        redisTemplate.expire(key, EXPIRE_MINUTES);
     }
 
     /**
@@ -58,40 +50,21 @@ public class OnlineStatusService {
         redisTemplate.opsForHash().delete(ONLINE_HASH, userId);
         redisTemplate.delete(TTL_KEY_PREFIX + userId);
 
-        broadcastOnlineUsers(userId);
+        broadcastOnlineUsers();
     }
 
-    /**
-     * 전체 온라인 유저 목록 (자기 자신 제외)
-     */
-    public Set<OnlineUser> getOnlineUsers(String currentUserId) {
-        return redisTemplate.opsForHash().entries(ONLINE_HASH)
-                .entrySet()
-                .stream()
-                .filter(e -> !e.getKey().equals(currentUserId))  // 본인은 제외
-                .map(e -> new OnlineUser(e.getKey().toString(), e.getValue().toString()))
-                .collect(Collectors.toSet());
-    }
-
-    /**
-     * 특정 사용자 온라인 여부
-     */
-    public boolean isOnline(String userId) {
-        return Boolean.TRUE.equals(redisTemplate.hasKey(TTL_KEY_PREFIX + userId));
-    }
-
-    public Set<OnlineStatusDto> getAllOnlineUsers(String currentUserId) {
+    public Set<OnlineStatusDto> getAllOnlineUsers() {
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(ONLINE_HASH);
 
-        return entries.entrySet().stream()
-                .filter(e -> !e.getKey().equals(currentUserId))
+        return entries
+                .entrySet()
+                .stream()
                 .map(e -> new OnlineStatusDto((String) e.getKey(), (String) e.getValue(), true))
                 .collect(Collectors.toSet());
     }
 
-    public void broadcastOnlineUsers(String currentUserId) {
-        Set<OnlineStatusDto> set = getAllOnlineUsers(currentUserId);
-        System.out.println(set);
+    public void broadcastOnlineUsers() {
+        Set<OnlineStatusDto> set = getAllOnlineUsers();
         messagingTemplate.convertAndSend("/topic/online-users", set);
     }
 

@@ -5,6 +5,8 @@ import com.example.chatservice.dto.ParticipantDto;
 import com.example.chatservice.dto.RoomEnterDto;
 import com.example.chatservice.dto.RoomResponse;
 import com.example.chatservice.entity.ChatRoomV2;
+import com.example.chatservice.redis.OnlineStatusService;
+import com.example.chatservice.redis.OnlineStatusServiceV2;
 import com.example.chatservice.repository.ChatRoomV2Repository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +18,6 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -26,6 +27,8 @@ public class ChatRoomV2Service {
     private final StringRedisTemplate redis;
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatRoomV2Repository chatRoomV2Repository;
+
+//    private final OnlineStatusService onlineStatusService;
 
     private String usersKey(String roomId) {
         return "room:" + roomId + ":users";
@@ -53,25 +56,6 @@ public class ChatRoomV2Service {
         return res;
     }
 
-    /* ======================
-       입장
-    ====================== */
-    public void enter(String roomId, String userId, String username) {
-
-        if (username == null || username.isBlank()) {
-            throw new IllegalArgumentException("username must not be null or blank");
-        }
-        ChatRoomV2 room = getRoomOrThrow(roomId);
-
-        int current = getCurrentCount(roomId);
-        if (current >= room.getMaxParticipants()) {
-            throw new IllegalStateException("Room is full");
-        }
-
-        redis.opsForHash().put(usersKey(roomId), userId, username);
-        broadcast(roomId);
-    }
-
     public void enter(RoomEnterDto dto, SimpMessageHeaderAccessor accessor) {
 
         String sessionId = accessor.getSessionId();
@@ -80,7 +64,7 @@ public class ChatRoomV2Service {
         String username = dto.getUsername();
 
         String existingRoom =
-                redis.opsForValue().get("session:" + sessionId + ":room");
+                redis.opsForValue().get("RoomSession:" + sessionId + ":room");
 
         if (existingRoom != null) {
             log.debug("already entered room={}, session={}", existingRoom, sessionId);
@@ -88,12 +72,12 @@ public class ChatRoomV2Service {
         }
 
         redis.opsForValue().set(
-                "session:" + sessionId + ":room",
+                "RoomSession:" + sessionId + ":room",
                 roomId
         );
 
         redis.opsForValue().set(
-                "session:" + sessionId + ":user",
+                "RoomSession:" + sessionId + ":user",
                 userId
         );
 
@@ -122,9 +106,9 @@ public class ChatRoomV2Service {
         String sessionId = accessor.getSessionId();
 
         String roomId =
-                redis.opsForValue().get("session:" + sessionId + ":room");
+                redis.opsForValue().get("RoomSession:" + sessionId + ":room");
         String userId =
-                redis.opsForValue().get("session:" + sessionId + ":user");
+                redis.opsForValue().get("RoomSession:" + sessionId + ":user");
 
         if (roomId == null || userId == null) return;
 
@@ -133,8 +117,8 @@ public class ChatRoomV2Service {
                 sessionId
         );
 
-        redis.delete("session:" + sessionId + ":room");
-        redis.delete("session:" + sessionId + ":user");
+        redis.delete("RoomSession:" + sessionId + ":room");
+        redis.delete("RoomSession:" + sessionId + ":user");
 
         log.info("LEAVE room={}, user={}, session={}", roomId, userId, sessionId);
     }
@@ -146,19 +130,14 @@ public class ChatRoomV2Service {
                 sessionId
         );
 
-        redis.delete("session:" + sessionId + ":room");
-        redis.delete("session:" + sessionId + ":user");
+        redis.delete("RoomSession:" + sessionId + ":room");
+        redis.delete("RoomSession:" + sessionId + ":user");
 
-        broadcast(roomId);
+        broadcastRoomCount(roomId);
+        broadcastGetCurrentCount(roomId);
     }
 
-
-    private int getCurrentCount(String roomId) {
-        Long count = redis.opsForHash().size(usersKey(roomId));
-        return count != null ? count.intValue() : 0;
-    }
-
-    private void broadcast(String roomId) {
+    private void broadcastRoomCount(String roomId) {
         int current = getCurrentCount(roomId);
 
         // 인원 수
@@ -166,22 +145,20 @@ public class ChatRoomV2Service {
                 "/topic/room-count/" + roomId,
                 Map.of("current", current)
         );
+    }
 
-        // 참여자 목록
-        List<ParticipantDto> users =
-                redis.opsForHash().entries(usersKey(roomId))
-                        .entrySet()
-                        .stream()
-                        .map(e -> new ParticipantDto(
-                                e.getKey().toString(),   // userId
-                                e.getValue().toString() // username
-                        ))
-                        .toList();
+    private void broadcastGetCurrentCount(String roomId) {
+        List<ParticipantDto> users = getParticipants(roomId);
 
         messagingTemplate.convertAndSend(
                 "/topic/room-users/" + roomId,
                 users
         );
+    }
+
+    private int getCurrentCount(String roomId) {
+        Long count = redis.opsForHash().size(usersKey(roomId));
+        return count != null ? count.intValue() : 0;
     }
 
     /* REST 조회용 */

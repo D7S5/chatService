@@ -1,6 +1,6 @@
 package com.example.chatservice.component;
 
-import com.example.chatservice.redis.OnlineStatusService;
+import com.example.chatservice.redis.OnlineStatusServiceV2;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.Message;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class RedisKeyExpiredListener implements MessageListener {
 
-    private final OnlineStatusService onlineStatusService;
+    private final OnlineStatusServiceV2 onlineStatusService;
     private static final String TTL_KEY_PREFIX = "online:ttl:";
 
     @Override
@@ -23,6 +23,6 @@ public class RedisKeyExpiredListener implements MessageListener {
 
         String userId = expiredKey.replace(TTL_KEY_PREFIX, "");
         log.info("❌ User offline => {}", userId);
-        onlineStatusService.markOffline(userId);
+//        onlineStatusService.markOffline(userId);
     }
 }

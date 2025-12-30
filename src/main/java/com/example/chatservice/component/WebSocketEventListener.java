@@ -1,21 +1,15 @@
 package com.example.chatservice.component;
 
 import com.example.chatservice.redis.OnlineStatusService;
+import com.example.chatservice.redis.OnlineStatusServiceV2;
 import com.example.chatservice.service.ChatRoomV2Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
-
-import java.security.Principal;
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -36,18 +30,18 @@ public class WebSocketEventListener {
         if (sessionId == null) return;
 
         String roomId =
-                redis.opsForValue().get("session:" + sessionId + ":room");
+                redis.opsForValue().get("RoomSession:" + sessionId + ":room");
         String userId =
-                redis.opsForValue().get("session:" + sessionId + ":user");
+                redis.opsForValue().get("RoomSession:" + sessionId + ":user");
 
-        if (userId != null) {
-            onlineStatusService.markOffline(userId);
-        }
-
-        if (roomId != null && userId != null) {
+        if (roomId != null) {
             chatRoomV2Service.leaveBySession(roomId, sessionId);
             log.info("WS disconnect → leave room={}, user={}, session={}",
                     roomId, userId, sessionId);
+        }
+
+        if (userId != null) {
+            onlineStatusService.markOffline(userId);
         }
     }
 }

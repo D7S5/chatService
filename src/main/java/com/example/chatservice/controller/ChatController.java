@@ -1,10 +1,6 @@
 package com.example.chatservice.controller;
 
-import com.example.chatservice.component.WebSocketEventListener;
-import com.example.chatservice.dto.ChatRoomRequest;
-import com.example.chatservice.entity.ChatRoom;
 import com.example.chatservice.model.ChatMessage;
-import com.example.chatservice.redis.OnlineStatusService;
 import com.example.chatservice.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -17,8 +13,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")

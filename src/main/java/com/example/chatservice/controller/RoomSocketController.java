@@ -30,12 +30,14 @@ public class RoomSocketController {
     public void enter(RoomEnterDto dto, SimpMessageHeaderAccessor accessor) {
 
         roomV2Service.enter(dto, accessor);
+
         broadcastRoom(dto.getRoomId());
     }
 
     @MessageMapping("/room.leave")
     public void leave(RoomEnterDto dto, SimpMessageHeaderAccessor accessor) {
         roomV2Service.leave(accessor);
+
         broadcastRoom(dto.getRoomId());
     }
 
