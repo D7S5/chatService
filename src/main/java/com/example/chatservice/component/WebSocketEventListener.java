@@ -30,13 +30,11 @@ public class WebSocketEventListener {
 
         String roomId =
                 redis.opsForValue().get("RoomSession:" + sessionId + ":room");
-        String userId =
-                redis.opsForValue().get("RoomSession:" + sessionId + ":user");
 
         if (roomId != null) {
             chatRoomV2Service.leaveBySession(roomId, sessionId);
-            log.info("WS disconnect → leave room={}, user={}, session={}",
-                    roomId, userId, sessionId);
+//            log.info("WS disconnect → leave room={}, user={}, session={}",
+//                    roomId, userId, sessionId);
         }
     }
 }

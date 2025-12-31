@@ -23,7 +23,6 @@ public class WebSocketConnectHandler implements ApplicationListener<SessionConne
 
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
 
-        // HandshakeInterceptor 에서 저장된 값
         var sessionAttrs = accessor.getSessionAttributes();
 
         String sessionId = accessor.getSessionId();

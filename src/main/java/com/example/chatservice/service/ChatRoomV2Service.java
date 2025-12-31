@@ -6,6 +6,7 @@ import com.example.chatservice.dto.RoomEnterDto;
 import com.example.chatservice.dto.RoomResponse;
 import com.example.chatservice.entity.ChatRoomV2;
 import com.example.chatservice.repository.ChatRoomV2Repository;
+import com.example.chatservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -25,6 +27,8 @@ public class ChatRoomV2Service {
     private final StringRedisTemplate redis;
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatRoomV2Repository chatRoomV2Repository;
+
+    private final UserRepository userRepository;
 
     public List<ChatRoomV2> getAllRooms() {
         return chatRoomV2Repository.findAll();
@@ -43,16 +47,13 @@ public class ChatRoomV2Service {
         chatRoomV2Repository.save(room);
         RoomResponse res = RoomResponse.create(room);
 
-        System.out.println(res);
-
         return res;
     }
 
 
     private String usersKey(String roomId) {
-        return "room:" + roomId + ":users";
+        return "room:" + roomId + ":sessions";
     }
-
     public void enter(RoomEnterDto dto, SimpMessageHeaderAccessor accessor) {
 
         String sessionId = accessor.getSessionId();
@@ -63,21 +64,18 @@ public class ChatRoomV2Service {
         String existingRoom =
                 redis.opsForValue().get("RoomSession:" + sessionId + ":room");
 
-        if (existingRoom != null) {
-            log.debug("already entered room={}, session={}", existingRoom, sessionId);
-            return;
+        if (existingRoom != null && !existingRoom.equals(roomId)) {
+            leaveBySession(existingRoom, sessionId);
         }
 
         redis.opsForValue().set(
                 "RoomSession:" + sessionId + ":room",
                 roomId
         );
-
         redis.opsForValue().set(
                 "RoomSession:" + sessionId + ":user",
                 userId
         );
-
         redis.opsForHash().put(
                 "room:" + roomId + ":sessions",
                 sessionId,
@@ -85,14 +83,13 @@ public class ChatRoomV2Service {
         );
 
 //      username 캐싱
-        redis.opsForValue().set(
-                "user:" + userId + ":username",
-                username,
-                Duration.ofHours(1)
-        );
-
-        log.info("ENTER room={}, user={}, session={}", roomId, userId, sessionId);
-        System.out.println("broadcast");
+        if (username != null && !username.isBlank()) {
+            redis.opsForValue().set(
+                    "user:" + userId + ":username",
+                    username,
+                    Duration.ofHours(1)
+            );
+        }
         broadcastRoomCount(roomId);
         broadcastGetCurrentCount(roomId);
     }
@@ -121,7 +118,7 @@ public class ChatRoomV2Service {
         redis.delete("RoomSession:" + sessionId + ":user");
 
         log.info("LEAVE room={}, user={}, session={}", roomId, userId, sessionId);
-        System.out.println("broadcast");
+
         broadcastRoomCount(roomId);
         broadcastGetCurrentCount(roomId);
     }
@@ -160,19 +157,54 @@ public class ChatRoomV2Service {
     }
 
     private int getCurrentCount(String roomId) {
-        Long count = redis.opsForHash().size(usersKey(roomId));
-        return count != null ? count.intValue() : 0;
+        Map<Object, Object> sessions = redis.opsForHash().entries(usersKey(roomId));
+        return (int) sessions.values().stream()
+                .distinct()
+                .count();
     }
 
     /* REST 조회용 */
+//    public List<ParticipantDto> getParticipants(String roomId) {
+//        return redis.opsForHash().entries(usersKey(roomId))
+//                .entrySet()
+//                .stream()
+//                .filter(e -> e.getValue() != null)
+//                .map(e -> new ParticipantDto(
+//                        e.getValue().toString(),
+//                        loadUsername(e.getValue().toString())
+//                ))
+//                .toList();
+//    }
+
     public List<ParticipantDto> getParticipants(String roomId) {
-        return redis.opsForHash().entries(usersKey(roomId))
-                .entrySet()
-                .stream()
-                .map(e -> new ParticipantDto(
-                        e.getKey().toString(),
-                        e.getValue().toString()
-                ))
-                .toList();
+        Map<Object, Object> sessions =
+                redis.opsForHash().entries(usersKey(roomId));
+
+        return sessions.values().stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .map(userId -> new ParticipantDto(
+                        userId.toString(),
+                        loadUsername(userId.toString())
+                )).toList();
+    }
+
+    private String loadUsername(String userId) {
+
+        if (userId == null) return "UNKNOWN";
+
+        String key = "user:" + userId + ":username";
+        String cached = redis.opsForValue().get(key);
+
+        if (cached != null) return cached;
+
+        String fromDb = userRepository.findUsernameById(userId);
+
+        if (fromDb == null) {
+            log.warn("Username not found for userId={}", userId);
+            return "UNKNOWN";
+        }
+        redis.opsForValue().set(key, fromDb, Duration.ofHours(1));
+        return fromDb;
     }
 }
