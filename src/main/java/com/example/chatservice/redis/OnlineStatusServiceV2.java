@@ -107,18 +107,18 @@ public class OnlineStatusServiceV2 {
         messagingTemplate.convertAndSend("/topic/online-users", set);
     }
 
-//    @Scheduled(fixedRate = 5000)
-//    public void cleanDeadConnections() {
-//        Set<String> sessionKeys = redisTemplate.keys("session:*:user");
-//
-//        for (String key : sessionKeys) {
-//            String sessionId = key.split(":")[1];
-//            String ttlKey = "session:" + sessionId + ":ttl";
-//
-//            if (!Boolean.TRUE.equals(redisTemplate.hasKey(ttlKey)))
-//                markOffline(sessionId);
-//        }
-//    }
+    @Scheduled(fixedRate = 5000)
+    public void cleanDeadConnections() {
+        Set<String> sessionKeys = redisTemplate.keys("session:*:user");
+
+        for (String key : sessionKeys) {
+            String sessionId = key.split(":")[1];
+            String ttlKey = "session:" + sessionId + ":ttl";
+
+            if (!Boolean.TRUE.equals(redisTemplate.hasKey(ttlKey)))
+                markOffline(sessionId);
+        }
+    }
 
 //    @Scheduled(fixedRate = 5000)
 //    public void cleanExpiredUsersV2() {

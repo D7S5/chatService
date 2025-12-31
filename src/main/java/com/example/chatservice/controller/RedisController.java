@@ -2,7 +2,7 @@ package com.example.chatservice.controller;
 
 import com.example.chatservice.dto.*;
 import com.example.chatservice.redis.OnlineStatusService;
-import com.example.chatservice.redis.OnlineStatusServiceV2;
+import com.example.chatservice.redis.OnlineStatusServiceV3;
 import com.example.chatservice.redis.RoomUserCountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -29,20 +29,18 @@ public class RedisController {
     @MessageMapping("/user.heartbeat")
     public void heartbeat(Map<String, String> payload, SimpMessageHeaderAccessor accessor) {
         String sessionId = accessor.getSessionId();
-//        System.out.println("heartbeat SessionId = " + sessionId); // debug
 
         String userId = payload.get("userId");
         onlineStatusService.refreshTTL(sessionId);
     }
 
     @MessageMapping("/user.leave")
-    public void leave(Map<String, String> payload, SimpMessageHeaderAccessor accessor) {
-        String sessionId = accessor.getSessionId();
+    public void leave(Map<String, String> payload) {
 
         String userId = payload.get("userId");
 
-        if ( userId != null && sessionId != null) {
-            onlineStatusService.markOffline(sessionId);
+        if ( userId != null) {
+            onlineStatusService.markOffline(userId);
         }
     }
 

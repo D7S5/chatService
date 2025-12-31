@@ -5,8 +5,6 @@ import com.example.chatservice.dto.ParticipantDto;
 import com.example.chatservice.dto.RoomEnterDto;
 import com.example.chatservice.dto.RoomResponse;
 import com.example.chatservice.entity.ChatRoomV2;
-import com.example.chatservice.redis.OnlineStatusService;
-import com.example.chatservice.redis.OnlineStatusServiceV2;
 import com.example.chatservice.repository.ChatRoomV2Repository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,12 +26,6 @@ public class ChatRoomV2Service {
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatRoomV2Repository chatRoomV2Repository;
 
-//    private final OnlineStatusService onlineStatusService;
-
-    private String usersKey(String roomId) {
-        return "room:" + roomId + ":users";
-    }
-
     public List<ChatRoomV2> getAllRooms() {
         return chatRoomV2Repository.findAll();
     }
@@ -54,6 +46,11 @@ public class ChatRoomV2Service {
         System.out.println(res);
 
         return res;
+    }
+
+
+    private String usersKey(String roomId) {
+        return "room:" + roomId + ":users";
     }
 
     public void enter(RoomEnterDto dto, SimpMessageHeaderAccessor accessor) {
@@ -95,6 +92,9 @@ public class ChatRoomV2Service {
         );
 
         log.info("ENTER room={}, user={}, session={}", roomId, userId, sessionId);
+        System.out.println("broadcast");
+        broadcastRoomCount(roomId);
+        broadcastGetCurrentCount(roomId);
     }
 
     private ChatRoomV2 getRoomOrThrow(String roomId) {
@@ -121,6 +121,9 @@ public class ChatRoomV2Service {
         redis.delete("RoomSession:" + sessionId + ":user");
 
         log.info("LEAVE room={}, user={}, session={}", roomId, userId, sessionId);
+        System.out.println("broadcast");
+        broadcastRoomCount(roomId);
+        broadcastGetCurrentCount(roomId);
     }
 
     public void leaveBySession(String roomId, String sessionId) {

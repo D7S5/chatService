@@ -30,17 +30,20 @@ public class RoomSocketController {
     public void enter(RoomEnterDto dto, SimpMessageHeaderAccessor accessor) {
 
         roomV2Service.enter(dto, accessor);
-
-        broadcastRoom(dto.getRoomId());
+        System.out.println("enter dto roomId = " + dto.getRoomId() + "dto userId " + dto.getUserId() + "dto username = " + dto.getUsername());
+//        broadcastRoom(dto.getRoomId());
     }
 
     @MessageMapping("/room.leave")
     public void leave(RoomEnterDto dto, SimpMessageHeaderAccessor accessor) {
         roomV2Service.leave(accessor);
 
-        broadcastRoom(dto.getRoomId());
+        System.out.println("leave dto roomId = " + dto.getRoomId() + "dto userId " + dto.getUserId() + "dto username = " + dto.getUsername());
+//        broadcastRoom(dto.getRoomId());
     }
 
+
+    // ========================================================================
     private void broadcastRoom(String roomId) {
         Map<Object, Object> sessions =
                 redis.opsForHash().entries("room:" + roomId + ":sessions");

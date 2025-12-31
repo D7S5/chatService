@@ -3,7 +3,7 @@ package com.example.chatservice.component;
 import com.example.chatservice.dto.UserEnterDto;
 import com.example.chatservice.entity.User;
 import com.example.chatservice.redis.OnlineStatusService;
-import com.example.chatservice.redis.OnlineStatusServiceV2;
+import com.example.chatservice.redis.OnlineStatusServiceV3;
 import com.example.chatservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationListener;
