@@ -1,7 +1,6 @@
 package com.example.chatservice.component;
 
-import com.example.chatservice.redis.OnlineStatusService;
-import com.example.chatservice.redis.OnlineStatusServiceV2;
+import com.example.chatservice.redis.OnlineStatusServiceV3;
 import com.example.chatservice.service.ChatRoomV2Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +15,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 @Slf4j
 public class WebSocketEventListener {
 
-    private final OnlineStatusService onlineStatusService;
+    private final OnlineStatusServiceV3 onlineStatusService;
     private final ChatRoomV2Service chatRoomV2Service;
     private final StringRedisTemplate redis;
 
@@ -31,17 +30,11 @@ public class WebSocketEventListener {
 
         String roomId =
                 redis.opsForValue().get("RoomSession:" + sessionId + ":room");
-        String userId =
-                redis.opsForValue().get("RoomSession:" + sessionId + ":user");
 
         if (roomId != null) {
             chatRoomV2Service.leaveBySession(roomId, sessionId);
-            log.info("WS disconnect → leave room={}, user={}, session={}",
-                    roomId, userId, sessionId);
-        }
-
-        if (userId != null) {
-            onlineStatusService.markOffline(userId);
+//            log.info("WS disconnect → leave room={}, user={}, session={}",
+//                    roomId, userId, sessionId);
         }
     }
 }
