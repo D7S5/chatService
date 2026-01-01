@@ -15,7 +15,6 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 @Slf4j
 public class WebSocketEventListener {
 
-    private final OnlineStatusServiceV3 onlineStatusService;
     private final ChatRoomV2Service chatRoomV2Service;
     private final StringRedisTemplate redis;
 
@@ -29,12 +28,13 @@ public class WebSocketEventListener {
         if (sessionId == null) return;
 
         String roomId =
-                redis.opsForValue().get("RoomSession:" + sessionId + ":room");
+                redis.opsForValue().get("session:" + sessionId + ":room");
+        String userId =
+                (String) accessor.getSessionAttributes().get("userId");
 
         if (roomId != null) {
             chatRoomV2Service.leaveBySession(roomId, sessionId);
-//            log.info("WS disconnect → leave room={}, user={}, session={}",
-//                    roomId, userId, sessionId);
+//            System.out.println("Leave userId = " + userId + " roomId = " + roomId); // debug
         }
     }
 }

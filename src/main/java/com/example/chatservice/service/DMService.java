@@ -65,7 +65,7 @@ public class DMService {
 
     public String getReceiverId(String roomId, String senderId) {
         DMRoom room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("방 없음"));
+                .orElseThrow(() -> new IllegalArgumentException("Room not found"));
 
         return room.getUserAId().equals(senderId)
                 ? room.getUserBId()
@@ -87,7 +87,7 @@ public class DMService {
             return new DMRoomDto(
                     room.getRoomId(),
                     targetUser.getId(),
-                    targetUser.getUsername(), // 여기서 내 닉네임이 아니라 상대 닉네임 가져오기
+                    targetUser.getUsername(),
                     unread
             );
         }).toList();

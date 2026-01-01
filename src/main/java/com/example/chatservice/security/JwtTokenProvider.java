@@ -121,28 +121,6 @@ public class JwtTokenProvider {
         }
         return false;
     }
-    public boolean validateToken(String token, UserDetails userDetails) {
-        try {
-            // 시크릿 키를 SecretKey 객체로 변환
-            SecretKey key = Keys.hmacShaKeyFor(jwtConfig.getSecret().getBytes(StandardCharsets.UTF_8));
-
-            // 토큰 파싱
-            Claims claims = Jwts.parser()
-                    .verifyWith(key)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-
-            String username = claims.getSubject();
-            Date expiration = claims.getExpiration();
-
-            // 토큰 유효성 체크
-            return username.equals(userDetails.getUsername()) && expiration.after(new Date());
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
-        }
-    }
-
     public String getSubject(String token) {
         return Jwts.parser()
                 .verifyWith(key)

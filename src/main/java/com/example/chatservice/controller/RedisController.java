@@ -20,10 +20,9 @@ public class RedisController {
 
     @MessageMapping("/user.enter")
     public void userEnter(UserEnterDto dto, SimpMessageHeaderAccessor accessor) {
-        String sessionId = accessor.getSessionId();
-        System.out.println("Enter userId -> " + dto.getUserId() + " username => "  + dto.getUsername() + " sessionId => " + sessionId);
+//        String sessionId = accessor.getSessionId();
+//        System.out.println("Enter userId -> " + dto.getUserId() + " username => "  + dto.getUsername() + " sessionId => " + sessionId);
         if (dto.getUserId() == null || dto.getUsername() == null) return;
-
         onlineStatusService.markOnline(dto);
     }
     @MessageMapping("/user.heartbeat")
@@ -35,10 +34,9 @@ public class RedisController {
     }
 
     @MessageMapping("/user.leave")
-    public void leave(Map<String, String> payload) {
+    public void leave(SimpMessageHeaderAccessor accessor) {
 
-        String userId = payload.get("userId");
-
+        String userId = (String) accessor.getSessionAttributes().get("userId");
         if ( userId != null) {
             onlineStatusService.markOffline(userId);
         }
