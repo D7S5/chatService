@@ -12,7 +12,6 @@ public class WebSocketEventPublisher {
 
     private final SimpMessagingTemplate messagingTemplate;
 
-    /** 친구 관련 이벤트 발행 */
     public void publishFriendEvent(String userId, Map<String, Object> payload) {
         messagingTemplate.convertAndSend("/topic/friends/" + userId, payload);
     }

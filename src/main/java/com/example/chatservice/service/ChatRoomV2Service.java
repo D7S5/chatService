@@ -54,26 +54,27 @@ public class ChatRoomV2Service {
     private String usersKey(String roomId) {
         return "room:" + roomId + ":sessions";
     }
+
     public void enter(RoomEnterDto dto, SimpMessageHeaderAccessor accessor) {
 
         String sessionId = accessor.getSessionId();
         String roomId = dto.getRoomId();
-        String userId = dto.getUserId();
-        String username = dto.getUsername();
+        String userId = (String) accessor.getSessionAttributes().get("userId");
+
+//        System.out.println("Enter userId = " + userId + " roomId = " + roomId); // debug
 
         String existingRoom =
-                redis.opsForValue().get("RoomSession:" + sessionId + ":room");
+                redis.opsForValue().get("session:" + sessionId + ":room");
 
         if (existingRoom != null && !existingRoom.equals(roomId)) {
             leaveBySession(existingRoom, sessionId);
         }
-
         redis.opsForValue().set(
-                "RoomSession:" + sessionId + ":room",
+                "session:" + sessionId + ":room",
                 roomId
         );
         redis.opsForValue().set(
-                "RoomSession:" + sessionId + ":user",
+                "session:" + sessionId + ":user",
                 userId
         );
         redis.opsForHash().put(
@@ -82,56 +83,22 @@ public class ChatRoomV2Service {
                 userId
         );
 
-//      username 캐싱
-        if (username != null && !username.isBlank()) {
-            redis.opsForValue().set(
-                    "user:" + userId + ":username",
-                    username,
-                    Duration.ofHours(1)
-            );
-        }
-        broadcastRoomCount(roomId);
-        broadcastGetCurrentCount(roomId);
-    }
-
-    private ChatRoomV2 getRoomOrThrow(String roomId) {
-        return chatRoomV2Repository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("Room is not found"));
-    }
-    public void leave(SimpMessageHeaderAccessor accessor) {
-
-        String sessionId = accessor.getSessionId();
-
-        String roomId =
-                redis.opsForValue().get("RoomSession:" + sessionId + ":room");
-        String userId =
-                redis.opsForValue().get("RoomSession:" + sessionId + ":user");
-
-        if (roomId == null || userId == null) return;
-
-        redis.opsForHash().delete(
-                "room:" + roomId + ":sessions",
-                sessionId
-        );
-
-        redis.delete("RoomSession:" + sessionId + ":room");
-        redis.delete("RoomSession:" + sessionId + ":user");
-
-        log.info("LEAVE room={}, user={}, session={}", roomId, userId, sessionId);
-
         broadcastRoomCount(roomId);
         broadcastGetCurrentCount(roomId);
     }
 
     public void leaveBySession(String roomId, String sessionId) {
 
+//        Map<Object, Object> list = redis.opsForHash().entries("room:"+ roomId + ":sessions");
+//        System.out.println("Session list RoomId = " + roomId + ", list = " + list);
+
         redis.opsForHash().delete(
                 "room:" + roomId + ":sessions",
                 sessionId
         );
 
-        redis.delete("RoomSession:" + sessionId + ":room");
-        redis.delete("RoomSession:" + sessionId + ":user");
+        redis.delete("session:" + sessionId + ":room");
+        redis.delete("session:" + sessionId + ":user");
 
         broadcastRoomCount(roomId);
         broadcastGetCurrentCount(roomId);
@@ -162,19 +129,6 @@ public class ChatRoomV2Service {
                 .distinct()
                 .count();
     }
-
-    /* REST 조회용 */
-//    public List<ParticipantDto> getParticipants(String roomId) {
-//        return redis.opsForHash().entries(usersKey(roomId))
-//                .entrySet()
-//                .stream()
-//                .filter(e -> e.getValue() != null)
-//                .map(e -> new ParticipantDto(
-//                        e.getValue().toString(),
-//                        loadUsername(e.getValue().toString())
-//                ))
-//                .toList();
-//    }
 
     public List<ParticipantDto> getParticipants(String roomId) {
         Map<Object, Object> sessions =
