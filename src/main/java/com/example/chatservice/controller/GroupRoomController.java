@@ -1,5 +1,6 @@
 package com.example.chatservice.controller;
 
+import com.example.chatservice.dto.ChatMessageResponse;
 import com.example.chatservice.dto.ParticipantDto;
 import com.example.chatservice.dto.RoomResponse;
 import com.example.chatservice.dto.UserEnterDto;
@@ -40,7 +41,7 @@ public class GroupRoomController {
     }
 
     @GetMapping("/{roomId}/messages")
-    public List<UserEnterDto.ChatMessageResponse> messages(
+    public List<ChatMessageResponse> messages(
             @PathVariable String roomId,
             @RequestParam(defaultValue = "50") int limit
     ) {
@@ -55,7 +56,7 @@ public class GroupRoomController {
         Collections.reverse(entities);
 
         return entities.stream()
-                .map(UserEnterDto.ChatMessageResponse::from)
+                .map(ChatMessageResponse::from)
                 .toList();
     }
 
