@@ -1,9 +1,6 @@
 package com.example.chatservice.service;
 
-import com.example.chatservice.dto.CreateRoomRequest;
-import com.example.chatservice.dto.ParticipantDto;
-import com.example.chatservice.dto.RoomEnterDto;
-import com.example.chatservice.dto.RoomResponse;
+import com.example.chatservice.dto.*;
 import com.example.chatservice.entity.ChatRoomV2;
 import com.example.chatservice.repository.ChatRoomV2Repository;
 import com.example.chatservice.repository.UserRepository;
@@ -18,6 +15,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -45,7 +43,17 @@ public class ChatRoomV2Service {
                 req.getMaxParticipants()
         );
         chatRoomV2Repository.save(room);
-        RoomResponse res = RoomResponse.create(room);
+
+        String inviteToken = null;
+        if (req.getType() == RoomType.PRIVATE) {
+            inviteToken = UUID.randomUUID().toString();
+            redis.opsForValue().set(
+                    "room:invite:" + inviteToken,
+                    room.getRoomId(),
+                    Duration.ofMinutes(10) // 초대만료
+            );
+        }
+        RoomResponse res = RoomResponse.of(room, inviteToken);
 
         return res;
     }

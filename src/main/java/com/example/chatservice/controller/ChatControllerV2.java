@@ -6,23 +6,21 @@ import com.example.chatservice.dto.GroupMessageDto;
 import com.example.chatservice.dto.RoomResponse;
 import com.example.chatservice.entity.ChatRoomV2;
 import com.example.chatservice.kafka.GroupMessageProducer;
-import com.example.chatservice.repository.ChatRoomV2Repository;
 import com.example.chatservice.service.ChatRoomV2Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.Response;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
 
-@Controller
+@RestController
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/rooms")
@@ -30,11 +28,10 @@ public class ChatControllerV2 {
 
     private final SimpMessagingTemplate messagingTemplate;
 
+    private final StringRedisTemplate redis;
+
 
     private final ChatRoomV2Service chatRoomV2Service;
-    private final ChatRoomV2Repository chatRoomV2Repository;
-
-    private final StringRedisTemplate redis;
     private final GroupMessageProducer groupMessageProducer;
 
     private final ChatRateLimiter chatRateLimiter;
@@ -50,12 +47,11 @@ public class ChatControllerV2 {
 //            log.info("chatRateLimiter roomId = {} ", msg.getRoomId());
             return ;
         }
-        // ❌ 제한 or 밴 상태
         if (!chatRateLimiter.allowOrBan(msg.getSenderId())) {
 
             long ttl = chatRateLimiter.getBanTtl(msg.getSenderId());
 
-            // 🔥 본인에게만 제한 알림
+            // 본인에게 제한 알림
             messagingTemplate.convertAndSendToUser(
                     msg.getSenderId(),
                     "/queue/rate-limit",
@@ -69,9 +65,22 @@ public class ChatControllerV2 {
         groupMessageProducer.send(msg);
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public RoomResponse create(@RequestBody CreateRoomRequest request) {
         return chatRoomV2Service.createV2(request);
+    }
+
+    @GetMapping("/invite/{token}")
+    public ResponseEntity<?> enterByInvite(@PathVariable String token) {
+
+        String roomId = redis.opsForValue().get("room:invite:" + token);
+        if (roomId == null) {
+            return ResponseEntity.status(HttpStatus.GONE)
+                    .body("초대 링크가 만료되었습니다.");
+        }
+        return ResponseEntity.ok(
+                Map.of("roomId", roomId)
+        );
     }
 
     @GetMapping
