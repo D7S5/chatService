@@ -35,10 +35,10 @@ public class GroupRoomController {
                 .orElseThrow(() -> new IllegalArgumentException("Room is not found"));
     }
 
-    @GetMapping("/{roomId}/participants")
-    public List<ParticipantDto> participants(@PathVariable String roomId) {
-        return roomV2Service.getParticipants(roomId);
-    }
+//    @GetMapping("/{roomId}/participants")
+//    public List<ParticipantDto> participants(@PathVariable String roomId) {
+//        return roomV2Service.getParticipants(roomId);
+//    }
 
     @GetMapping("/{roomId}/messages")
     public List<ChatMessageResponse> messages(

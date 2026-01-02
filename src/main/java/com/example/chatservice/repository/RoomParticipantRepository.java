@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RoomParticipantRepository extends JpaRepository<RoomParticipant, Long> {
-    Optional<RoomParticipant> findByRoomIdAndUserId(String roomId, String userId);
-
     List<RoomParticipant> findAllByRoomIdAndIsActiveTrue(String roomId);
 
     boolean existsByRoomIdAndRoleAndIsActive(
@@ -17,4 +15,19 @@ public interface RoomParticipantRepository extends JpaRepository<RoomParticipant
             RoomRole role,
             boolean isActive
     );
+
+    List<RoomParticipant> findAllByRoomIdAndRoleAndIsActiveTrue(
+            String roomId,
+            RoomRole role
+    );
+
+    boolean existsByRoomIdAndUserId(String roomId, String userId);
+
+    Optional<RoomParticipant> findByRoomIdAndUserId(String roomId, String userId);
+
+    List<RoomParticipant> findByRoomId(String roomId);
+
+    long countByRoomId(String roomId);
+
+    void deleteByRoomIdAndUserId(String roomId, String userId);
 }

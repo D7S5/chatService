@@ -92,7 +92,7 @@ public class ChatRoomV2Service {
         );
 
         broadcastRoomCount(roomId);
-        broadcastGetCurrentCount(roomId);
+//        broadcastGetCurrentCount(roomId);
     }
 
     public void leaveBySession(String roomId, String sessionId) {
@@ -109,7 +109,7 @@ public class ChatRoomV2Service {
         redis.delete("session:" + sessionId + ":user");
 
         broadcastRoomCount(roomId);
-        broadcastGetCurrentCount(roomId);
+//        broadcastGetCurrentCount(roomId);
     }
 
     private void broadcastRoomCount(String roomId) {
@@ -122,14 +122,14 @@ public class ChatRoomV2Service {
         );
     }
 
-    private void broadcastGetCurrentCount(String roomId) {
-        List<ParticipantDto> users = getParticipants(roomId);
-
-        messagingTemplate.convertAndSend(
-                "/topic/room-users/" + roomId,
-                users
-        );
-    }
+//    private void broadcastGetCurrentCount(String roomId) {
+//        List<ParticipantDto> users = getParticipants(roomId);
+//
+//        messagingTemplate.convertAndSend(
+//                "/topic/room-users/" + roomId,
+//                users
+//        );
+//    }
 
     private int getCurrentCount(String roomId) {
         Map<Object, Object> sessions = redis.opsForHash().entries(usersKey(roomId));
@@ -138,18 +138,18 @@ public class ChatRoomV2Service {
                 .count();
     }
 
-    public List<ParticipantDto> getParticipants(String roomId) {
-        Map<Object, Object> sessions =
-                redis.opsForHash().entries(usersKey(roomId));
-
-        return sessions.values().stream()
-                .filter(Objects::nonNull)
-                .distinct()
-                .map(userId -> new ParticipantDto(
-                        userId.toString(),
-                        loadUsername(userId.toString())
-                )).toList();
-    }
+//    public List<ParticipantDto> getParticipants(String roomId) {
+//        Map<Object, Object> sessions =
+//                redis.opsForHash().entries(usersKey(roomId));
+//
+//        return sessions.values().stream()
+//                .filter(Objects::nonNull)
+//                .distinct()
+//                .map(userId -> new ParticipantDto(
+//                        userId.toString(),
+//                        loadUsername(userId.toString())
+//                )).toList();
+//    }
 
     private String loadUsername(String userId) {
 

@@ -8,4 +8,5 @@ import lombok.Getter;
 public class ParticipantDto {
     private String userId;
     private String username;
+    private RoomRole role;
 }
