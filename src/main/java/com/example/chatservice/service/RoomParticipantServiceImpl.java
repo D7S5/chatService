@@ -3,14 +3,15 @@ package com.example.chatservice.service;
 import com.example.chatservice.dto.ParticipantDto;
 import com.example.chatservice.dto.RoomRole;
 import com.example.chatservice.entity.RoomParticipant;
+import com.example.chatservice.repository.ParticipantRepository;
 import com.example.chatservice.repository.RoomParticipantRepository;
 import com.example.chatservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.Duration;
@@ -28,26 +29,8 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     private final UserRepository userRepository;
     private final StringRedisTemplate redis;
 
-    /* =======================
-       JOIN / RECONNECT
-       ======================= */
-//
-//    @Override
-//    @Transactional
-//    public void joinRoom(String roomId, String userId) {
-//        RoomParticipant participant = repository
-//                .findByRoomIdAndUserId(roomId, userId)
-//                .orElseGet(() -> createNewParticipant(roomId, userId));
-//
-//        if (participant.isBanned()) {
-//            throw new IllegalStateException("Banned user");
-//        }
-//
-//        participant.activate();
-//        repository.save(participant);
-//
-//        syncRedisJoin(roomId, userId);
-//    }
+    private final ParticipantEventPublisher publisher;
+
     @Override
     @Transactional
     public void joinRoom(String roomId, String userId) {
@@ -57,34 +40,42 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                         .orElse(null);
 
         if (participant != null) {
-            participant.activate();
-            repository.save(participant);
-            syncRedisJoin(roomId, userId);
+            if (!participant.isActive()) {
+                participant.activate();
+                repository.save(participant);
+                syncRedisJoin(roomId, userId);
+
+                publisher.broadcastJoin(
+                        roomId,
+                        toDto(participant)
+                );
+            }
             return;
         }
 
-        // 👇 여기서 OWNER 조회
-        List<RoomParticipant> owners =
-                repository.findAllByRoomIdAndRoleAndIsActiveTrue(roomId, OWNER);
+        boolean ownerExists =
+                repository.existsByOwnerRoomId(roomId);
 
-        RoomRole role = owners.isEmpty()
-                ? OWNER
-                : RoomRole.MEMBER;
-
-        repository.save(
+        RoomParticipant saved = repository.save(
                 RoomParticipant.builder()
                         .roomId(roomId)
                         .userId(userId)
-                        .role(role)
+                        .role(ownerExists ? RoomRole.MEMBER : RoomRole.OWNER)
+                        .ownerRoomId(ownerExists ? null : roomId)
                         .build()
         );
 
         syncRedisJoin(roomId, userId);
+
+        publisher.broadcastJoin(
+                roomId,
+                toDto(saved)
+        );
     }
 
     @Override
     public void reconnect(String roomId, String userId) {
-        joinRoom(roomId, userId); // 동일 로직
+//        joinRoom(roomId, userId); // 동일 로직
     }
 
     private RoomParticipant createNewParticipant(String roomId, String userId) {
@@ -113,6 +104,11 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
 
         syncRedisLeave(roomId, userId);
 
+        publisher.broadcastLeave(
+                roomId,
+                toDto(participant)
+        );
+
         // 방장 자동 위임
         if (participant.getRole() == OWNER) {
             autoTransferOwner(roomId);
@@ -132,6 +128,12 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
 
         repository.save(target);
         syncRedisLeave(roomId, targetUserId);
+
+        publisher.broadcastLeave(
+                roomId,
+                toDto(target),
+                "KICK"
+        );
     }
 
     @Override
@@ -280,5 +282,13 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         }
         redis.opsForValue().set(key, fromDb, Duration.ofHours(1));
         return fromDb;
+    }
+
+    private ParticipantDto toDto(RoomParticipant p) {
+        return new ParticipantDto(
+                p.getUserId(),
+                loadUsername(p.getUserId()),
+                p.getRole()
+        );
     }
 }

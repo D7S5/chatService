@@ -31,6 +31,8 @@ public class RoomParticipant {
     @Column(nullable = false)
     OffsetDateTime joinedAt;
 
+    private String ownerRoomId;
+
     /** 마지막 활동 시각 (heartbeat / 메시지) */
     private OffsetDateTime lastActiveAt;
 

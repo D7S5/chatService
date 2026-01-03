@@ -53,8 +53,8 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/login/**", "/oauth2/**", "/login/oauth2/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/rooms").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/rooms").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/rooms/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/rooms/**").permitAll()
                         .requestMatchers("/api/user/nickname/check").permitAll()
                         .requestMatchers("/api/user/oauth/nickname").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()

@@ -3,7 +3,6 @@ package com.example.chatservice.service;
 import com.example.chatservice.dto.ParticipantDto;
 import com.example.chatservice.dto.RoomRole;
 import com.example.chatservice.entity.RoomParticipant;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -26,5 +25,4 @@ public interface RoomParticipantService {
     List<RoomParticipant> getActiveParticipants(String roomId);
 
     List<ParticipantDto> getParticipants(String roomId);
-
 }
