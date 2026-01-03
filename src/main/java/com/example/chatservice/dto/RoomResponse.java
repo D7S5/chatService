@@ -16,17 +16,8 @@ public class RoomResponse {
     private int maxParticipants;
     private int currentCount;
     private boolean largeRoom;
+    private String inviteToken; // PRIVATE일 때만
 
-    public static RoomResponse create(ChatRoomV2 r) {
-        return new RoomResponse(
-                r.getRoomId(),
-                r.getName(),
-                r.getType(),
-                r.getMaxParticipants(),
-                0,
-                r.isLargeRoom()
-        );
-    }
     public static RoomResponse from(ChatRoomV2 r, int currentCount) {
         return new RoomResponse(
                 r.getRoomId(),
@@ -34,7 +25,20 @@ public class RoomResponse {
                 r.getType(),
                 r.getMaxParticipants(),
                 currentCount,
-                r.isLargeRoom()
+                r.isLargeRoom(),
+                null
+        );
+    }
+
+    public static RoomResponse of(ChatRoomV2 room, String inviteToken) {
+        return new RoomResponse(
+                room.getRoomId(),
+                room.getName(),
+                room.getType(),
+                room.getMaxParticipants(),
+                0,
+                room.isLargeRoom(),
+                inviteToken
         );
     }
 }

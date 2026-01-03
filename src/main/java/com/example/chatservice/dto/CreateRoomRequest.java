@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 public class CreateRoomRequest {
 
     private String name;
-    private RoomType type;
     private int maxParticipants;
+    private RoomType type;
 }

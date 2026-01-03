@@ -1,5 +1,6 @@
 package com.example.chatservice.controller;
 
+import com.example.chatservice.dto.ChatMessageResponse;
 import com.example.chatservice.dto.ParticipantDto;
 import com.example.chatservice.dto.RoomResponse;
 import com.example.chatservice.dto.UserEnterDto;
@@ -34,13 +35,13 @@ public class GroupRoomController {
                 .orElseThrow(() -> new IllegalArgumentException("Room is not found"));
     }
 
-    @GetMapping("/{roomId}/participants")
-    public List<ParticipantDto> participants(@PathVariable String roomId) {
-        return roomV2Service.getParticipants(roomId);
-    }
+//    @GetMapping("/{roomId}/participants")
+//    public List<ParticipantDto> participants(@PathVariable String roomId) {
+//        return roomV2Service.getParticipants(roomId);
+//    }
 
     @GetMapping("/{roomId}/messages")
-    public List<UserEnterDto.ChatMessageResponse> messages(
+    public List<ChatMessageResponse> messages(
             @PathVariable String roomId,
             @RequestParam(defaultValue = "50") int limit
     ) {
@@ -55,7 +56,7 @@ public class GroupRoomController {
         Collections.reverse(entities);
 
         return entities.stream()
-                .map(UserEnterDto.ChatMessageResponse::from)
+                .map(ChatMessageResponse::from)
                 .toList();
     }
 

@@ -3,15 +3,16 @@ package com.example.chatservice.component;
 import com.example.chatservice.dto.UserEnterDto;
 import com.example.chatservice.entity.User;
 import com.example.chatservice.redis.OnlineStatusService;
-import com.example.chatservice.redis.OnlineStatusServiceV3;
 import com.example.chatservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class WebSocketConnectHandler implements ApplicationListener<SessionConnectEvent> {
 
@@ -26,6 +27,11 @@ public class WebSocketConnectHandler implements ApplicationListener<SessionConne
         var sessionAttrs = accessor.getSessionAttributes();
 
         String sessionId = accessor.getSessionId();
+
+        if (sessionAttrs == null) {
+            log.warn("Session attributes is null. sessionId={}", sessionId);
+            return;
+        }
 
         String userId = (String) sessionAttrs.get("userId");
         if (userId == null) {
