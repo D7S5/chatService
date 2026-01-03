@@ -9,7 +9,15 @@ import java.time.OffsetDateTime;
 @Entity
 @Getter
 @Setter
-@Table(name = "room_participants")
+@Table(
+        name = "room_participant",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_room_owner",
+                        columnNames = "owner_room_id"
+                )
+        }
+)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -31,6 +39,7 @@ public class RoomParticipant {
     @Column(nullable = false)
     OffsetDateTime joinedAt;
 
+    @Column(name = "owner_room_id", unique = true)
     private String ownerRoomId;
 
     /** 마지막 활동 시각 (heartbeat / 메시지) */
