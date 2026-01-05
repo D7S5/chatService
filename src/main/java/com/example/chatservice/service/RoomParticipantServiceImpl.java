@@ -2,13 +2,13 @@ package com.example.chatservice.service;
 
 import com.example.chatservice.dto.ParticipantDto;
 import com.example.chatservice.dto.RoomRole;
+import com.example.chatservice.entity.ChatRoomV2;
 import com.example.chatservice.entity.RoomParticipant;
-import com.example.chatservice.repository.ParticipantRepository;
+import com.example.chatservice.repository.ChatRoomV2Repository;
 import com.example.chatservice.repository.RoomParticipantRepository;
 import com.example.chatservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.time.Duration;
 import java.util.List;
 
+import static com.example.chatservice.dto.RoomRole.MEMBER;
 import static com.example.chatservice.dto.RoomRole.OWNER;
 
 @Service
@@ -29,50 +30,39 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     private final UserRepository userRepository;
     private final StringRedisTemplate redis;
 
-    private final ParticipantEventPublisher publisher;
+    private final ChatRoomV2Repository roomRepository;
+
+    private final ParticipantEventPublisherImpl publisher;
 
     @Override
     @Transactional
     public void joinRoom(String roomId, String userId) {
 
-        RoomParticipant participant =
-                repository.findByRoomIdAndUserId(roomId, userId)
-                        .orElse(null);
+        boolean ownerUser = checkOwnerUser(roomId, userId);
 
-        if (participant != null) {
-            if (!participant.isActive()) {
-                participant.activate();
-                repository.save(participant);
-                syncRedisJoin(roomId, userId);
-
-                publisher.broadcastJoin(
-                        roomId,
-                        toDto(participant)
-                );
-            }
-            return;
+        if (ownerUser) {
+            CheckOwner(roomId, userId, OWNER);
+        } else {
+            CheckOwner(roomId, userId, MEMBER);
         }
-
-        boolean ownerExists =
-                repository.existsByOwnerRoomId(roomId);
-
-        RoomParticipant saved = repository.save(
-                RoomParticipant.builder()
-                        .roomId(roomId)
-                        .userId(userId)
-                        .role(ownerExists ? RoomRole.MEMBER : RoomRole.OWNER)
-                        .ownerRoomId(ownerExists ? null : roomId)
-                        .build()
-        );
-
-        syncRedisJoin(roomId, userId);
-
-        publisher.broadcastJoin(
-                roomId,
-                toDto(saved)
-        );
     }
 
+    private void CheckOwner(String roomId, String userId, RoomRole roomRole) {
+        RoomParticipant p = repository.findByRoomIdAndUserId(roomId, userId)
+                .orElseGet(() -> repository.save(
+                        RoomParticipant.builder()
+                                .roomId(roomId)
+                                .userId(userId)
+                                .role(roomRole)
+                                .build()
+                ));
+
+        p.activate();
+        repository.save(p);
+        syncRedisJoin(roomId, userId);
+
+        publisher.broadcastJoin(roomId, toDto(p));
+    }
     @Override
     public void reconnect(String roomId, String userId) {
 //        joinRoom(roomId, userId); // 동일 로직
@@ -82,7 +72,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         boolean ownerExists =
                 repository.existsByRoomIdAndRoleAndIsActive(roomId, OWNER, true);
 
-        RoomRole role = ownerExists ? RoomRole.MEMBER : OWNER;
+        RoomRole role = ownerExists ? MEMBER : OWNER;
 
         return RoomParticipant.builder()
                 .roomId(roomId)
@@ -110,9 +100,9 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         );
 
         // 방장 자동 위임
-        if (participant.getRole() == OWNER) {
-            autoTransferOwner(roomId);
-        }
+//        if (participant.getRole() == OWNER) {
+//            autoTransferOwner(roomId);
+//        }
     }
 
     /* =======================
@@ -177,16 +167,52 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
             String newOwnerId,
             String byUserId
     ) {
-        validateOwner(roomId, byUserId);
+        requireOwner(roomId, byUserId);
 
-        RoomParticipant currentOwner = getParticipant(roomId, byUserId);
-        RoomParticipant newOwner = getParticipant(roomId, newOwnerId);
+        ChatRoomV2 room = roomRepository.findByIdForUpdate(roomId);
 
-        currentOwner.changeRole(RoomRole.ADMIN);
-        newOwner.changeRole(OWNER);
+        if (!room.getOwnerUserId().equals(byUserId)) {
+            new SecurityException("Owner only");
+        }
 
-        repository.save(currentOwner);
-        repository.save(newOwner);
+        if (byUserId.equals(newOwnerId)) return;
+
+        RoomParticipant currentOwner =
+                repository.findByRoomIdAndUserId(roomId, byUserId)
+                                .orElseThrow();
+        RoomParticipant newOwner =
+                repository.findByRoomIdAndUserId(roomId, newOwnerId)
+                                .orElseThrow();
+
+        room.setOwnerUserId(newOwnerId);
+        roomRepository.save(room);
+
+        publisher.broadcastOwnerChanged(roomId, newOwnerId);
+    }
+
+    private void requireOwner(String roomId, String userId) {
+        ChatRoomV2 room = roomRepository.findById(roomId).orElseThrow();
+
+        if (!room.getOwnerUserId().equals(userId)) {
+            throw new SecurityException("OWNER only");
+        }
+    }
+
+    private void requireAdmin(String roomId, String userId) {
+        ChatRoomV2 room = roomRepository.findById(roomId).orElseThrow();
+
+        if (room.getOwnerUserId().equals(userId)) return;
+
+        RoomParticipant p =
+                repository.findByRoomIdAndUserId(roomId, userId)
+                        .orElseThrow();
+
+        if (p.getRole() != RoomRole.ADMIN) {
+            throw new SecurityException("ADMIN only");
+        }
+    }
+    public boolean checkOwnerUser(String roomId, String userId) {
+        return roomRepository.existsByRoomIdAndOwnerUserId(roomId, userId);
     }
 
     /* =======================
@@ -225,7 +251,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
 
     private void validateAdmin(String roomId, String userId) {
         RoomParticipant p = getParticipant(roomId, userId);
-        if (p.getRole() == RoomRole.MEMBER) {
+        if (p.getRole() == MEMBER) {
             throw new SecurityException("No permission");
         }
     }
@@ -248,6 +274,11 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                 .ifPresent(newOwner -> {
                     newOwner.changeRole(OWNER);
                     repository.save(newOwner);
+
+                    publisher.broadcastOwnerChanged(
+                            roomId,
+                            newOwner.getUserId()
+                    );
                 });
     }
 
