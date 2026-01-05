@@ -111,9 +111,13 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
 
     @Override
     public void kick(String roomId, String targetUserId, String byUserId) {
-        validateAdmin(roomId, byUserId);
+        requireAdmin(roomId, byUserId);
 
+        if (byUserId.equals(targetUserId)) {
+            throw new IllegalStateException("Cannot kick yourself");
+        }
         RoomParticipant target = getParticipant(roomId, targetUserId);
+
         target.deactivate();
 
         repository.save(target);
@@ -128,13 +132,20 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
 
     @Override
     public void ban(String roomId, String targetUserId, String byUserId, String reason) {
-        validateAdmin(roomId, byUserId);
+        requireOwner(roomId, byUserId);
 
-        RoomParticipant target = getParticipant(roomId, targetUserId);
+        ChatRoomV2 room = roomRepository.findByRoomId(roomId)
+                .orElseThrow();
+
+        if (!room.getOwnerUserId().equals(byUserId)) {
+            throw new SecurityException("Owner only");
+        }
 
         if (targetUserId.equals(byUserId)) {
             throw new IllegalStateException("Cannot ban yourself");
         }
+
+        RoomParticipant target = getParticipant(roomId, targetUserId);
 
         target.ban(reason);
 
@@ -249,12 +260,12 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                         new IllegalStateException("Participant not found"));
     }
 
-    private void validateAdmin(String roomId, String userId) {
-        RoomParticipant p = getParticipant(roomId, userId);
-        if (p.getRole() == MEMBER) {
-            throw new SecurityException("No permission");
-        }
-    }
+//    private void validateAdmin(String roomId, String userId) {
+//        RoomParticipant p = getParticipant(roomId, userId);
+//        if (p.getRole() == MEMBER) {
+//            throw new SecurityException("No permission");
+//        }
+//    }
 
     private void validateOwner(String roomId, String userId) {
         RoomParticipant p = getParticipant(roomId, userId);
