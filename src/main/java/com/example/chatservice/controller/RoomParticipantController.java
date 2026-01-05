@@ -2,6 +2,7 @@ package com.example.chatservice.controller;
 
 import com.example.chatservice.dto.ParticipantDto;
 import com.example.chatservice.security.UserPrincipal;
+import com.example.chatservice.service.RoomCountBroadcaster;
 import com.example.chatservice.service.RoomParticipantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,14 +17,15 @@ import java.util.List;
 public class RoomParticipantController {
 
     private final RoomParticipantService service;
+    private final RoomCountBroadcaster countBroadcaster;
 
     @PostMapping
     public ResponseEntity<Void> join(
             @PathVariable String roomId,
             @AuthenticationPrincipal UserPrincipal user
     ) {
-//        System.out.println("user.getId() = " + user.getId());
         service.joinRoom(roomId, user.getId());
+        countBroadcaster.broadcast(roomId);
         return ResponseEntity.ok().build();
     }
 
@@ -33,6 +35,7 @@ public class RoomParticipantController {
             @AuthenticationPrincipal UserPrincipal user
     ) {
         service.leaveRoom(roomId, user.getId());
+        countBroadcaster.broadcast(roomId);
         return ResponseEntity.noContent().build();
     }
 

@@ -22,6 +22,8 @@ public class RoomAdminController {
                                          @RequestBody KickRequest request,
                                          @AuthenticationPrincipal UserPrincipal me
                                          ) {
+
+        System.out.println("me = " + me.getId() + " targetId = " + request.getTargetUserId());
         service.kick(
                 roomId,
                 me.getId(),
@@ -36,6 +38,8 @@ public class RoomAdminController {
             @RequestBody BanRequest request,
             @AuthenticationPrincipal UserPrincipal me
             ) {
+        System.out.println("ban target = " + request.getTargetUserId() +
+                "Reason = " + request.getReason());
         service.ban(
                 roomId,
                 me.getId(),

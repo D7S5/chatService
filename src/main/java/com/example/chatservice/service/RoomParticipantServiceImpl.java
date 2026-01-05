@@ -10,6 +10,7 @@ import com.example.chatservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -137,29 +138,24 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     public void ban(String roomId, String targetUserId, String byUserId, String reason) {
         requireOwner(roomId, byUserId);
 
-        ChatRoomV2 room = roomRepository.findByRoomId(roomId)
-                .orElseThrow();
-
-        if (!room.getOwnerUserId().equals(byUserId)) {
-            throw new SecurityException("Owner only");
-        }
-
         if (targetUserId.equals(byUserId)) {
             throw new IllegalStateException("Cannot ban yourself");
         }
 
-        RoomParticipant target = getParticipant(roomId, targetUserId);
+        RoomParticipant target = repository
+                .findByRoomIdAndUserId(roomId, targetUserId)
+                .orElseThrow(() -> new IllegalStateException("Target not in room"));
 
-        target.ban(reason);
+        if (target.getRole() == RoomRole.OWNER) {
+            throw new IllegalStateException("Cannot ban OWNER");
+        }
+
+        target.ban(reason);   // isBanned=true, isActive=false
 
         repository.save(target);
         syncRedisLeave(roomId, targetUserId);
 
-        publisher.broadcastLeave(
-                roomId,
-                toDto(target),
-                "BAN"
-        );
+        publisher.broadcastLeave(roomId, toDto(target), "BAN");
     }
 
     /* =======================
@@ -219,16 +215,12 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     }
 
     private void requireAdmin(String roomId, String userId) {
-        ChatRoomV2 room = roomRepository.findById(roomId).orElseThrow();
+        RoomParticipant p = repository
+                .findByRoomIdAndUserId(roomId, userId)
+                .orElseThrow(() -> new AccessDeniedException("Not in room"));
 
-        if (room.getOwnerUserId().equals(userId)) return;
-
-        RoomParticipant p =
-                repository.findByRoomIdAndUserId(roomId, userId)
-                        .orElseThrow();
-
-        if (p.getRole() != RoomRole.ADMIN) {
-            throw new SecurityException("ADMIN only");
+        if (p.getRole() == RoomRole.MEMBER) {
+            throw new AccessDeniedException("ADMIN only");
         }
     }
     public boolean checkOwnerUser(String roomId, String userId) {
@@ -305,6 +297,17 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     /* =======================
        REDIS SYNC
        ======================= */
+
+//    public int getCurrentCount(String roomId) {
+//        Long count = redis.opsForSet()
+//                .size("room:" + roomId + ":users");
+//
+//        return count != null ? count.intValue() : 0;
+//    }
+
+    public int getCurrentCount(String roomId) {
+        return repository.countByRoomIdAndIsActiveTrue(roomId);
+    }
 
     private void syncRedisJoin(String roomId, String userId) {
         redis.opsForSet()

@@ -19,7 +19,6 @@ public class ParticipantEventPublisherImpl implements ParticipantEventPublisher{
     private final SimpMessagingTemplate messagingTemplate;
 
     @Override
-
     public void broadcastJoin(
             String roomId,
             ParticipantDto dto) {
@@ -28,33 +27,32 @@ public class ParticipantEventPublisherImpl implements ParticipantEventPublisher{
                 new ParticipantEvent(
                         ParticipantEventType.JOIN,
                         roomId,
-                        new ParticipantDto(
-                                dto.getUserId(),
-                                dto.getUsername(),
-                                dto.getRole()
-                        ), null
+                        dto,
+                        null
                 )
         );
+        notifyRoomUsersChanged(roomId);
     }
     @Override
     public void broadcastLeave(
             String roomId,
-            ParticipantDto participant
+            ParticipantDto dto
     ) {
         messagingTemplate.convertAndSend(
                 "/topic/rooms/" + roomId + "/participants",
                 new ParticipantEvent(
                         ParticipantEventType.LEAVE,
                         roomId,
-                        participant,
+                        dto,
                         null
                 )
         );
+        notifyRoomUsersChanged(roomId);
     }
     @Override
     public void broadcastLeave(
             String roomId,
-            ParticipantDto participant,
+            ParticipantDto dto,
             String reason
     ) {
         messagingTemplate.convertAndSend(
@@ -62,12 +60,23 @@ public class ParticipantEventPublisherImpl implements ParticipantEventPublisher{
                 new ParticipantEvent(
                         ParticipantEventType.LEAVE,
                         roomId,
-                        participant,
+                        dto,
                         reason
                 )
         );
-    }
 
+        if (reason != null) {
+            messagingTemplate.convertAndSendToUser(
+                    dto.getUserId(),
+                    "/queue/room-force-exit",
+                    Map.of(
+                            "roomId", roomId,
+                            "reason", reason
+                    )
+            );
+        }
+        notifyRoomUsersChanged(roomId);
+    }
     @Override
     public void broadcastOwnerChanged(String roomId, String newOwnerId) {
         messagingTemplate.convertAndSend(
@@ -79,6 +88,27 @@ public class ParticipantEventPublisherImpl implements ParticipantEventPublisher{
                 "[OWNER_CHANGED] roomId={}, newOwnerId={}",
                 roomId, newOwnerId
         );
+    }
 
+    private void publishParticipantEvent(
+            String roomId,
+            ParticipantEvent event
+    ) {
+        // 참가자 이벤트
+        messagingTemplate.convertAndSend(
+                "/topic/rooms/" + roomId + "/participants",
+                event
+        );
+
+        // 🔥 프론트에서 REST 재조회 트리거
+        notifyRoomUsersChanged(roomId);
+    }
+
+
+    private void notifyRoomUsersChanged(String roomId) {
+        messagingTemplate.convertAndSend(
+                "/topic/room-users/" + roomId,
+                "UPDATED"
+        );
     }
 }
