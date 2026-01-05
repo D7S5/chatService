@@ -26,8 +26,8 @@ public class RoomAdminController {
         System.out.println("me = " + me.getId() + " targetId = " + request.getTargetUserId());
         service.kick(
                 roomId,
-                me.getId(),
-                request.getTargetUserId()
+                request.getTargetUserId(),
+                me.getId()
         );
         return ResponseEntity.ok().build();
     }
@@ -42,8 +42,8 @@ public class RoomAdminController {
                 "Reason = " + request.getReason());
         service.ban(
                 roomId,
-                me.getId(),
                 request.getTargetUserId(),
+                me.getId(),
                 request.getReason()
         );
         return ResponseEntity.ok().build();

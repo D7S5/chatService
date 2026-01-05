@@ -102,6 +102,11 @@ public class UserPrincipal implements UserDetails, OAuth2User {
             : provider.name().toLowerCase() + "_" + providerId;
     }
 
+//    @Override
+//    public String getName() {
+//        return id;
+//    }
+
     public String getId() {
         return String.valueOf(id);
     }

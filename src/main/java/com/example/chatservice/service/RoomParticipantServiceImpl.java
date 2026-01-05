@@ -10,6 +10,7 @@ import com.example.chatservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     private final StringRedisTemplate redis;
     private final ChatRoomV2Repository roomRepository;
     private final ParticipantEventPublisherImpl publisher;
+    private final SimpMessagingTemplate messaging;
 
     @Override
     @Transactional
@@ -132,6 +134,8 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                 toDto(target),
                 "KICK"
         );
+//        messaging.convertAndSendToUser(targetUserId, "/queue/room-force-exit",
+//                null);
     }
 
     @Override
@@ -298,12 +302,12 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
        REDIS SYNC
        ======================= */
 
-//    public int getCurrentCount(String roomId) {
-//        Long count = redis.opsForSet()
-//                .size("room:" + roomId + ":users");
-//
-//        return count != null ? count.intValue() : 0;
-//    }
+    public int getRedisCurrentCount(String roomId) {
+        Long count = redis.opsForSet()
+                .size("room:" + roomId + ":users");
+
+        return count != null ? count.intValue() : 0;
+    }
 
     public int getCurrentCount(String roomId) {
         return repository.countByRoomIdAndIsActiveTrue(roomId);

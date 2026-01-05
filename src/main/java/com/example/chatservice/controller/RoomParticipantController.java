@@ -34,6 +34,7 @@ public class RoomParticipantController {
             @PathVariable String roomId,
             @AuthenticationPrincipal UserPrincipal user
     ) {
+
         service.leaveRoom(roomId, user.getId());
         countBroadcaster.broadcast(roomId);
         return ResponseEntity.noContent().build();
