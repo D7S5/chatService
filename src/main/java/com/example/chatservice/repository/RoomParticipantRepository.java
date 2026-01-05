@@ -32,4 +32,6 @@ public interface RoomParticipantRepository extends JpaRepository<RoomParticipant
     void deleteByRoomIdAndUserId(String roomId, String userId);
 
     boolean existsByOwnerRoomId(String roomId);
+
+    boolean existsByRoomIdAndUserIdAndIsBannedTrue(String roomId, String userId);
 }

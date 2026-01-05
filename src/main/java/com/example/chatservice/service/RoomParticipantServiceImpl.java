@@ -29,9 +29,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     private final RoomParticipantRepository repository;
     private final UserRepository userRepository;
     private final StringRedisTemplate redis;
-
     private final ChatRoomV2Repository roomRepository;
-
     private final ParticipantEventPublisherImpl publisher;
 
     @Override
@@ -39,6 +37,10 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     public void joinRoom(String roomId, String userId) {
 
         boolean ownerUser = checkOwnerUser(roomId, userId);
+
+        if (repository.existsByRoomIdAndUserIdAndIsBannedTrue(roomId, userId)) {
+            throw new SecurityException("BANNED");
+        }
 
         if (ownerUser) {
             CheckOwner(roomId, userId, OWNER);
@@ -116,6 +118,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         if (byUserId.equals(targetUserId)) {
             throw new IllegalStateException("Cannot kick yourself");
         }
+
         RoomParticipant target = getParticipant(roomId, targetUserId);
 
         target.deactivate();
@@ -151,6 +154,12 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
 
         repository.save(target);
         syncRedisLeave(roomId, targetUserId);
+
+        publisher.broadcastLeave(
+                roomId,
+                toDto(target),
+                "BAN"
+        );
     }
 
     /* =======================
@@ -188,12 +197,12 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
 
         if (byUserId.equals(newOwnerId)) return;
 
-        RoomParticipant currentOwner =
-                repository.findByRoomIdAndUserId(roomId, byUserId)
-                                .orElseThrow();
-        RoomParticipant newOwner =
-                repository.findByRoomIdAndUserId(roomId, newOwnerId)
-                                .orElseThrow();
+//        RoomParticipant currentOwner =
+//                repository.findByRoomIdAndUserId(roomId, byUserId)
+//                                .orElseThrow();
+//        RoomParticipant newOwner =
+//                repository.findByRoomIdAndUserId(roomId, newOwnerId)
+//                                .orElseThrow();
 
         room.setOwnerUserId(newOwnerId);
         roomRepository.save(room);
