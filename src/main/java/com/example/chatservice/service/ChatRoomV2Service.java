@@ -32,7 +32,7 @@ public class ChatRoomV2Service {
         return chatRoomV2Repository.findAll();
     }
 
-    public RoomResponse createV2(CreateRoomRequest req) {
+    public RoomResponse createV2(CreateRoomRequest req, String userId) {
         if (req.getMaxParticipants() < 2) {
             throw new IllegalArgumentException("최소 인원은 2명입니다.");
         }
@@ -40,7 +40,8 @@ public class ChatRoomV2Service {
         ChatRoomV2 room = ChatRoomV2.create(
                 req.getName(),
                 req.getType(),
-                req.getMaxParticipants()
+                req.getMaxParticipants(),
+                userId
         );
         chatRoomV2Repository.save(room);
 
