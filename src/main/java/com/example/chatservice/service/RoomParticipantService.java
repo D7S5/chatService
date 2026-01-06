@@ -25,4 +25,6 @@ public interface RoomParticipantService {
     List<RoomParticipant> getActiveParticipants(String roomId);
 
     List<ParticipantDto> getParticipants(String roomId);
+
+    void broadcast(String roomId);
 }

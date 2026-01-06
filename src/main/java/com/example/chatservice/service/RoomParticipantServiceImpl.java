@@ -1,6 +1,7 @@
 package com.example.chatservice.service;
 
 import com.example.chatservice.dto.ParticipantDto;
+import com.example.chatservice.dto.RoomCountDto;
 import com.example.chatservice.dto.RoomRole;
 import com.example.chatservice.entity.ChatRoomV2;
 import com.example.chatservice.entity.RoomParticipant;
@@ -34,7 +35,8 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     private final StringRedisTemplate redis;
     private final ChatRoomV2Repository roomRepository;
     private final ParticipantEventPublisherImpl publisher;
-    private final SimpMessagingTemplate messaging;
+    private final SimpMessagingTemplate messagingTemplate;
+
 
     @Override
     @Transactional
@@ -104,6 +106,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                 roomId,
                 toDto(participant)
         );
+        broadcast(roomId);
 
         // 방장 자동 위임
 //        if (participant.getRole() == OWNER) {
@@ -135,8 +138,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                 toDto(target),
                 "KICK"
         );
-//        messaging.convertAndSendToUser(targetUserId, "/queue/room-force-exit",
-//                null);
+        broadcast(roomId);
     }
 
     @Override
@@ -160,7 +162,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         repository.save(target);
         syncRedisLeave(roomId, targetUserId);
 
-        publisher.broadcastLeave(roomId, toDto(target), "BAN");
+        publisher.broadcastLeave(roomId, toDto(target), reason);
     }
 
     /* =======================
@@ -197,14 +199,6 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         }
 
         if (byUserId.equals(newOwnerId)) return;
-
-//        RoomParticipant currentOwner =
-//                repository.findByRoomIdAndUserId(roomId, byUserId)
-//                                .orElseThrow();
-//        RoomParticipant newOwner =
-//                repository.findByRoomIdAndUserId(roomId, newOwnerId)
-//                                .orElseThrow();
-
         room.setOwnerUserId(newOwnerId);
         roomRepository.save(room);
 
@@ -348,6 +342,27 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                 p.getUserId(),
                 loadUsername(p.getUserId()),
                 p.getRole()
+        );
+    }
+    @Override
+    public void broadcast(String roomId) {
+        int current = getCurrentCount(roomId);
+
+        ChatRoomV2 room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new RuntimeException("broadcast"));
+
+        messagingTemplate.convertAndSend(
+                "/topic/room-users/" + roomId,
+                "UPDATED"
+        );
+
+        RoomCountDto dto = new RoomCountDto(
+                current,
+                room.getMaxParticipants()
+        );
+        messagingTemplate.convertAndSend(
+                "/topic/rooms/" + roomId + "/count",
+                dto
         );
     }
 }

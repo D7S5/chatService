@@ -58,8 +58,6 @@ public class ParticipantEventPublisherImpl implements ParticipantEventPublisher{
             ParticipantDto dto,
             String reason
     ) {
-        System.out.println("getUserId = " + dto.getUserId());
-
         messagingTemplate.convertAndSend(
                 "/topic/rooms/" + roomId + "/participants",
                 new ParticipantEvent(
