@@ -1,15 +1,19 @@
 package com.example.chatservice.service;
 
 import com.example.chatservice.dto.ParticipantDto;
+import com.example.chatservice.dto.RoomCountDto;
 import com.example.chatservice.dto.RoomRole;
 import com.example.chatservice.entity.ChatRoomV2;
 import com.example.chatservice.entity.RoomParticipant;
+import com.example.chatservice.exception.BannedFromRoomException;
 import com.example.chatservice.repository.ChatRoomV2Repository;
 import com.example.chatservice.repository.RoomParticipantRepository;
 import com.example.chatservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,16 +33,20 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     private final RoomParticipantRepository repository;
     private final UserRepository userRepository;
     private final StringRedisTemplate redis;
-
     private final ChatRoomV2Repository roomRepository;
-
     private final ParticipantEventPublisherImpl publisher;
+    private final SimpMessagingTemplate messagingTemplate;
+
 
     @Override
     @Transactional
     public void joinRoom(String roomId, String userId) {
 
         boolean ownerUser = checkOwnerUser(roomId, userId);
+
+        if (repository.existsByRoomIdAndUserIdAndIsBannedTrue(roomId, userId)) {
+            throw new BannedFromRoomException(roomId);
+        }
 
         if (ownerUser) {
             CheckOwner(roomId, userId, OWNER);
@@ -98,6 +106,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                 roomId,
                 toDto(participant)
         );
+        broadcast(roomId);
 
         // 방장 자동 위임
 //        if (participant.getRole() == OWNER) {
@@ -111,9 +120,14 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
 
     @Override
     public void kick(String roomId, String targetUserId, String byUserId) {
-        validateAdmin(roomId, byUserId);
+        requireAdmin(roomId, byUserId);
+
+        if (byUserId.equals(targetUserId)) {
+            throw new IllegalStateException("Cannot kick yourself");
+        }
 
         RoomParticipant target = getParticipant(roomId, targetUserId);
+
         target.deactivate();
 
         repository.save(target);
@@ -124,22 +138,31 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                 toDto(target),
                 "KICK"
         );
+        broadcast(roomId);
     }
 
     @Override
     public void ban(String roomId, String targetUserId, String byUserId, String reason) {
-        validateAdmin(roomId, byUserId);
-
-        RoomParticipant target = getParticipant(roomId, targetUserId);
+        requireOwner(roomId, byUserId);
 
         if (targetUserId.equals(byUserId)) {
             throw new IllegalStateException("Cannot ban yourself");
         }
 
-        target.ban(reason);
+        RoomParticipant target = repository
+                .findByRoomIdAndUserId(roomId, targetUserId)
+                .orElseThrow(() -> new IllegalStateException("Target not in room"));
+
+        if (target.getRole() == RoomRole.OWNER) {
+            throw new IllegalStateException("Cannot ban OWNER");
+        }
+
+        target.ban(reason);   // isBanned=true, isActive=false
 
         repository.save(target);
         syncRedisLeave(roomId, targetUserId);
+
+        publisher.broadcastLeave(roomId, toDto(target), reason);
     }
 
     /* =======================
@@ -176,14 +199,6 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         }
 
         if (byUserId.equals(newOwnerId)) return;
-
-        RoomParticipant currentOwner =
-                repository.findByRoomIdAndUserId(roomId, byUserId)
-                                .orElseThrow();
-        RoomParticipant newOwner =
-                repository.findByRoomIdAndUserId(roomId, newOwnerId)
-                                .orElseThrow();
-
         room.setOwnerUserId(newOwnerId);
         roomRepository.save(room);
 
@@ -199,16 +214,12 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     }
 
     private void requireAdmin(String roomId, String userId) {
-        ChatRoomV2 room = roomRepository.findById(roomId).orElseThrow();
+        RoomParticipant p = repository
+                .findByRoomIdAndUserId(roomId, userId)
+                .orElseThrow(() -> new AccessDeniedException("Not in room"));
 
-        if (room.getOwnerUserId().equals(userId)) return;
-
-        RoomParticipant p =
-                repository.findByRoomIdAndUserId(roomId, userId)
-                        .orElseThrow();
-
-        if (p.getRole() != RoomRole.ADMIN) {
-            throw new SecurityException("ADMIN only");
+        if (p.getRole() == RoomRole.MEMBER) {
+            throw new AccessDeniedException("ADMIN only");
         }
     }
     public boolean checkOwnerUser(String roomId, String userId) {
@@ -249,12 +260,12 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                         new IllegalStateException("Participant not found"));
     }
 
-    private void validateAdmin(String roomId, String userId) {
-        RoomParticipant p = getParticipant(roomId, userId);
-        if (p.getRole() == MEMBER) {
-            throw new SecurityException("No permission");
-        }
-    }
+//    private void validateAdmin(String roomId, String userId) {
+//        RoomParticipant p = getParticipant(roomId, userId);
+//        if (p.getRole() == MEMBER) {
+//            throw new SecurityException("No permission");
+//        }
+//    }
 
     private void validateOwner(String roomId, String userId) {
         RoomParticipant p = getParticipant(roomId, userId);
@@ -285,6 +296,17 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     /* =======================
        REDIS SYNC
        ======================= */
+
+    public int getRedisCurrentCount(String roomId) {
+        Long count = redis.opsForSet()
+                .size("room:" + roomId + ":users");
+
+        return count != null ? count.intValue() : 0;
+    }
+
+    public int getCurrentCount(String roomId) {
+        return repository.countByRoomIdAndIsActiveTrue(roomId);
+    }
 
     private void syncRedisJoin(String roomId, String userId) {
         redis.opsForSet()
@@ -320,6 +342,27 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                 p.getUserId(),
                 loadUsername(p.getUserId()),
                 p.getRole()
+        );
+    }
+    @Override
+    public void broadcast(String roomId) {
+        int current = getCurrentCount(roomId);
+
+        ChatRoomV2 room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new RuntimeException("broadcast"));
+
+        messagingTemplate.convertAndSend(
+                "/topic/room-users/" + roomId,
+                "UPDATED"
+        );
+
+        RoomCountDto dto = new RoomCountDto(
+                current,
+                room.getMaxParticipants()
+        );
+        messagingTemplate.convertAndSend(
+                "/topic/rooms/" + roomId + "/count",
+                dto
         );
     }
 }

@@ -22,8 +22,8 @@ public class RoomParticipantController {
             @PathVariable String roomId,
             @AuthenticationPrincipal UserPrincipal user
     ) {
-//        System.out.println("user.getId() = " + user.getId());
         service.joinRoom(roomId, user.getId());
+        service.broadcast(roomId);
         return ResponseEntity.ok().build();
     }
 
@@ -32,7 +32,9 @@ public class RoomParticipantController {
             @PathVariable String roomId,
             @AuthenticationPrincipal UserPrincipal user
     ) {
+
         service.leaveRoom(roomId, user.getId());
+        service.broadcast(roomId);
         return ResponseEntity.noContent().build();
     }
 

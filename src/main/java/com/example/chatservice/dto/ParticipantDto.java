@@ -17,6 +17,5 @@ public class ParticipantDto {
                 null,
                 participant.getRole()
         );
-
     }
 }
