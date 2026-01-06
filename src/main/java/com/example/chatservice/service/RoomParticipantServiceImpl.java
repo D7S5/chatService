@@ -4,6 +4,7 @@ import com.example.chatservice.dto.ParticipantDto;
 import com.example.chatservice.dto.RoomRole;
 import com.example.chatservice.entity.ChatRoomV2;
 import com.example.chatservice.entity.RoomParticipant;
+import com.example.chatservice.exception.BannedFromRoomException;
 import com.example.chatservice.repository.ChatRoomV2Repository;
 import com.example.chatservice.repository.RoomParticipantRepository;
 import com.example.chatservice.repository.UserRepository;
@@ -42,7 +43,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         boolean ownerUser = checkOwnerUser(roomId, userId);
 
         if (repository.existsByRoomIdAndUserIdAndIsBannedTrue(roomId, userId)) {
-            throw new SecurityException("BANNED");
+            throw new BannedFromRoomException(roomId);
         }
 
         if (ownerUser) {

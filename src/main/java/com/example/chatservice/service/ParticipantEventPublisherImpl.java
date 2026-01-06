@@ -4,6 +4,8 @@ import com.example.chatservice.dto.OwnerChangedEvent;
 import com.example.chatservice.dto.ParticipantDto;
 import com.example.chatservice.dto.ParticipantEvent;
 import com.example.chatservice.dto.ParticipantEventType;
+import com.example.chatservice.entity.User;
+import com.example.chatservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -17,6 +19,7 @@ import java.util.Map;
 public class ParticipantEventPublisherImpl implements ParticipantEventPublisher{
 
     private final SimpMessagingTemplate messagingTemplate;
+    private final UserRepository userRepository;
 
     @Override
     public void broadcastJoin(
@@ -56,6 +59,7 @@ public class ParticipantEventPublisherImpl implements ParticipantEventPublisher{
             String reason
     ) {
         System.out.println("getUserId = " + dto.getUserId());
+
         messagingTemplate.convertAndSend(
                 "/topic/rooms/" + roomId + "/participants",
                 new ParticipantEvent(
@@ -67,9 +71,13 @@ public class ParticipantEventPublisherImpl implements ParticipantEventPublisher{
         );
 
         if (reason != null) {
-            System.out.println("reason != null , getUserId = " + dto.getUserId());
+            User user = userRepository.findById(dto.getUserId())
+                    .orElseThrow();
+
+            System.out.println("reason != null , getEmail = " + user.getEmail());
+
             messagingTemplate.convertAndSendToUser(
-                    dto.getUserId(),
+                    user.getEmail(),
                     "/queue/room-force-exit",
                     Map.of(
                             "roomId", roomId,
