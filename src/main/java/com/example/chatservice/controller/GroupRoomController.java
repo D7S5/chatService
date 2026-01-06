@@ -64,10 +64,10 @@ public class GroupRoomController {
     public List<RoomResponse> getRoomsWithCount() {
         return chatRoomV2Repository.findAll().stream()
                 .map(room -> {
-                    String key = "room:" + room.getRoomId() + ":sessions";
+                    String key = "room:" + room.getRoomId() + ":users";
 
                     int currentCount = Optional
-                                    .ofNullable(redisTemplate.opsForHash()
+                                    .ofNullable(redisTemplate.opsForSet()
                                             .size(key))
                                     .map(Long::intValue)
                                     .orElse(0);

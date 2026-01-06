@@ -95,17 +95,17 @@ public class UserPrincipal implements UserDetails, OAuth2User {
         return attributes;
     }
 
-    @Override
-    public String getName() {
-        return email != null && !email.isBlank()
-            ? email
-            : provider.name().toLowerCase() + "_" + providerId;
-    }
-
 //    @Override
 //    public String getName() {
-//        return id;
+//        return email != null && !email.isBlank()
+//            ? email
+//            : provider.name().toLowerCase() + "_" + providerId;
 //    }
+
+    @Override
+    public String getName() {
+        return id;
+    }
 
     public String getId() {
         return String.valueOf(id);

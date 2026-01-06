@@ -39,7 +39,7 @@ public class RoomAdminController {
             @AuthenticationPrincipal UserPrincipal me
             ) {
         System.out.println("ban target = " + request.getTargetUserId() +
-                " Reason = " + request.getReason() + me.getId());
+                " Reason = " + request.getReason());
         service.ban(
                 roomId,
                 request.getTargetUserId(),
