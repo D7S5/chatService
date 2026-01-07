@@ -22,6 +22,8 @@ public interface RoomParticipantService {
 
     void transferOwnership(String roomId, String newOwnerId, String byUserId);
 
+    int getCurrentCount(String roomId);
+
     List<RoomParticipant> getActiveParticipants(String roomId);
 
     List<ParticipantDto> getParticipants(String roomId);

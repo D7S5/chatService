@@ -1,11 +1,9 @@
 package com.example.chatservice.service;
 
-import com.example.chatservice.dto.OwnerChangedEvent;
-import com.example.chatservice.dto.ParticipantDto;
-import com.example.chatservice.dto.ParticipantEvent;
-import com.example.chatservice.dto.ParticipantEventType;
-import com.example.chatservice.entity.User;
-import com.example.chatservice.repository.UserRepository;
+import com.example.chatservice.dto.*;
+import com.example.chatservice.entity.ChatRoomV2;
+import com.example.chatservice.repository.ChatRoomV2Repository;
+import com.example.chatservice.repository.RoomParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -16,10 +14,11 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class ParticipantEventPublisherImpl implements ParticipantEventPublisher{
+public class ParticipantEventPublisherImpl implements ParticipantEventPublisher {
 
     private final SimpMessagingTemplate messagingTemplate;
-    private final UserRepository userRepository;
+    private final RoomParticipantRepository repository;
+    private final ChatRoomV2Repository roomV2Repository;
 
     @Override
     public void broadcastJoin(
@@ -34,8 +33,10 @@ public class ParticipantEventPublisherImpl implements ParticipantEventPublisher{
                         null
                 )
         );
-        notifyRoomUsersChanged(roomId);
+//        sendCount(roomId);
+//        notifyRoomUsersChanged(roomId);
     }
+
     @Override
     public void broadcastLeave(
             String roomId,
@@ -50,8 +51,10 @@ public class ParticipantEventPublisherImpl implements ParticipantEventPublisher{
                         null
                 )
         );
-        notifyRoomUsersChanged(roomId);
+//        sendCount(roomId);
+//        notifyRoomUsersChanged(roomId);
     }
+
     @Override
     public void broadcastLeave(
             String roomId,
@@ -67,7 +70,6 @@ public class ParticipantEventPublisherImpl implements ParticipantEventPublisher{
                         reason
                 )
         );
-
         if (reason != null) {
             messagingTemplate.convertAndSendToUser(
                     dto.getUserId(),
@@ -78,8 +80,10 @@ public class ParticipantEventPublisherImpl implements ParticipantEventPublisher{
                     )
             );
         }
-        notifyRoomUsersChanged(roomId);
+//        sendCount(roomId);
+//        notifyRoomUsersChanged(roomId);
     }
+
     @Override
     public void broadcastOwnerChanged(String roomId, String newOwnerId) {
         messagingTemplate.convertAndSend(
@@ -93,25 +97,27 @@ public class ParticipantEventPublisherImpl implements ParticipantEventPublisher{
         );
     }
 
-    private void publishParticipantEvent(
-            String roomId,
-            ParticipantEvent event
-    ) {
-        // 참가자 이벤트
-        messagingTemplate.convertAndSend(
-                "/topic/rooms/" + roomId + "/participants",
-                event
-        );
-
-        // 🔥 프론트에서 REST 재조회 트리거
-        notifyRoomUsersChanged(roomId);
-    }
-
-
-    private void notifyRoomUsersChanged(String roomId) {
-        messagingTemplate.convertAndSend(
-                "/topic/room-users/" + roomId,
-                "UPDATED"
-        );
-    }
+//    private void notifyRoomUsersChanged(String roomId) {
+////        int current = repository.countByRoomIdAndIsActiveTrue(roomId);
+//
+//        messagingTemplate.convertAndSend(
+//                "/topic/room-users/" + roomId,
+//                "UPDATED"
+//        );
+////
+////        messagingTemplate.convertAndSend(
+////                "/topic/rooms/" + roomId + "/count",
+////                Map.of("current", current)
+////        );
+//    }
+//
+//    private void sendCount(String roomId) {
+//        int current = repository.countByRoomIdAndIsActiveTrue(roomId);
+//        ChatRoomV2 room = roomV2Repository.findById(roomId).orElseThrow();
+//
+//        messagingTemplate.convertAndSend(
+//                "/topic/rooms/" + roomId + "/count",
+//                new RoomCountDto(current, room.getMaxParticipants())
+//        );
+//    }
 }

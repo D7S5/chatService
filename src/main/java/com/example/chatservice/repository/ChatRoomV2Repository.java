@@ -22,4 +22,6 @@ public interface ChatRoomV2Repository extends JpaRepository<ChatRoomV2, String> 
     @Query("select r from ChatRoomV2 r where r.roomId = :roomId")
     ChatRoomV2 findByIdForUpdate(@Param("roomId") String roomId);
 
+    @Query("select r.roomId from ChatRoomV2 r")
+    List<String> findAllRoomIds();
 }
