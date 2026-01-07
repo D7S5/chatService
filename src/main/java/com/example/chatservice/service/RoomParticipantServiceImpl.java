@@ -13,13 +13,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 import static com.example.chatservice.dto.RoomRole.MEMBER;
 import static com.example.chatservice.dto.RoomRole.OWNER;
@@ -55,7 +59,8 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         }
     }
 
-    private void CheckOwner(String roomId, String userId, RoomRole roomRole) {
+    @Transactional
+    public void CheckOwner(String roomId, String userId, RoomRole roomRole) {
         RoomParticipant p = repository.findByRoomIdAndUserId(roomId, userId)
                 .orElseGet(() -> repository.save(
                         RoomParticipant.builder()
@@ -65,12 +70,25 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                                 .build()
                 ));
 
+        if (p.isActive()) {
+            return;
+        }
+
         p.activate();
         repository.save(p);
         syncRedisJoin(roomId, userId);
 
-        publisher.broadcastJoin(roomId, toDto(p));
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        publisher.broadcastJoin(roomId, toDto(p));
+                        broadcast(roomId);
+                    }
+                }
+        );
     }
+
     @Override
     public void reconnect(String roomId, String userId) {
 //        joinRoom(roomId, userId); // 동일 로직
@@ -158,6 +176,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         syncRedisLeave(roomId, targetUserId);
 
         publisher.broadcastLeave(roomId, toDto(target), reason);
+        broadcast(roomId);
     }
 
     /* =======================
@@ -217,6 +236,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
             throw new AccessDeniedException("ADMIN only");
         }
     }
+
     public boolean checkOwnerUser(String roomId, String userId) {
         return roomRepository.existsByRoomIdAndOwnerUserId(roomId, userId);
     }
@@ -340,6 +360,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                 p.getRole()
         );
     }
+
     @Override
     public void broadcast(String roomId) {
         int current = getCurrentCount(roomId);
@@ -360,5 +381,18 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                 "/topic/rooms/" + roomId + "/count",
                 dto
         );
+    }
+
+    @Scheduled(fixedDelay = 10000)
+    public void reconcileRoomCount() {
+        for (String roomId : roomRepository.findAllRoomIds()) {
+            int redisCount = redis.opsForSet()
+                    .size("room:" + roomId + ":users").intValue();
+
+            messagingTemplate.convertAndSend(
+                    "/topic/rooms/" + roomId + "/count",
+                    Map.of("current", redisCount)
+            );
+        }
     }
 }

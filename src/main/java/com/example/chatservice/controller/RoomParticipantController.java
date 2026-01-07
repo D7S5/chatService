@@ -25,7 +25,6 @@ public class RoomParticipantController {
             @AuthenticationPrincipal UserPrincipal user
     ) {
         service.joinRoom(roomId, user.getId());
-        service.broadcast(roomId);
         return ResponseEntity.ok().build();
     }
 
@@ -36,7 +35,6 @@ public class RoomParticipantController {
     ) {
 
         service.leaveRoom(roomId, user.getId());
-        service.broadcast(roomId);
         return ResponseEntity.noContent().build();
     }
 
@@ -49,4 +47,6 @@ public class RoomParticipantController {
         return Map.of(
                 "current", service.getCurrentCount(roomId));
     }
+
+
 }
