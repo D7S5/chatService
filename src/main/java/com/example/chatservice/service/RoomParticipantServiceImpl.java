@@ -299,6 +299,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         return count != null ? count.intValue() : 0;
     }
 
+    @Override
     public int getCurrentCount(String roomId) {
         return repository.countByRoomIdAndIsActiveTrue(roomId);
     }
