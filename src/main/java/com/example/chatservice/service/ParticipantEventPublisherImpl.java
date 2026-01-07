@@ -69,11 +69,6 @@ public class ParticipantEventPublisherImpl implements ParticipantEventPublisher{
         );
 
         if (reason != null) {
-//            User user = userRepository.findById(dto.getUserId())
-//                    .orElseThrow();
-
-//            System.out.println("reason != null , getEmail = " + user.getEmail());
-
             messagingTemplate.convertAndSendToUser(
                     dto.getUserId(),
                     "/queue/room-force-exit",

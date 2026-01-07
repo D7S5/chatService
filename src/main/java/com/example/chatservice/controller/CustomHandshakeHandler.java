@@ -17,7 +17,6 @@ public class CustomHandshakeHandler extends DefaultHandshakeHandler {
                                       Map<String, Object> attributes) {
 
         String userId = (String) attributes.get("userId");
-//        System.out.println("userId = " + userId); debug
 
         // Principal.getName() == userId
         return () -> userId;
