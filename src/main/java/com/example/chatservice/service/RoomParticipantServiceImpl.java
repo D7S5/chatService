@@ -107,11 +107,6 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                 toDto(participant)
         );
         broadcast(roomId);
-
-        // 방장 자동 위임
-//        if (participant.getRole() == OWNER) {
-//            autoTransferOwner(roomId);
-//        }
     }
 
     /* =======================
