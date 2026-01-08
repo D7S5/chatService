@@ -11,11 +11,14 @@ import com.example.chatservice.exception.BannedFromRoomException;
 import com.example.chatservice.repository.ChatRoomV2Repository;
 import com.example.chatservice.repository.RoomParticipantRepository;
 import com.example.chatservice.repository.UserRepository;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +32,7 @@ import static com.example.chatservice.dto.RoomRole.OWNER;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 @Slf4j
 public class RoomParticipantServiceImpl implements RoomParticipantService {
 
@@ -42,6 +46,10 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
+    @Retryable(
+            value = OptimisticLockException.class,
+            maxAttempts = 3
+    )
     @Transactional
     public void joinRoom(String roomId, String userId) {
 
@@ -60,6 +68,9 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
 
     @Transactional
     public void CheckOwner(String roomId, String userId, RoomRole roomRole) {
+
+        ChatRoomV2 room = roomRepository.findByIdForUpdate(roomId);
+
         RoomParticipant p = repository.findByRoomIdAndUserId(roomId, userId)
                 .orElseGet(() -> repository.save(
                         RoomParticipant.builder()
@@ -75,8 +86,8 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
 
         p.activate();
         repository.save(p);
-        syncRedisJoin(roomId, userId);
 
+        room.setCurrentCount(room.getCurrentCount() + 1);
 //        publisher.broadcastJoin(roomId, toDto(p));
 
         eventPublisher.publishEvent(
@@ -108,9 +119,26 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
 //                toDto(participant)
 //        );
 
+        ChatRoomV2 room = roomRepository.findByIdForUpdate(roomId);
+        room.setCurrentCount(room.getCurrentCount() - 1);
+
         eventPublisher.publishEvent(
                 new RoomParticipantsChangedEvent(roomId)
         );
+    }
+    @Scheduled(cron = "0 */5 * * * *")
+    @Transactional
+    public void reconcileCounts() {
+        for (ChatRoomV2 room : roomRepository.findAll()) {
+            int actual =
+                    repository.countByRoomIdAndIsActiveTrue(
+                            room.getRoomId()
+                    );
+
+            if (room.getCurrentCount() != actual) {
+                room.setCurrentCount(actual);
+            }
+        }
     }
 
     /* =======================
@@ -322,6 +350,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     }
 
     @Override
+    @Transactional
     public int getCurrentCount(String roomId) {
         return repository.countByRoomIdAndIsActiveTrue(roomId);
     }
@@ -364,6 +393,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     }
 
     @Override
+    @Transactional
     public void broadcast(String roomId) {
         int current = getCurrentCount(roomId);
 

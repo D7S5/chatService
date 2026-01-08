@@ -27,7 +27,13 @@ public class ChatRoomV2 {
     private RoomType type;
 
     @Column(nullable = false)
+    private int currentCount;
+
+    @Column(nullable = false)
     private int maxParticipants;
+
+    @Version
+    private long version;
 
     @Column(nullable = false)
     private boolean largeRoom;

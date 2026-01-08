@@ -71,8 +71,6 @@ public class ChatControllerV2 {
     @PostMapping("/create")
     public RoomResponse create(@RequestBody CreateRoomRequest request,
                                @AuthenticationPrincipal UserPrincipal user) {
-
-        System.out.println("getId = " + user.getId());
         return chatRoomV2Service.createV2(request, user.getId());
     }
 
