@@ -29,7 +29,6 @@ import static com.example.chatservice.dto.RoomRole.OWNER;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 @Slf4j
 public class RoomParticipantServiceImpl implements RoomParticipantService {
 
@@ -78,7 +77,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         repository.save(p);
         syncRedisJoin(roomId, userId);
 
-        publisher.broadcastJoin(roomId, toDto(p));
+//        publisher.broadcastJoin(roomId, toDto(p));
 
         eventPublisher.publishEvent(
                 new RoomParticipantsChangedEvent(roomId)
@@ -95,6 +94,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
        ======================= */
 
     @Override
+    @Transactional
     public void leaveRoom(String roomId, String userId) {
         RoomParticipant participant = getParticipant(roomId, userId);
 
@@ -103,10 +103,10 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
 
         syncRedisLeave(roomId, userId);
 
-        publisher.broadcastLeave(
-                roomId,
-                toDto(participant)
-        );
+//        publisher.broadcastLeave(
+//                roomId,
+//                toDto(participant)
+//        );
 
         eventPublisher.publishEvent(
                 new RoomParticipantsChangedEvent(roomId)
@@ -118,6 +118,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
        ======================= */
 
     @Override
+    @Transactional
     public void kick(String roomId, String targetUserId, String byUserId) {
         requireAdmin(roomId, byUserId);
 
@@ -146,6 +147,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     }
 
     @Override
+    @Transactional
     public void ban(String roomId, String targetUserId, String byUserId, String reason) {
         requireOwner(roomId, byUserId);
 
@@ -183,6 +185,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
        ======================= */
 
     @Override
+    @Transactional
     public void changeRole(
             String roomId,
             String targetUserId,
@@ -198,6 +201,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     }
 
     @Override
+    @Transactional
     public void transferOwnership(
             String roomId,
             String newOwnerId,
@@ -266,7 +270,6 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     /* =======================
        INTERNAL
        ======================= */
-
 
     private RoomParticipant getParticipant(String roomId, String userId) {
         return repository.findByRoomIdAndUserId(roomId, userId)
