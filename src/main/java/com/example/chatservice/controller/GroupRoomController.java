@@ -25,7 +25,6 @@ import java.util.Optional;
 public class GroupRoomController {
 
     private final ChatRoomV2Repository chatRoomV2Repository;
-    private final ChatRoomV2Service roomV2Service;
     private final StringRedisTemplate redisTemplate;
     private final GroupMessageRepository groupMessageRepository;
 
@@ -34,11 +33,6 @@ public class GroupRoomController {
         return chatRoomV2Repository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("Room is not found"));
     }
-
-//    @GetMapping("/{roomId}/participants")
-//    public List<ParticipantDto> participants(@PathVariable String roomId) {
-//        return roomV2Service.getParticipants(roomId);
-//    }
 
     @GetMapping("/{roomId}/messages")
     public List<ChatMessageResponse> messages(
@@ -63,16 +57,9 @@ public class GroupRoomController {
     @GetMapping("/with-count")
     public List<RoomResponse> getRoomsWithCount() {
         return chatRoomV2Repository.findAll().stream()
-                .map(room -> {
-                    String key = "room:" + room.getRoomId() + ":users";
-
-                    int currentCount = Optional
-                                    .ofNullable(redisTemplate.opsForSet()
-                                            .size(key))
-                                    .map(Long::intValue)
-                                    .orElse(0);
-                    return RoomResponse.from(room, currentCount);
-                })
+                .map(room ->
+                    RoomResponse.from(room, room.getCurrentCount())
+                )
                 .toList();
     }
 }

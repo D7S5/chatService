@@ -43,6 +43,7 @@ public class ChatRoomV2Service {
                 req.getMaxParticipants(),
                 userId
         );
+        room.setCurrentCount(room.getCurrentCount() + 1);
         chatRoomV2Repository.save(room);
 
         String inviteToken = null;
