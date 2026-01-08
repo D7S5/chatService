@@ -5,32 +5,30 @@ import com.example.chatservice.dto.RoomCountDto;
 import com.example.chatservice.dto.RoomRole;
 import com.example.chatservice.entity.ChatRoomV2;
 import com.example.chatservice.entity.RoomParticipant;
+import com.example.chatservice.event.ParticipantForcedExitEvent;
+import com.example.chatservice.event.RoomParticipantsChangedEvent;
 import com.example.chatservice.exception.BannedFromRoomException;
 import com.example.chatservice.repository.ChatRoomV2Repository;
 import com.example.chatservice.repository.RoomParticipantRepository;
 import com.example.chatservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 
 import static com.example.chatservice.dto.RoomRole.MEMBER;
 import static com.example.chatservice.dto.RoomRole.OWNER;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 @Slf4j
 public class RoomParticipantServiceImpl implements RoomParticipantService {
 
@@ -41,6 +39,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     private final ParticipantEventPublisherImpl publisher;
     private final SimpMessagingTemplate messagingTemplate;
 
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -78,14 +77,10 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         repository.save(p);
         syncRedisJoin(roomId, userId);
 
-        TransactionSynchronizationManager.registerSynchronization(
-                new TransactionSynchronization() {
-                    @Override
-                    public void afterCommit() {
-                        publisher.broadcastJoin(roomId, toDto(p));
-                        broadcast(roomId);
-                    }
-                }
+//        publisher.broadcastJoin(roomId, toDto(p));
+
+        eventPublisher.publishEvent(
+                new RoomParticipantsChangedEvent(roomId)
         );
     }
 
@@ -94,24 +89,12 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
 //        joinRoom(roomId, userId); // 동일 로직
     }
 
-    private RoomParticipant createNewParticipant(String roomId, String userId) {
-        boolean ownerExists =
-                repository.existsByRoomIdAndRoleAndIsActive(roomId, OWNER, true);
-
-        RoomRole role = ownerExists ? MEMBER : OWNER;
-
-        return RoomParticipant.builder()
-                .roomId(roomId)
-                .userId(userId)
-                .role(role)
-                .build();
-    }
-
     /* =======================
        LEAVE
        ======================= */
 
     @Override
+    @Transactional
     public void leaveRoom(String roomId, String userId) {
         RoomParticipant participant = getParticipant(roomId, userId);
 
@@ -120,11 +103,14 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
 
         syncRedisLeave(roomId, userId);
 
-        publisher.broadcastLeave(
-                roomId,
-                toDto(participant)
+//        publisher.broadcastLeave(
+//                roomId,
+//                toDto(participant)
+//        );
+
+        eventPublisher.publishEvent(
+                new RoomParticipantsChangedEvent(roomId)
         );
-        broadcast(roomId);
     }
 
     /* =======================
@@ -132,6 +118,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
        ======================= */
 
     @Override
+    @Transactional
     public void kick(String roomId, String targetUserId, String byUserId) {
         requireAdmin(roomId, byUserId);
 
@@ -146,15 +133,21 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         repository.save(target);
         syncRedisLeave(roomId, targetUserId);
 
-        publisher.broadcastLeave(
-                roomId,
-                toDto(target),
-                "KICK"
+        eventPublisher.publishEvent(
+                new ParticipantForcedExitEvent(
+                        roomId,
+                        targetUserId,
+                        "KICK"
+                )
         );
-        broadcast(roomId);
+
+        eventPublisher.publishEvent(
+                new RoomParticipantsChangedEvent(roomId)
+        );
     }
 
     @Override
+    @Transactional
     public void ban(String roomId, String targetUserId, String byUserId, String reason) {
         requireOwner(roomId, byUserId);
 
@@ -175,8 +168,16 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         repository.save(target);
         syncRedisLeave(roomId, targetUserId);
 
-        publisher.broadcastLeave(roomId, toDto(target), reason);
-        broadcast(roomId);
+        eventPublisher.publishEvent(
+                new ParticipantForcedExitEvent(
+                        roomId,
+                        targetUserId,
+                        reason
+                )
+        );
+        eventPublisher.publishEvent(
+                new RoomParticipantsChangedEvent(roomId)
+        );
     }
 
     /* =======================
@@ -184,6 +185,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
        ======================= */
 
     @Override
+    @Transactional
     public void changeRole(
             String roomId,
             String targetUserId,
@@ -199,6 +201,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     }
 
     @Override
+    @Transactional
     public void transferOwnership(
             String roomId,
             String newOwnerId,
@@ -267,7 +270,6 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     /* =======================
        INTERNAL
        ======================= */
-
 
     private RoomParticipant getParticipant(String roomId, String userId) {
         return repository.findByRoomIdAndUserId(roomId, userId)
@@ -381,18 +383,5 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                 "/topic/rooms/" + roomId + "/count",
                 dto
         );
-    }
-
-    @Scheduled(fixedDelay = 10000)
-    public void reconcileRoomCount() {
-        for (String roomId : roomRepository.findAllRoomIds()) {
-            int redisCount = redis.opsForSet()
-                    .size("room:" + roomId + ":users").intValue();
-
-            messagingTemplate.convertAndSend(
-                    "/topic/rooms/" + roomId + "/count",
-                    Map.of("current", redisCount)
-            );
-        }
     }
 }

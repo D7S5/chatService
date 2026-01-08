@@ -17,8 +17,6 @@ import java.util.Map;
 public class ParticipantEventPublisherImpl implements ParticipantEventPublisher {
 
     private final SimpMessagingTemplate messagingTemplate;
-    private final RoomParticipantRepository repository;
-    private final ChatRoomV2Repository roomV2Repository;
 
     @Override
     public void broadcastJoin(
@@ -33,8 +31,6 @@ public class ParticipantEventPublisherImpl implements ParticipantEventPublisher 
                         null
                 )
         );
-//        sendCount(roomId);
-//        notifyRoomUsersChanged(roomId);
     }
 
     @Override
@@ -51,8 +47,6 @@ public class ParticipantEventPublisherImpl implements ParticipantEventPublisher 
                         null
                 )
         );
-//        sendCount(roomId);
-//        notifyRoomUsersChanged(roomId);
     }
 
     @Override
@@ -80,8 +74,6 @@ public class ParticipantEventPublisherImpl implements ParticipantEventPublisher 
                     )
             );
         }
-//        sendCount(roomId);
-//        notifyRoomUsersChanged(roomId);
     }
 
     @Override
