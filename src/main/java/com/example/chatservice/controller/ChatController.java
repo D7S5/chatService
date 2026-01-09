@@ -24,8 +24,6 @@ public class ChatController {
     @Autowired
     private SimpUserRegistry simpUserRegistry;
 
-    @Autowired
-    private ChatRoomService chatRoomService;
     private final SimpMessagingTemplate messagingTemplate;
 
     @MessageMapping("/chat.sendMessage")

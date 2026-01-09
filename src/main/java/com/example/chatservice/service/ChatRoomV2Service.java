@@ -140,19 +140,6 @@ public class ChatRoomV2Service {
                 .count();
     }
 
-//    public List<ParticipantDto> getParticipants(String roomId) {
-//        Map<Object, Object> sessions =
-//                redis.opsForHash().entries(usersKey(roomId));
-//
-//        return sessions.values().stream()
-//                .filter(Objects::nonNull)
-//                .distinct()
-//                .map(userId -> new ParticipantDto(
-//                        userId.toString(),
-//                        loadUsername(userId.toString())
-//                )).toList();
-//    }
-
     private String loadUsername(String userId) {
 
         if (userId == null) return "UNKNOWN";

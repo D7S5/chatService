@@ -60,14 +60,14 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         }
 
         if (ownerUser) {
-            CheckOwner(roomId, userId, OWNER);
+            joinAsRole(roomId, userId, OWNER);
         } else {
-            CheckOwner(roomId, userId, MEMBER);
+            joinAsRole(roomId, userId, MEMBER);
         }
     }
 
     @Transactional
-    public void CheckOwner(String roomId, String userId, RoomRole roomRole) {
+    public void joinAsRole(String roomId, String userId, RoomRole roomRole) {
 
         ChatRoomV2 room = roomRepository.findByIdForUpdate(roomId);
 
@@ -112,7 +112,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         participant.deactivate();
         repository.save(participant);
 
-        syncRedisLeave(roomId, userId);
+//        syncRedisLeave(roomId, userId);
 
 //        publisher.broadcastLeave(
 //                roomId,
@@ -127,7 +127,6 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         );
     }
     @Scheduled(cron = "0 */5 * * * *")
-    @Transactional
     public void reconcileCounts() {
         for (ChatRoomV2 room : roomRepository.findAll()) {
             int actual =
@@ -159,7 +158,9 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         target.deactivate();
 
         repository.save(target);
-        syncRedisLeave(roomId, targetUserId);
+//        syncRedisLeave(roomId, targetUserId);
+        ChatRoomV2 room = roomRepository.findByIdForUpdate(roomId);
+        room.setCurrentCount(room.getCurrentCount() - 1);
 
         eventPublisher.publishEvent(
                 new ParticipantForcedExitEvent(
@@ -193,8 +194,11 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
 
         target.ban(reason);   // isBanned=true, isActive=false
 
+        ChatRoomV2 room = roomRepository.findByIdForUpdate(roomId);
+        room.setCurrentCount(room.getCurrentCount() - 1);
+
         repository.save(target);
-        syncRedisLeave(roomId, targetUserId);
+//        syncRedisLeave(roomId, targetUserId);
 
         eventPublisher.publishEvent(
                 new ParticipantForcedExitEvent(
