@@ -56,10 +56,12 @@ public class GroupRoomController {
 
     @GetMapping("/with-count")
     public List<RoomResponse> getRoomsWithCount() {
-        return chatRoomV2Repository.findAll().stream()
+        List<RoomResponse> res = chatRoomV2Repository.findAll().stream()
                 .map(room ->
-                    RoomResponse.from(room, room.getCurrentCount())
+                        RoomResponse.from(room)
                 )
                 .toList();
+
+        return res;
     }
 }

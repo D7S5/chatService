@@ -1,6 +1,6 @@
 package com.example.chatservice.config;
 
-import com.example.chatservice.controller.CustomHandshakeHandler;
+import com.example.chatservice.component.WebSocketEventPublisher;
 import com.example.chatservice.controller.WsHandshakeInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +14,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    private final CustomHandshakeHandler customHandshakeHandler;
+    private final WebSocketEventPublisher.CustomHandshakeHandler customHandshakeHandler;
     private final WsHandshakeInterceptor wsHandshakeInterceptor;
 
     @Override

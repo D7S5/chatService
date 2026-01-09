@@ -21,30 +21,47 @@ public class UserController {
     private final UserRepository userRepository;
 
     @PostMapping("/set-nickname")
-    public ResponseEntity<?> setNickname(@RequestHeader("Authorization") String authHeader,
-                                         @RequestBody NicknameRequest request) {
+    public ResponseEntity<?> setNickname(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestBody NicknameRequest request) {
 
-        String token = authHeader.replace("Bearer ", "");
-        if (!jwtTokenProvider.validateToken(token))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid token");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Authorization 헤더가 없습니다."));
+        }
 
-        String email = jwtTokenProvider.getUserIdFromToken(token);
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        String token = authHeader.substring(7);
 
-        if (userRepository.findByUsername(request.nickname()).isPresent())
-            return ResponseEntity.badRequest().body(Map.of("message", "이미 사용 중인 닉네임입니다."));
+        if (!jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "유효하지 않은 토큰입니다."));
+        }
 
-        user.setUsername(request.nickname());
+        String userId = jwtTokenProvider.getUserIdFromToken(token);
+
+        User user = userRepository.findById(userId).orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "사용자를 찾을 수 없습니다."));
+        }
+
+        String nickname = request.nickname().trim();
+        if (nickname.isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", "닉네임은 비어 있을 수 없습니다."));
+        }
+
+        if (userRepository.findByUsername(nickname).isPresent()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", "이미 사용 중인 닉네임입니다."));
+        }
+
+        user.setUsername(nickname);
         user.setNicknameCompleted(true);
         userRepository.save(user);
-        return ResponseEntity.ok(Map.of("nickname", user.getUsername()));
+
+        return ResponseEntity.ok(Map.of("nickname", nickname));
     }
-    @GetMapping("/uuid")
-    public ResponseEntity<?> getUUID(@RequestParam String username) {
-        Optional<User> user = userRepository.findByUsername(username);
-        if (user.isEmpty())
-            return ResponseEntity.status(404).body("USER_NOT_FOUND");
-        return ResponseEntity.ok(Map.of("userId", user.get().getId()));
-    }
+
 }

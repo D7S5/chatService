@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class RedisKeyExpiredListener implements MessageListener {
 
-    private final OnlineStatusServiceV2 onlineStatusService;
     private static final String TTL_KEY_PREFIX = "online:ttl:";
 
     @Override
