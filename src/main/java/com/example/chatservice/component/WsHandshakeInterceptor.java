@@ -1,4 +1,4 @@
-package com.example.chatservice.controller;
+package com.example.chatservice.component;
 
 import com.example.chatservice.redis.WsTokenService;
 import jakarta.servlet.http.HttpServletRequest;
