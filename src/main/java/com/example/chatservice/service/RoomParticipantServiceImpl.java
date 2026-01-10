@@ -1,9 +1,11 @@
 package com.example.chatservice.service;
 
+import com.example.chatservice.dto.AdminChangedResponse;
 import com.example.chatservice.dto.ParticipantDto;
 import com.example.chatservice.dto.RoomCountDto;
 import com.example.chatservice.dto.RoomRole;
 import com.example.chatservice.entity.ChatRoomV2;
+import com.example.chatservice.entity.Participant;
 import com.example.chatservice.entity.RoomParticipant;
 import com.example.chatservice.event.ParticipantForcedExitEvent;
 import com.example.chatservice.event.RoomParticipantsChangedEvent;
@@ -155,10 +157,14 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
 
         RoomParticipant target = getParticipant(roomId, targetUserId);
 
+        if (target.getRole() == RoomRole.OWNER) {
+            throw new IllegalStateException("OWNER는 강퇴할 수 없습니다.");
+        }
+
         target.deactivate();
 
         repository.save(target);
-//        syncRedisLeave(roomId, targetUserId);
+
         ChatRoomV2 room = roomRepository.findByIdForUpdate(roomId);
         room.setCurrentCount(room.getCurrentCount() - 1);
 
@@ -231,6 +237,40 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
 
         repository.save(target);
     }
+
+    @Override
+    @Transactional
+    public AdminChangedResponse toggleAdmin(
+            String roomId,
+            String requesterId,
+            String targetUserId
+    ) {
+        RoomParticipant requester = repository
+                .findByRoomIdAndUserId(roomId, requesterId)
+                .orElseThrow();
+
+        if (requester.getRole() != RoomRole.OWNER)
+            throw new AccessDeniedException("OWNER만 가능");
+
+        RoomParticipant target = repository
+                .findByRoomIdAndUserId(roomId, targetUserId)
+                .orElseThrow();
+
+        if (target.getRole() == RoomRole.OWNER)
+            throw new IllegalStateException("OWNER는 변경 불가");
+
+        target.setRole(
+                target.getRole() == RoomRole.ADMIN ? MEMBER : RoomRole.ADMIN
+        );
+
+        repository.save(target);
+
+        return new AdminChangedResponse(
+                targetUserId,
+                target.getRole().name()
+        );
+    }
+
 
     @Override
     @Transactional

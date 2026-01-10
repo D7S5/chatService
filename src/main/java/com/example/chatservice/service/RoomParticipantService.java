@@ -1,5 +1,6 @@
 package com.example.chatservice.service;
 
+import com.example.chatservice.dto.AdminChangedResponse;
 import com.example.chatservice.dto.ParticipantDto;
 import com.example.chatservice.dto.RoomRole;
 import com.example.chatservice.entity.RoomParticipant;
@@ -17,6 +18,8 @@ public interface RoomParticipantService {
     void kick(String roomId, String targetUserId, String byUserId);
 
     void ban(String roomId, String targetUserId, String byUserId, String reason);
+
+    AdminChangedResponse toggleAdmin(String roomId, String requesterId, String targetUserId);
 
     void changeRole(String roomId, String targetUserId, RoomRole role, String byUserId);
 
