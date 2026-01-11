@@ -64,17 +64,18 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
 
         if (ownerUser) {
             joinAsRole(roomId, userId, OWNER);
+            System.out.println("OWNER");
         } else if (adminUser) {
             joinAsRole(roomId, userId, ADMIN);
+            System.out.println("ADMIN");
         } else {
             joinAsRole(roomId, userId, MEMBER);
+            System.out.println("MEMBER");
         }
     }
 
     @Transactional
     public void joinAsRole(String roomId, String userId, RoomRole roomRole) {
-
-        ChatRoomV2 room = roomRepository.findByIdForUpdate(roomId);
 
         RoomParticipant p = repository.findByRoomIdAndUserId(roomId, userId)
                 .orElseGet(() -> repository.save(
@@ -85,15 +86,19 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                                 .build()
                 ));
 
+        System.out.println("isActive = " + p.isActive());
+
         if (p.isActive()) {
             return;
         }
 
+        ChatRoomV2 room = roomRepository.findByIdForUpdate(roomId);
+        System.out.println("[BEFORE] room currentCount = " + room.getCurrentCount());
+        room.increaseCount();
+        System.out.println("[AFTER] room currentCount = " + room.getCurrentCount());
+
         p.activate();
         repository.save(p);
-
-        room.setCurrentCount(room.getCurrentCount() + 1);
-//        publisher.broadcastJoin(roomId, toDto(p));
 
         eventPublisher.publishEvent(
                 new RoomParticipantsChangedEvent(roomId)
@@ -112,39 +117,24 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     @Override
     @Transactional
     public void leaveRoom(String roomId, String userId) {
+
+        ChatRoomV2 room = roomRepository.findByIdForUpdate(roomId);
+        room.decreaseCount();
+
         RoomParticipant participant = getParticipant(roomId, userId);
 
         participant.deactivate();
         repository.save(participant);
-
-//        syncRedisLeave(roomId, userId);
 
 //        publisher.broadcastLeave(
 //                roomId,
 //                toDto(participant)
 //        );
 
-        ChatRoomV2 room = roomRepository.findByIdForUpdate(roomId);
-        room.setCurrentCount(room.getCurrentCount() - 1);
-
         eventPublisher.publishEvent(
                 new RoomParticipantsChangedEvent(roomId)
         );
     }
-    @Scheduled(cron = "0 */5 * * * *")
-    public void reconcileCounts() {
-        for (ChatRoomV2 room : roomRepository.findAll()) {
-            int actual =
-                    repository.countByRoomIdAndIsActiveTrue(
-                            room.getRoomId()
-                    );
-
-            if (room.getCurrentCount() != actual) {
-                room.setCurrentCount(actual);
-            }
-        }
-    }
-
     /* =======================
        KICK / BAN
        ======================= */
@@ -169,7 +159,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         repository.save(target);
 
         ChatRoomV2 room = roomRepository.findByIdForUpdate(roomId);
-        room.setCurrentCount(room.getCurrentCount() - 1);
+        room.decreaseCount();
 
         eventPublisher.publishEvent(
                 new ParticipantForcedExitEvent(
@@ -204,7 +194,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         target.ban(reason);   // isBanned=true, isActive=false
 
         ChatRoomV2 room = roomRepository.findByIdForUpdate(roomId);
-        room.setCurrentCount(room.getCurrentCount() - 1);
+        room.decreaseCount();
 
         repository.save(target);
 //        syncRedisLeave(roomId, targetUserId);

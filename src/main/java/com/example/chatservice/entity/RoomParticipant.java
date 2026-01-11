@@ -45,11 +45,9 @@ public class RoomParticipant {
     /** 마지막 활동 시각 (heartbeat / 메시지) */
     private OffsetDateTime lastActiveAt;
 
-    /** 현재 방 소속 여부 (reconnect-safe) */
     @Column(nullable = false)
     private boolean isActive;
 
-    /** 방 나간 시각 */
     private OffsetDateTime leftAt;
 
     /** 밴 여부 */
@@ -81,7 +79,7 @@ public class RoomParticipant {
         this.joinedAt = now;
         this.createdAt = now;
         this.updatedAt = now;
-        this.isActive = true;
+        this.isActive = false;
         this.isBanned = false;
     }
 
@@ -93,6 +91,7 @@ public class RoomParticipant {
     /* =======================
        Domain Methods
        ======================= */
+
 
     public void activate() {
         this.isActive = true;

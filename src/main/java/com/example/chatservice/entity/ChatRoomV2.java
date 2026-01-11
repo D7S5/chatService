@@ -60,4 +60,18 @@ public class ChatRoomV2 {
         r.createdAt = OffsetDateTime.now();
         return r;
     }
+
+    public void increaseCount() {
+        if (currentCount >= maxParticipants) {
+            throw new IllegalStateException("Room is full");
+        }
+        this.currentCount++;
+    };
+
+    public void decreaseCount() {
+//        if (currentCount <= 0) {
+//            throw new IllegalStateException("Room count underflow");
+//        }
+        this.currentCount--;
+    };
 }

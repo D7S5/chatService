@@ -16,7 +16,7 @@ public interface ChatRoomV2Repository extends JpaRepository<ChatRoomV2, String> 
 
     boolean existsByRoomIdAndOwnerUserId(String roomId, String ownerId);
 
-    @Lock(LockModeType.OPTIMISTIC)
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select r from ChatRoomV2 r where r.roomId = :roomId")
     ChatRoomV2 findByIdForUpdate(@Param("roomId") String roomId);
 

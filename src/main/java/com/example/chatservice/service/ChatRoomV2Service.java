@@ -2,7 +2,9 @@ package com.example.chatservice.service;
 
 import com.example.chatservice.dto.*;
 import com.example.chatservice.entity.ChatRoomV2;
+import com.example.chatservice.entity.RoomParticipant;
 import com.example.chatservice.repository.ChatRoomV2Repository;
+import com.example.chatservice.repository.RoomParticipantRepository;
 import com.example.chatservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +28,7 @@ public class ChatRoomV2Service {
     private final StringRedisTemplate redis;
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatRoomV2Repository chatRoomV2Repository;
+    private final RoomParticipantRepository repository;
 
     private final UserRepository userRepository;
 
@@ -45,8 +48,17 @@ public class ChatRoomV2Service {
                 req.getMaxParticipants(),
                 userId
         );
-        room.setCurrentCount(room.getCurrentCount() + 1);
+
         chatRoomV2Repository.save(room);
+
+        repository.save(
+                RoomParticipant.builder()
+                        .roomId(room.getRoomId())
+                        .userId(userId)
+                        .role(RoomRole.OWNER)
+                        .isActive(true)
+                        .build()
+        );
 
         String inviteToken = null;
         if (req.getType() == RoomType.PRIVATE) {
