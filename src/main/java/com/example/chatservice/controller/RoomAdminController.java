@@ -62,7 +62,6 @@ public class RoomAdminController {
             Principal principal
     ) {
         String requesterId = principal.getName();
-        System.out.println("requesterId = " + requesterId);
 
         AdminChangedResponse result =
                 service.toggleAdmin(roomId, requesterId, request.getTargetUserId());

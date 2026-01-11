@@ -10,6 +10,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.List;
@@ -32,6 +33,7 @@ public class ChatRoomV2Service {
         return chatRoomV2Repository.findAll();
     }
 
+    @Transactional
     public RoomResponse createV2(CreateRoomRequest req, String userId) {
         if (req.getMaxParticipants() < 2) {
             throw new IllegalArgumentException("최소 인원은 2명입니다.");

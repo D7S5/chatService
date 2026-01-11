@@ -29,8 +29,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.time.Duration;
 import java.util.List;
 
-import static com.example.chatservice.dto.RoomRole.MEMBER;
-import static com.example.chatservice.dto.RoomRole.OWNER;
+import static com.example.chatservice.dto.RoomRole.*;
 
 @Service
 @RequiredArgsConstructor
@@ -57,12 +56,16 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
 
         boolean ownerUser = checkOwnerUser(roomId, userId);
 
+        boolean adminUser = checkAdminUser(roomId, userId);
+
         if (repository.existsByRoomIdAndUserIdAndIsBannedTrue(roomId, userId)) {
             throw new BannedFromRoomException(roomId);
         }
 
         if (ownerUser) {
             joinAsRole(roomId, userId, OWNER);
+        } else if (adminUser) {
+            joinAsRole(roomId, userId, ADMIN);
         } else {
             joinAsRole(roomId, userId, MEMBER);
         }
@@ -260,7 +263,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
             throw new IllegalStateException("OWNER는 변경 불가");
 
         target.setRole(
-                target.getRole() == RoomRole.ADMIN ? MEMBER : RoomRole.ADMIN
+                target.getRole() == ADMIN ? MEMBER : ADMIN
         );
 
         repository.save(target);
@@ -316,6 +319,10 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         return roomRepository.existsByRoomIdAndOwnerUserId(roomId, userId);
     }
 
+    public boolean checkAdminUser(String roomId, String userId) {
+        return repository.existsByRoomIdAndUserIdAndRole(roomId, userId, ADMIN);
+    }
+
     /* =======================
        QUERY
        ======================= */
@@ -349,13 +356,6 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                         new IllegalStateException("Participant not found"));
     }
 
-//    private void validateAdmin(String roomId, String userId) {
-//        RoomParticipant p = getParticipant(roomId, userId);
-//        if (p.getRole() == MEMBER) {
-//            throw new SecurityException("No permission");
-//        }
-//    }
-
     private void validateOwner(String roomId, String userId) {
         RoomParticipant p = getParticipant(roomId, userId);
         if (p.getRole() != OWNER) {
@@ -368,7 +368,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                 repository.findAllByRoomIdAndIsActiveTrue(roomId);
 
         actives.stream()
-                .filter(p -> p.getRole() == RoomRole.ADMIN)
+                .filter(p -> p.getRole() == ADMIN)
                 .findFirst()
                 .or(() -> actives.stream().findFirst())
                 .ifPresent(newOwner -> {
