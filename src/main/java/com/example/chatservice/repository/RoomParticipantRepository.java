@@ -33,6 +33,9 @@ public interface RoomParticipantRepository extends JpaRepository<RoomParticipant
 
     boolean existsByOwnerRoomId(String roomId);
 
+    boolean existsByRoomIdAndUserIdAndRole(String roomId, String userId, RoomRole role);
+
+
     boolean existsByRoomIdAndUserIdAndIsBannedTrue(String roomId, String userId);
 
     int countByRoomIdAndIsActiveTrue(String roomId);
