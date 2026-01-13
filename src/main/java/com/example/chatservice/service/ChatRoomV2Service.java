@@ -9,10 +9,12 @@ import com.example.chatservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 import java.util.List;
@@ -26,11 +28,9 @@ import java.util.UUID;
 public class ChatRoomV2Service {
 
     private final StringRedisTemplate redis;
-    private final SimpMessagingTemplate messagingTemplate;
     private final ChatRoomV2Repository chatRoomV2Repository;
     private final RoomParticipantRepository repository;
-
-    private final UserRepository userRepository;
+    private final RoomParticipantService service;
 
     public List<ChatRoomV2> getAllRooms() {
         return chatRoomV2Repository.findAll();
@@ -69,107 +69,35 @@ public class ChatRoomV2Service {
                     Duration.ofMinutes(10) // 초대만료
             );
         }
+        System.out.println("inviteToken = " + inviteToken);
         RoomResponse res = RoomResponse.of(room, inviteToken);
 
         return res;
     }
 
+    public RoomResponse getRoom(String roomId, String userId) {
+        ChatRoomV2 room = chatRoomV2Repository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("Room not found"));
 
-    private String usersKey(String roomId) {
-        return "room:" + roomId + ":sessions";
-    }
-
-    public void enter(RoomEnterDto dto, SimpMessageHeaderAccessor accessor) {
-
-        String sessionId = accessor.getSessionId();
-        String roomId = dto.getRoomId();
-        String userId = (String) accessor.getSessionAttributes().get("userId");
-
-//        System.out.println("Enter userId = " + userId + " roomId = " + roomId); // debug
-
-        String existingRoom =
-                redis.opsForValue().get("session:" + sessionId + ":room");
-
-        if (existingRoom != null && !existingRoom.equals(roomId)) {
-            leaveBySession(existingRoom, sessionId);
+        if (room.getType() == RoomType.PRIVATE) {
+            boolean joined = service.isParticipant(roomId, userId);
+            if (!joined) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "PRIVATE_ROOM");
+            }
         }
-        redis.opsForValue().set(
-                "session:" + sessionId + ":room",
-                roomId
-        );
-        redis.opsForValue().set(
-                "session:" + sessionId + ":user",
-                userId
-        );
-        redis.opsForHash().put(
-                "room:" + roomId + ":sessions",
-                sessionId,
-                userId
-        );
-
-        broadcastRoomCount(roomId);
-//        broadcastGetCurrentCount(roomId);
+        return RoomResponse.from(room);
     }
 
-    public void leaveBySession(String roomId, String sessionId) {
+    public void joinRoom(String roomId, String userId) {
+        ChatRoomV2 room = chatRoomV2Repository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("Room not found"));
 
-//        Map<Object, Object> list = redis.opsForHash().entries("room:"+ roomId + ":sessions");
-//        System.out.println("Session list RoomId = " + roomId + ", list = " + list);
-
-        redis.opsForHash().delete(
-                "room:" + roomId + ":sessions",
-                sessionId
-        );
-
-        redis.delete("session:" + sessionId + ":room");
-        redis.delete("session:" + sessionId + ":user");
-
-        broadcastRoomCount(roomId);
-//        broadcastGetCurrentCount(roomId);
-    }
-
-    private void broadcastRoomCount(String roomId) {
-        int current = getCurrentCount(roomId);
-
-        // 인원 수
-        messagingTemplate.convertAndSend(
-                "/topic/room-count/" + roomId,
-                Map.of("current", current)
-        );
-    }
-
-//    private void broadcastGetCurrentCount(String roomId) {
-//        List<ParticipantDto> users = getParticipants(roomId);
-//
-//        messagingTemplate.convertAndSend(
-//                "/topic/room-users/" + roomId,
-//                users
-//        );
-//    }
-
-    private int getCurrentCount(String roomId) {
-        Map<Object, Object> sessions = redis.opsForHash().entries(usersKey(roomId));
-        return (int) sessions.values().stream()
-                .distinct()
-                .count();
-    }
-
-    private String loadUsername(String userId) {
-
-        if (userId == null) return "UNKNOWN";
-
-        String key = "user:" + userId + ":username";
-        String cached = redis.opsForValue().get(key);
-
-        if (cached != null) return cached;
-
-        String fromDb = userRepository.findUsernameById(userId);
-
-        if (fromDb == null) {
-            log.warn("Username not found for userId={}", userId);
-            return "UNKNOWN";
-        }
-        redis.opsForValue().set(key, fromDb, Duration.ofHours(1));
-        return fromDb;
+//        if (room.getType() == RoomType.PRIVATE) {
+//            throw new ResponseStatusException(
+//                    HttpStatus.FORBIDDEN,
+//                    "INVITE CODE REQUIRED"
+//            );
+//        }
+        service.joinRoom(roomId, userId);
     }
 }

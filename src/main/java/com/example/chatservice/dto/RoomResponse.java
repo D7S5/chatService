@@ -16,6 +16,7 @@ public class RoomResponse {
     private int currentCount;
     private int maxParticipants;
     private boolean largeRoom;
+    private String ownerUserId;
     private String inviteToken; // PRIVATE일 때만
 
     public static RoomResponse from(ChatRoomV2 r) {
@@ -26,6 +27,7 @@ public class RoomResponse {
                 r.getCurrentCount(),
                 r.getMaxParticipants(),
                 r.isLargeRoom(),
+                r.getOwnerUserId(),
                 null
         );
     }
@@ -38,6 +40,7 @@ public class RoomResponse {
                 room.getCurrentCount(),
                 room.getMaxParticipants(),
                 room.isLargeRoom(),
+                room.getOwnerUserId(),
                 inviteToken
         );
     }

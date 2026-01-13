@@ -3,6 +3,7 @@ package com.example.chatservice.controller;
 import com.example.chatservice.dto.ParticipantDto;
 import com.example.chatservice.dto.RoomCountDto;
 import com.example.chatservice.security.UserPrincipal;
+import com.example.chatservice.service.ChatRoomV2Service;
 import com.example.chatservice.service.RoomParticipantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,13 +19,15 @@ import java.util.Map;
 public class RoomParticipantController {
 
     private final RoomParticipantService service;
+    private final ChatRoomV2Service chatRoomService;
+
 
     @PostMapping("/{roomId}/participants")
     public ResponseEntity<Void> join(
             @PathVariable String roomId,
             @AuthenticationPrincipal UserPrincipal user
     ) {
-        service.joinRoom(roomId, user.getId());
+        chatRoomService.joinRoom(roomId, user.getId());
         return ResponseEntity.ok().build();
     }
 
@@ -47,6 +50,4 @@ public class RoomParticipantController {
         return Map.of(
                 "current", service.getCurrentCount(roomId));
     }
-
-
 }

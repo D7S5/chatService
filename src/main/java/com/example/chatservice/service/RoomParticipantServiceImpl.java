@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.UUID;
 
 import static com.example.chatservice.dto.RoomRole.*;
 
@@ -447,5 +448,8 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                 "/topic/rooms/" + roomId + "/count",
                 dto
         );
+    }
+    public boolean isParticipant(String roomId, String userId) {
+        return repository.existsByRoomIdAndUserId(roomId, userId);
     }
 }

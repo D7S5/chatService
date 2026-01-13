@@ -23,13 +23,40 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
         StompHeaderAccessor accessor =
                 MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
-        if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-            String userId = accessor.getUser().getName();
-            System.out.println("stomp userId" + userId);
-            String roomId = accessor.getFirstNativeHeader("roomId");
+//        if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+//            String userId = accessor.getUser().getName();
+//            System.out.println("stomp userId" + userId);
+//            String roomId = accessor.getFirstNativeHeader("roomId");
+//
+//            if (repository.existsByRoomIdAndUserIdAndIsBannedTrue(roomId, userId)) {
+//                throw new MessagingException("BANNED");
+//            }
+//        }
+        if (accessor == null) return message;
 
-            if (repository.existsByRoomIdAndUserIdAndIsBannedTrue(roomId, userId)) {
-                throw new MessagingException("BANNED");
+        if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
+
+            String destination = accessor.getDestination();
+            if (destination == null) return message;
+
+            if (destination.startsWith("/topic/chat/")) {
+                String roomId = destination.substring("/topic/chat/".length());
+                String userId = accessor.getUser().getName();
+                System.out.println("userId = " + userId);
+
+                boolean isParticipant =
+                        repository.existsByRoomIdAndUserId(roomId, userId);
+
+                if (!isParticipant) {
+                    throw new MessagingException("NOT_PARTICIPANTS");
+                }
+
+                boolean banned =
+                        repository.existsByRoomIdAndUserIdAndIsBannedTrue(roomId, userId);
+
+                if (banned) {
+                    throw new MessagingException("BANNED");
+                }
             }
         }
         return message;
