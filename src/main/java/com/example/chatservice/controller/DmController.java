@@ -16,7 +16,7 @@ import java.util.Map;
     public class DmController {
 
     private final DMService dmService;
-    private final SimpMessagingTemplate messagingTemplate;
+
     @PostMapping("/start")
     public ResponseEntity<?> startDM(@RequestBody Map<String, String> payload) {
         return ResponseEntity.ok(

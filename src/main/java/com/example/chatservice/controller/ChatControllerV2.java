@@ -4,6 +4,7 @@ import com.example.chatservice.component.ChatRateLimiter;
 import com.example.chatservice.dto.CreateRoomRequest;
 import com.example.chatservice.dto.GroupMessageDto;
 import com.example.chatservice.dto.RoomResponse;
+import com.example.chatservice.dto.RoomType;
 import com.example.chatservice.entity.ChatRoomV2;
 import com.example.chatservice.kafka.GroupMessageProducer;
 import com.example.chatservice.security.UserPrincipal;
@@ -29,15 +30,12 @@ import java.util.Map;
 public class ChatControllerV2 {
 
     private final SimpMessagingTemplate messagingTemplate;
-
     private final StringRedisTemplate redis;
-
     private final ChatRoomV2Service chatRoomV2Service;
     private final GroupMessageProducer groupMessageProducer;
-
     private final RoomInviteService inviteService;
-
     private final ChatRateLimiter chatRateLimiter;
+
     @MessageMapping("/chat.send")
     public void send(GroupMessageDto msg) {
 
@@ -72,7 +70,9 @@ public class ChatControllerV2 {
     public RoomResponse create(@RequestBody CreateRoomRequest request,
                                @AuthenticationPrincipal UserPrincipal user) {
         RoomResponse room = chatRoomV2Service.createV2(request, user.getId());
-        inviteService.joinByInvite(room.getInviteToken(), user.getId());
+        if (room.getType() == RoomType.PRIVATE) {
+            inviteService.joinByInvite(room.getInviteToken(), user.getId());
+        }
         return room;
     }
 
