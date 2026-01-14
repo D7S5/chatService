@@ -82,7 +82,8 @@ public class ChatRoomV2Service {
         if (room.getType() == RoomType.PRIVATE) {
             boolean joined = service.isParticipant(roomId, userId);
             if (!joined) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "PRIVATE_ROOM");
+                return RoomResponse.inaccessible(room, "PRIVATE_ROOM");
+//                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "PRIVATE_ROOM");
             }
         }
         return RoomResponse.from(room);

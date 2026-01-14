@@ -15,6 +15,10 @@ public class RoomResponse {
     private RoomType type;
     private int currentCount;
     private int maxParticipants;
+
+    private boolean accessible;   // 입장 가능 여부
+    private String reason;         // PRIVATE_ROOM 등
+
     private boolean largeRoom;
     private String ownerUserId;
     private String inviteToken; // PRIVATE일 때만
@@ -26,6 +30,8 @@ public class RoomResponse {
                 r.getType(),
                 r.getCurrentCount(),
                 r.getMaxParticipants(),
+                true,
+                null,
                 r.isLargeRoom(),
                 r.getOwnerUserId(),
                 null
@@ -39,9 +45,25 @@ public class RoomResponse {
                 room.getType(),
                 room.getCurrentCount(),
                 room.getMaxParticipants(),
+                true,
+                null,
                 room.isLargeRoom(),
                 room.getOwnerUserId(),
                 inviteToken
+        );
+    }
+    public static RoomResponse inaccessible(ChatRoomV2 room, String reason) {
+        return new RoomResponse(
+                room.getRoomId(),
+                room.getName(),
+                room.getType(),
+                room.getCurrentCount(),
+                room.getMaxParticipants(),
+                false,
+                reason,
+                room.isLargeRoom(),
+                room.getOwnerUserId(),
+                null
         );
     }
 }
