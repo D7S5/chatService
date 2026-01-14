@@ -32,4 +32,6 @@ public interface RoomParticipantService {
     List<ParticipantDto> getParticipants(String roomId);
 
     void broadcast(String roomId);
+
+    boolean isParticipant(String roomId, String userId);
 }

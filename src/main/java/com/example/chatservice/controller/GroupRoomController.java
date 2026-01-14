@@ -25,14 +25,13 @@ import java.util.Optional;
 public class GroupRoomController {
 
     private final ChatRoomV2Repository chatRoomV2Repository;
-    private final StringRedisTemplate redisTemplate;
     private final GroupMessageRepository groupMessageRepository;
 
-    @GetMapping("/{roomId}")
-    public ChatRoomV2 getRoom(@PathVariable String roomId) {
-        return chatRoomV2Repository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("Room is not found"));
-    }
+//    @GetMapping("/{roomId}")
+//    public ChatRoomV2 getRoom(@PathVariable String roomId) {
+//        return chatRoomV2Repository.findById(roomId)
+//                .orElseThrow(() -> new IllegalArgumentException("Room is not found"));
+//    }
 
     @GetMapping("/{roomId}/messages")
     public List<ChatMessageResponse> messages(

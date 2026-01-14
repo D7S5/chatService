@@ -8,14 +8,13 @@ import com.example.chatservice.entity.ChatRoomV2;
 import com.example.chatservice.kafka.GroupMessageProducer;
 import com.example.chatservice.security.UserPrincipal;
 import com.example.chatservice.service.ChatRoomV2Service;
+import com.example.chatservice.service.RoomInviteService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -33,9 +32,10 @@ public class ChatControllerV2 {
 
     private final StringRedisTemplate redis;
 
-
     private final ChatRoomV2Service chatRoomV2Service;
     private final GroupMessageProducer groupMessageProducer;
+
+    private final RoomInviteService inviteService;
 
     private final ChatRateLimiter chatRateLimiter;
     @MessageMapping("/chat.send")
@@ -71,7 +71,9 @@ public class ChatControllerV2 {
     @PostMapping("/create")
     public RoomResponse create(@RequestBody CreateRoomRequest request,
                                @AuthenticationPrincipal UserPrincipal user) {
-        return chatRoomV2Service.createV2(request, user.getId());
+        RoomResponse room = chatRoomV2Service.createV2(request, user.getId());
+        inviteService.joinByInvite(room.getInviteToken(), user.getId());
+        return room;
     }
 
     @GetMapping("/invite/{token}")

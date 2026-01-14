@@ -13,18 +13,13 @@
       <change beforePath="$PROJECT_DIR$/.gradle/8.14.3/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.14.3/fileHashes/resourceHashesCache.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/com/example/chatservice/entity/ChatRoomV2.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/com/example/chatservice/entity/ChatRoomV2.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/com/example/chatservice/entity/RoomParticipant.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/com/example/chatservice/entity/RoomParticipant.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/com/example/chatservice/repository/ChatRoomV2Repository.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/com/example/chatservice/repository/ChatRoomV2Repository.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/com/example/chatservice/dto/RoomResponse.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/com/example/chatservice/dto/RoomResponse.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/classes/java/main/com/example/chatservice/service/ChatRoomV2Service.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/com/example/chatservice/service/ChatRoomV2Service.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/com/example/chatservice/service/RoomParticipantServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/com/example/chatservice/service/RoomParticipantServiceImpl.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/ChatRoomV2Service.class.uniqueId0" beforeDir="false" afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/ChatRoomV2Service.class.uniqueId0" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/ChatControllerV2.class.uniqueId4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/ChatRoomV2Service.class.uniqueId1" beforeDir="false" afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/ChatRoomV2Service.class.uniqueId1" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/tmp/compileJava/previous-compilation-data.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatservice/entity/ChatRoomV2.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatservice/entity/ChatRoomV2.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatservice/entity/RoomParticipant.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatservice/entity/RoomParticipant.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatservice/repository/ChatRoomV2Repository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatservice/repository/ChatRoomV2Repository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatservice/dto/RoomResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatservice/dto/RoomResponse.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatservice/service/ChatRoomV2Service.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatservice/service/ChatRoomV2Service.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatservice/service/RoomParticipantServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatservice/service/RoomParticipantServiceImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -131,7 +126,7 @@
       <workItem from="1766653498117" duration="4256000" />
       <workItem from="1766727726156" duration="85153000" />
       <workItem from="1767577379957" duration="494000" />
-      <workItem from="1767577884492" duration="70156000" />
+      <workItem from="1767577884492" duration="91225000" />
     </task>
     <servers />
   </component>

@@ -16,6 +16,7 @@ public interface RoomParticipantRepository extends JpaRepository<RoomParticipant
             boolean isActive
     );
 
+    boolean existsByRoomIdAndUserIdAndRoleIn(String roomId, String userId, List<RoomRole> roles);
     List<RoomParticipant> findAllByRoomIdAndRoleAndIsActiveTrue(
             String roomId,
             RoomRole role
