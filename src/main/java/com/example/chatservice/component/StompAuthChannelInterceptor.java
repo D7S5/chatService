@@ -23,15 +23,6 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
         StompHeaderAccessor accessor =
                 MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
-//        if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-//            String userId = accessor.getUser().getName();
-//            System.out.println("stomp userId" + userId);
-//            String roomId = accessor.getFirstNativeHeader("roomId");
-//
-//            if (repository.existsByRoomIdAndUserIdAndIsBannedTrue(roomId, userId)) {
-//                throw new MessagingException("BANNED");
-//            }
-//        }
         if (accessor == null) return message;
 
         if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {

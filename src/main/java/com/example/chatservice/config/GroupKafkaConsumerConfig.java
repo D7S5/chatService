@@ -22,10 +22,6 @@ public class GroupKafkaConsumerConfig {
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-//        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-//                KafkaAvroDeserializer.class);
-//        props.put("specific.avro.reader", true);
-//        props.put("schema.registry.url", "http://localhost:8081");
         return new DefaultKafkaConsumerFactory<>(props);
     }
 

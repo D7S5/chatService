@@ -22,6 +22,5 @@ public class RedisKeyExpiredListener implements MessageListener {
 
         String userId = expiredKey.replace(TTL_KEY_PREFIX, "");
         log.info("❌ User offline => {}", userId);
-//        onlineStatusService.markOffline(userId);
     }
 }

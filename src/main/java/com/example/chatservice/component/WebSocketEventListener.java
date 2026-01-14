@@ -24,17 +24,8 @@ public class WebSocketEventListener {
         StompHeaderAccessor accessor =
                 StompHeaderAccessor.wrap(event.getMessage());
 
-        String sessionId = accessor.getSessionId();
-        if (sessionId == null) return;
+//        String sessionId = accessor.getSessionId();
+//        if (sessionId == null) return;
 
-//        String roomId =
-//                redis.opsForValue().get("session:" + sessionId + ":room");
-//        String userId =
-//                (String) accessor.getSessionAttributes().get("userId");
-
-//        if (roomId != null) {
-//            chatRoomV2Service.leaveBySession(roomId, sessionId);
-//            System.out.println("Leave userId = " + userId + " roomId = " + roomId); // debug
-//        }
     }
 }
