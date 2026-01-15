@@ -70,6 +70,7 @@ public class ChatControllerV2 {
     public RoomResponse create(@RequestBody CreateRoomRequest request,
                                @AuthenticationPrincipal UserPrincipal user) {
         RoomResponse room = chatRoomV2Service.createV2(request, user.getId());
+
         if (room.getType() == RoomType.PRIVATE) {
             inviteService.joinByInvite(room.getInviteToken(), user.getId());
         }

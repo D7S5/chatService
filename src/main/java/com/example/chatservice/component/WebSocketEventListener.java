@@ -1,6 +1,5 @@
 package com.example.chatservice.component;
 
-import com.example.chatservice.redis.OnlineStatusServiceV3;
 import com.example.chatservice.service.ChatRoomV2Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
