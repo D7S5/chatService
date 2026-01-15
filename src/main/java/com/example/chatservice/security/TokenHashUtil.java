@@ -1,7 +1,5 @@
 package com.example.chatservice.security;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Base64;

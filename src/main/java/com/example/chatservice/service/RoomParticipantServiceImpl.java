@@ -5,7 +5,6 @@ import com.example.chatservice.dto.ParticipantDto;
 import com.example.chatservice.dto.RoomCountDto;
 import com.example.chatservice.dto.RoomRole;
 import com.example.chatservice.entity.ChatRoomV2;
-import com.example.chatservice.entity.Participant;
 import com.example.chatservice.entity.RoomParticipant;
 import com.example.chatservice.event.ParticipantForcedExitEvent;
 import com.example.chatservice.event.RoomParticipantsChangedEvent;
@@ -20,7 +19,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.retry.annotation.Retryable;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +26,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.UUID;
 
 import static com.example.chatservice.dto.RoomRole.*;
 
@@ -127,11 +124,6 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         participant.deactivate();
         repository.save(participant);
 
-//        publisher.broadcastLeave(
-//                roomId,
-//                toDto(participant)
-//        );
-
         eventPublisher.publishEvent(
                 new RoomParticipantsChangedEvent(roomId)
         );
@@ -198,7 +190,6 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         room.decreaseCount();
 
         repository.save(target);
-//        syncRedisLeave(roomId, targetUserId);
 
         eventPublisher.publishEvent(
                 new ParticipantForcedExitEvent(

@@ -1,6 +1,5 @@
 package com.example.chatservice.component;
 
-import com.example.chatservice.redis.OnlineStatusServiceV2;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.Message;
