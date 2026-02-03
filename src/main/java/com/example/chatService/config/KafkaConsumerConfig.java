@@ -26,7 +26,7 @@ public class KafkaConsumerConfig {
         return new DefaultKafkaConsumerFactory<>(
                 Map.of(
                         ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092",
-                        ConsumerConfig.GROUP_ID_CONFIG, "chat-service",
+                        ConsumerConfig.GROUP_ID_CONFIG, "chat_service",
                         ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
                         ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class,
                         ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"

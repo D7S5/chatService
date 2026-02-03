@@ -44,13 +44,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         UserPrincipal principal =
                 (UserPrincipal) authentication.getPrincipal();
 
-        String userId = principal.getId();
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userRepository.findById(principal.getId()).orElseThrow();
 
-        // JWT 발급
         String accessToken = jwtTokenProvider.generateAccessToken(user);
-
-        // refresh token 발급 + 쿠키 저장
         String refreshToken = jwtTokenProvider.generateRefreshToken(user);
 
         String hash = TokenHashUtil.hash(refreshToken);
@@ -70,6 +66,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 ? "http://localhost:3000/oauth/nickname?token=" + encoded
                 : "http://localhost:3000/oauth/success?token=" + encoded;
 
-        response.sendRedirect(redirectUrl);
+        clearAuthenticationAttributes(request);
+        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
 }

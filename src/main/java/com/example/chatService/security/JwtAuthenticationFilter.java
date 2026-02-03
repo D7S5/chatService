@@ -35,7 +35,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/auth/logout",
             "/api/ws/token",
             "/login/oauth2/",
-            "/oauth2/"
+            "/oauth2/",
+            "/login",
+            "/error"
     );
 
     @Override

@@ -26,7 +26,7 @@ public class DMConsumer {
     private final DMMessageRepository messageRepository;
     @KafkaListener(
             topics = "dm-messages",
-            groupId = "chat-service",
+            groupId = "chat_service",
             containerFactory = "kafkaListenerContainerFactory"
     )
     public void consume(DMMessageKafkaDto dto) {
