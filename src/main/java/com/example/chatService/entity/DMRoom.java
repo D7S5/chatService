@@ -1,0 +1,27 @@
+package com.example.chatService.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.OffsetDateTime;
+
+@Entity
+@Builder
+@Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "dm_rooms")
+public class DMRoom {
+
+    @Id
+    @Column(length = 36)
+    private String roomId;
+
+    @Column(nullable = false, length = 36)
+    private String userAId;
+    @Column(nullable = false, length = 36)
+    private String userBId;
+
+    @Builder.Default
+    private OffsetDateTime lastMessageTime = OffsetDateTime.now();
+}
