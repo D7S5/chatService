@@ -1,1 +1,6 @@
-ChatService Kafka 버전 BE코드입니다.
+ChatService BE코드입니다.
+
+의존성 sudo docker compose up -d
+      ./gradlew bootrun 
+
+
