@@ -49,14 +49,12 @@ public class FriendService {
 
         friendRepository.save(f);
 
-        // 실시간 알림
-        eventPublisher.publishFriendEvent(toUserId,
-                Map.of(
-                        "type", "FRIEND_REQUEST",
-                        "fromUserId", fromUserId,
-                        "fromUserNickname", from.getUsername()
-                )
-        );
+        PublishFriendEvent publishEvent = PublishFriendEvent.builder()
+                                                .type("FRIEND_REQUEST")
+                                                .fromUserId(fromUserId)
+                                                .fromUserNickname(from.getUsername()).build();
+
+        eventPublisher.publishFriendEvent(toUserId, publishEvent);
 
         return FriendRequestResponseDto.builder()
                 .fromUserId(fromUserId)
@@ -139,13 +137,14 @@ public class FriendService {
         friendRepository.save(friendA);
         friendRepository.save(friendB);
 
-        eventPublisher.publishFriendEvent(
-                userA.getId(),
-                Map.of(
-                        "type", "Friend_ACCEPTED",
-                        "friendId", userB.getId()
-                )
-        );
+        PublishAcceptFriendEvent publishAcceptFriendEvent = PublishAcceptFriendEvent.builder()
+                                                                .type("Friend_ACCEPTED")
+                                                                .friendId(userB.getId()).build();
+
+        eventPublisher.publishAcceptFriendEvent(
+                            userA.getId(),
+                            publishAcceptFriendEvent);
+
         return "친구 신청 수락 완료";
     }
     /** 친구 요청 거절 */

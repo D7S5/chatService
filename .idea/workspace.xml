@@ -5,18 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a450b2f7-d39b-44fb-8aa0-ae68f60caeb7" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/dto/PublishAcceptFriendEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/dto/PublishFriendEvent.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/component/RedisKeyExpiredListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/component/RedisKeyExpiredListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/component/WebSocketEventListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/component/WebSocketEventListener.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/component/WebSocketEventPublisher.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/component/WebSocketEventPublisher.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/security/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/security/AuthService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/service/ChatMessageService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/service/ChatRoomService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/service/ChatRoomV2Service.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/service/ChatRoomV2Service.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/service/DMService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/service/DMService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/service/FriendService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/service/FriendService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application-dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application-dev.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -141,7 +134,7 @@
       <workItem from="1770092533424" duration="3391000" />
       <workItem from="1770096206922" duration="617000" />
       <workItem from="1770098676689" duration="536000" />
-      <workItem from="1771225513013" duration="1216000" />
+      <workItem from="1771225513013" duration="2515000" />
     </task>
     <servers />
   </component>
