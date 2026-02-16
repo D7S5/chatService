@@ -8,7 +8,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Builder
 public class PublishFriendEvent {
-    private String type;
+    private FriendEventType type;
     private String fromUserId;
     private String fromUserNickname;
 }

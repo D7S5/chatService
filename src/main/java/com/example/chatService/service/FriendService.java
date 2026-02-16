@@ -50,7 +50,7 @@ public class FriendService {
         friendRepository.save(f);
 
         PublishFriendEvent publishEvent = PublishFriendEvent.builder()
-                                                .type("FRIEND_REQUEST")
+                                                .type(FriendEventType.FRIEND_REQUEST)
                                                 .fromUserId(fromUserId)
                                                 .fromUserNickname(from.getUsername()).build();
 
@@ -138,7 +138,7 @@ public class FriendService {
         friendRepository.save(friendB);
 
         PublishAcceptFriendEvent publishAcceptFriendEvent = PublishAcceptFriendEvent.builder()
-                                                                .type("Friend_ACCEPTED")
+                                                                .type(FriendEventType.FRIEND_ACCEPT)
                                                                 .friendId(userB.getId()).build();
 
         eventPublisher.publishAcceptFriendEvent(

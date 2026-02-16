@@ -1,6 +1,7 @@
 package com.example.chatService.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,6 +11,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "messages")
 @Getter @Setter
+@Builder
 public class Message {
     @Id
     @Column(length = 36, nullable = false)
@@ -35,4 +37,8 @@ public class Message {
 
     @Column(nullable = false)
     private boolean isRead = false;
+
+    public Message() {
+
+    }
 }

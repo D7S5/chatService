@@ -95,7 +95,4 @@ public class DMService {
     public void markMessagesAsRead(String roomId, String userId) {
         dmMessageRepository.markAsReadByRoomAndReceiver(roomId, userId);
     }
-    public int countUnreadMessages(String roomId, String userId) {
-        return dmMessageRepository.countUnread(roomId, userId);
-    }
 }

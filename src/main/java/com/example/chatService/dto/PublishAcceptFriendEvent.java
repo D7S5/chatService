@@ -8,6 +8,6 @@ import lombok.Getter;
 @AllArgsConstructor
 @Builder
 public class PublishAcceptFriendEvent {
-    private String type;
+    private FriendEventType type;
     private String friendId;
 }
