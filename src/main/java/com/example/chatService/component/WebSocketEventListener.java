@@ -22,7 +22,5 @@ public class WebSocketEventListener {
 
         StompHeaderAccessor accessor =
                 StompHeaderAccessor.wrap(event.getMessage());
-
-
     }
 }

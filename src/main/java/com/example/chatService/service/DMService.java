@@ -72,7 +72,6 @@ public class DMService {
     }
     public List<DMRoomDto> getUserRoomsWithUnread(String myUserId) {
         List<DMRoom> rooms = roomRepository.findByUser(myUserId);
-
         return rooms
                 .stream()
                 .map(room -> {
@@ -95,8 +94,5 @@ public class DMService {
     @Transactional
     public void markMessagesAsRead(String roomId, String userId) {
         dmMessageRepository.markAsReadByRoomAndReceiver(roomId, userId);
-    }
-    public int countUnreadMessages(String roomId, String userId) {
-        return dmMessageRepository.countUnread(roomId, userId);
     }
 }
