@@ -22,7 +22,6 @@ public class FriendService {
 
     private final UserRepository userRepository;
     private final FriendRepository friendRepository;
-    private final FriendRequestRepository friendRequestRepository;
     private final WebSocketEventPublisher eventPublisher;
 
     /** 친구 요청 보내기 */

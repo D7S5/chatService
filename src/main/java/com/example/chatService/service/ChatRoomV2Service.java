@@ -62,7 +62,6 @@ public class ChatRoomV2Service {
                     Duration.ofMinutes(10) // 초대만료
             );
         }
-        System.out.println("inviteToken = " + inviteToken);
         RoomResponse res = RoomResponse.of(room, inviteToken);
 
         return res;
@@ -76,7 +75,6 @@ public class ChatRoomV2Service {
             boolean joined = service.isParticipant(roomId, userId);
             if (!joined) {
                 return RoomResponse.inaccessible(room, "PRIVATE_ROOM");
-//                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "PRIVATE_ROOM");
             }
         }
         return RoomResponse.from(room);
@@ -85,13 +83,6 @@ public class ChatRoomV2Service {
     public void joinRoom(String roomId, String userId) {
         ChatRoomV2 room = chatRoomV2Repository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("Room not found"));
-
-//        if (room.getType() == RoomType.PRIVATE) {
-//            throw new ResponseStatusException(
-//                    HttpStatus.FORBIDDEN,
-//                    "INVITE CODE REQUIRED"
-//            );
-//        }
         service.joinRoom(roomId, userId);
     }
 }

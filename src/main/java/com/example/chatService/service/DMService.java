@@ -72,7 +72,6 @@ public class DMService {
     }
     public List<DMRoomDto> getUserRoomsWithUnread(String myUserId) {
         List<DMRoom> rooms = roomRepository.findByUser(myUserId);
-
         return rooms
                 .stream()
                 .map(room -> {

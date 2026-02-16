@@ -162,7 +162,6 @@ public class AuthService {
 
     public void register(@Valid RegisterRequest request) {
 
-        System.out.println("RegisterRequest: username=" + request.username() + ", email=" + request.email());
         if (userRepository.existsByUsername(request.username())) {
             throw new IllegalArgumentException("이미 존재하는 닉네임입니다");
         }

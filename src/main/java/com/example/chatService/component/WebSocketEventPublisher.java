@@ -16,5 +16,3 @@ public class WebSocketEventPublisher {
         messagingTemplate.convertAndSend("/topic/friends/" + userId, payload);
     }
 }
-
-
