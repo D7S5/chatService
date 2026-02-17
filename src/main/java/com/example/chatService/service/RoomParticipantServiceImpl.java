@@ -41,7 +41,6 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     private final ChatRoomV2Repository roomRepository;
     private final ParticipantEventPublisherImpl publisher;
     private final SimpMessagingTemplate messagingTemplate;
-
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
@@ -62,13 +61,10 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
 
         if (ownerUser) {
             joinAsRole(roomId, userId, OWNER);
-            System.out.println("OWNER");
         } else if (adminUser) {
             joinAsRole(roomId, userId, ADMIN);
-            System.out.println("ADMIN");
         } else {
             joinAsRole(roomId, userId, MEMBER);
-            System.out.println("MEMBER");
         }
     }
 
@@ -91,9 +87,9 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         }
 
         ChatRoomV2 room = roomRepository.findByIdForUpdate(roomId);
-        System.out.println("[BEFORE] room currentCount = " + room.getCurrentCount());
+//        System.out.println("[BEFORE] room currentCount = " + room.getCurrentCount());
         room.increaseCount();
-        System.out.println("[AFTER] room currentCount = " + room.getCurrentCount());
+//        System.out.println("[AFTER] room currentCount = " + room.getCurrentCount());
 
         p.activate();
         repository.save(p);
@@ -102,15 +98,6 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                 new RoomParticipantsChangedEvent(roomId)
         );
     }
-
-    @Override
-    public void reconnect(String roomId, String userId) {
-//        joinRoom(roomId, userId); // 동일 로직
-    }
-
-    /* =======================
-       LEAVE
-       ======================= */
 
     @Override
     @Transactional
@@ -128,9 +115,10 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                 new RoomParticipantsChangedEvent(roomId)
         );
     }
-    /* =======================
-       KICK / BAN
-       ======================= */
+
+    @Override
+    public void reconnect(String roomId, String userId) {
+    }
 
     @Override
     @Transactional
@@ -202,10 +190,6 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                 new RoomParticipantsChangedEvent(roomId)
         );
     }
-
-    /* =======================
-       ROLE
-       ======================= */
 
     @Override
     @Transactional
@@ -305,10 +289,6 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         return repository.existsByRoomIdAndUserIdAndRole(roomId, userId, ADMIN);
     }
 
-    /* =======================
-       QUERY
-       ======================= */
-
     @Override
     @Transactional(readOnly = true)
     public List<RoomParticipant> getActiveParticipants(String roomId) {
@@ -327,10 +307,6 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                 ))
                 .toList();
     }
-
-    /* =======================
-       INTERNAL
-       ======================= */
 
     private RoomParticipant getParticipant(String roomId, String userId) {
         return repository.findByRoomIdAndUserId(roomId, userId)
@@ -363,10 +339,6 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                     );
                 });
     }
-
-    /* =======================
-       REDIS SYNC
-       ======================= */
 
     public int getRedisCurrentCount(String roomId) {
         Long count = redis.opsForSet()

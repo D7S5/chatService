@@ -62,8 +62,7 @@ public class UserPrincipal implements UserDetails, OAuth2User {
         );
     }
 
-    /* ================= JWT / 일반 로그인 ================= */
-
+    // JWT 일반로그인
     public static UserPrincipal create(User user) {
         List<GrantedAuthority> authorities =
                 List.of(new SimpleGrantedAuthority("ROLE_USER"));
@@ -80,15 +79,12 @@ public class UserPrincipal implements UserDetails, OAuth2User {
         );
     }
 
-    /* ================= OAuth 로그인 ================= */
-
+    // OAuth2.0 로그인
     public static UserPrincipal create(User user, Map<String, Object> attributes) {
         UserPrincipal principal = create(user);
         principal.attributes = attributes;
         return principal;
     }
-
-    /* ================= OAuth2User ================= */
 
     @Override
     public Map<String, Object> getAttributes() {

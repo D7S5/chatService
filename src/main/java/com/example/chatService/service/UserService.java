@@ -27,7 +27,6 @@ public class UserService {
                 .orElseThrow(() ->
                         new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        // UX용 사전 체크 (동시성 최종 보장은 DB UNIQUE)
         if (userRepository.existsByUsername(trimmed)) {
             throw new IllegalStateException("이미 사용 중인 닉네임입니다.");
         }

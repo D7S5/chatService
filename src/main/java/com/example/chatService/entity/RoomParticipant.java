@@ -42,7 +42,6 @@ public class RoomParticipant {
     @Column(name = "owner_room_id", unique = true)
     private String ownerRoomId;
 
-    /** 마지막 활동 시각 (heartbeat / 메시지) */
     private OffsetDateTime lastActiveAt;
 
     @Column(nullable = false)
@@ -50,28 +49,19 @@ public class RoomParticipant {
 
     private OffsetDateTime leftAt;
 
-    /** 밴 여부 */
     @Column(nullable = false)
     private boolean isBanned;
 
-    /** 밴 시각 */
     private OffsetDateTime bannedAt;
 
-    /** 밴 사유 */
     @Column(length = 255)
     private String banReason;
 
-    /** 생성 시각 */
     @Column(nullable = false)
     private OffsetDateTime createdAt;
 
-    /** 수정 시각 */
     @Column(nullable = false)
     private OffsetDateTime updatedAt;
-
-    /* =======================
-       Lifecycle
-       ======================= */
 
     @PrePersist
     protected void onCreate() {
@@ -87,11 +77,6 @@ public class RoomParticipant {
     protected void onUpdate() {
         this.updatedAt = OffsetDateTime.now();
     }
-
-    /* =======================
-       Domain Methods
-       ======================= */
-
 
     public void activate() {
         this.isActive = true;

@@ -159,11 +159,4 @@ public class FriendService {
         req.setStatus(FriendStatus.BLOCKED);
         return "거절 완료";
     }
-
-    public boolean isAlreadyFriend(String userId, String targetUserId) {
-        return friendRepository.existsByUserIdAndFriendIdOrUserIdAndFriendId(
-                userId, targetUserId,
-                targetUserId, userId
-        );
-    }
 }
