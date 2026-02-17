@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +21,7 @@ public class PrivateMessageService {
                 .sender(sender)
                 .receiver(receiver)
                 .content(content)
-                .sentAt(LocalDateTime.now())
+                .sentAt(OffsetDateTime.now())
                 .readFlag(false)
                 .build();
         return repository.save(pm);

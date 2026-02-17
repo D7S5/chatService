@@ -65,10 +65,7 @@ public class ParticipantEventPublisherImpl implements ParticipantEventPublisher 
             messagingTemplate.convertAndSendToUser(
                     dto.getUserId(),
                     "/queue/room-force-exit",
-                    Map.of(
-                            "roomId", roomId,
-                            "reason", reason
-                    )
+                    new RoomForceExitDto(roomId, reason)
             );
         }
     }
@@ -85,28 +82,4 @@ public class ParticipantEventPublisherImpl implements ParticipantEventPublisher 
                 roomId, newOwnerId
         );
     }
-
-//    private void notifyRoomUsersChanged(String roomId) {
-////        int current = repository.countByRoomIdAndIsActiveTrue(roomId);
-//
-//        messagingTemplate.convertAndSend(
-//                "/topic/room-users/" + roomId,
-//                "UPDATED"
-//        );
-////
-////        messagingTemplate.convertAndSend(
-////                "/topic/rooms/" + roomId + "/count",
-////                Map.of("current", current)
-////        );
-//    }
-//
-//    private void sendCount(String roomId) {
-//        int current = repository.countByRoomIdAndIsActiveTrue(roomId);
-//        ChatRoomV2 room = roomV2Repository.findById(roomId).orElseThrow();
-//
-//        messagingTemplate.convertAndSend(
-//                "/topic/rooms/" + roomId + "/count",
-//                new RoomCountDto(current, room.getMaxParticipants())
-//        );
-//    }
 }

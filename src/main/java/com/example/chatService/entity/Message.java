@@ -1,9 +1,7 @@
 package com.example.chatService.entity;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -12,9 +10,12 @@ import java.util.UUID;
 @Table(name = "messages")
 @Getter @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Message {
     @Id
     @Column(length = 36, nullable = false)
+    @Builder.Default
     private String id = UUID.randomUUID().toString();
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -33,12 +34,11 @@ public class Message {
     private String content;
 
     @Column(nullable = false)
+    @Builder.Default
     private LocalDateTime sentAt = LocalDateTime.now();
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean isRead = false;
 
-    public Message() {
-
-    }
 }

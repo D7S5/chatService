@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "private_message")
@@ -23,7 +24,7 @@ public class PrivateMessage {
     private String content;
 
     @Column(nullable = false)
-    private LocalDateTime sentAt;
+    private OffsetDateTime sentAt;
 
     private boolean readFlag = false;
 }
