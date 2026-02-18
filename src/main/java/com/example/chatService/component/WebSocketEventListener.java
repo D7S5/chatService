@@ -1,6 +1,6 @@
 package com.example.chatService.component;
 
-import com.example.chatService.service.ChatRoomV2Service;
+import com.example.chatService.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -14,7 +14,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 @Slf4j
 public class WebSocketEventListener {
 
-    private final ChatRoomV2Service chatRoomV2Service;
+    private final ChatRoomService chatRoomV2Service;
     private final StringRedisTemplate redis;
 
     @EventListener

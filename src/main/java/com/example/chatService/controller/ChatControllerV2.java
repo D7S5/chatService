@@ -8,7 +8,7 @@ import com.example.chatService.dto.RoomType;
 import com.example.chatService.entity.ChatRoomV2;
 import com.example.chatService.kafka.GroupMessageProducer;
 import com.example.chatService.security.UserPrincipal;
-import com.example.chatService.service.ChatRoomV2Service;
+import com.example.chatService.service.ChatRoomService;
 import com.example.chatService.service.RoomInviteService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ public class ChatControllerV2 {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final StringRedisTemplate redis;
-    private final ChatRoomV2Service chatRoomV2Service;
+    private final ChatRoomService chatRoomV2Service;
     private final GroupMessageProducer groupMessageProducer;
     private final RoomInviteService inviteService;
     private final ChatRateLimiter chatRateLimiter;

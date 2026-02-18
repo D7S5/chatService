@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 
 import static com.example.chatService.dto.RoomRole.*;
 
@@ -51,23 +52,24 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     @Transactional
     public void joinRoom(String roomId, String userId) {
 
-        boolean ownerUser = checkOwnerUser(roomId, userId);
-
-        boolean adminUser = checkAdminUser(roomId, userId);
-
         if (repository.existsByRoomIdAndUserIdAndIsBannedTrue(roomId, userId)) {
             throw new BannedFromRoomException(roomId);
         }
+        // 유저 권한 확인
+        RoomRole role = hasPermission(roomId, userId);
 
-        if (ownerUser) {
-            joinAsRole(roomId, userId, OWNER);
-        } else if (adminUser) {
-            joinAsRole(roomId, userId, ADMIN);
-        } else {
-            joinAsRole(roomId, userId, MEMBER);
-        }
+        joinAsRole(roomId, userId, role);
+//        System.out.println(role);
     }
 
+    public RoomRole hasPermission(String roomId, String userId) {
+        Optional<RoomParticipant> member =
+                repository.findByRoomIdAndUserId(roomId, userId);
+
+        if (member.isEmpty()) return MEMBER;
+
+        return member.get().getRole();
+    }
     @Transactional
     public void joinAsRole(String roomId, String userId, RoomRole roomRole) {
 

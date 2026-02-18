@@ -21,7 +21,6 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
                                    WebSocketHandler wsHandler,
                                    Map<String, Object> attributes) {
 
-        // SockJS → QueryParam에서 token 가져옴
         String uri = request.getURI().toString();
 
         String token = null;
@@ -33,8 +32,6 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
             System.out.println("WebSocket JWT 없음 또는 유효하지 않음");
             return false;
         }
-
-        // JWT에서 userId(UUID) 추출
         String userId = jwtProvider.getSubject(token);
 
         // Principal 저장

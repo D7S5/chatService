@@ -2,7 +2,7 @@ package com.example.chatService.controller;
 
 import com.example.chatService.dto.ParticipantDto;
 import com.example.chatService.security.UserPrincipal;
-import com.example.chatService.service.ChatRoomV2Service;
+import com.example.chatService.service.ChatRoomService;
 import com.example.chatService.service.RoomParticipantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ import java.util.Map;
 public class RoomParticipantController {
 
     private final RoomParticipantService service;
-    private final ChatRoomV2Service chatRoomService;
+    private final ChatRoomService chatRoomService;
 
 
     @PostMapping("/{roomId}/participants")

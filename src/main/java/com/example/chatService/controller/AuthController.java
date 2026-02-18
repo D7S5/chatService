@@ -40,7 +40,7 @@ public class AuthController {
                         .body(new JwtResponse(null));
             }
 
-            JwtResponse reissue = authService.reissue(refreshToken, response);
+            JwtResponse reissue = authService.refresh(refreshToken, response);
 
             return ResponseEntity.ok(reissue);
         } catch (Exception e) {

@@ -24,7 +24,6 @@ public class FriendService {
     private final FriendRepository friendRepository;
     private final WebSocketEventPublisher eventPublisher;
 
-    /** 친구 요청 보내기 */
     @Transactional
     public FriendRequestResponseDto sendFriendRequest(String fromUserId, String toUserId) {
         User from = userRepository.findById(fromUserId)
@@ -34,7 +33,7 @@ public class FriendService {
                 .orElseThrow(() -> new IllegalArgumentException("Target user not found"));
 
         if (from.getId().equals(to.getId())) {
-            throw new IllegalArgumentException("자기 자신에게 보낼 수 없음");
+            throw new IllegalArgumentException("자기 자신에게 보낼 수 없습니다");
         }
 
         if (friendRepository.existsByUserAndFriend(from, to) || friendRepository.existsByUserAndFriend(to, from)) {
@@ -77,13 +76,7 @@ public class FriendService {
                         .build())
                 .toList();
     }
-    // 보낸 친구 요청 (PENDING)
-    @Transactional(readOnly = true)
-    public List<Friend> getSentRequests(String userId) {
-        return friendRepository.findPendingRequestsSentByUserId(userId);
-    }
 
-    // 친구 목록 (ACCEPTED 상태만)
     @Transactional(readOnly = true)
     public List<User> getFriendList(String userId) {
         return friendRepository.findAllRelatedWithFetch(userId)
@@ -105,7 +98,6 @@ public class FriendService {
         List<Friend> friends = friendRepository.findFriendRelation(userA, userB);
 
         friends.forEach(friendRepository::delete);
-
     }
     @Transactional
     public String acceptFriendRequest(Long requestId) {
@@ -137,9 +129,10 @@ public class FriendService {
         friendRepository.save(friendA);
         friendRepository.save(friendB);
 
-        PublishAcceptFriendEvent publishAcceptFriendEvent = PublishAcceptFriendEvent.builder()
-                                                                .type(FriendEventType.FRIEND_ACCEPT)
-                                                                .friendId(userB.getId()).build();
+        PublishAcceptFriendEvent publishAcceptFriendEvent =
+                        PublishAcceptFriendEvent.builder()
+                            .type(FriendEventType.FRIEND_ACCEPT)
+                            .friendId(userB.getId()).build();
 
         eventPublisher.publishAcceptFriendEvent(
                             userA.getId(),
