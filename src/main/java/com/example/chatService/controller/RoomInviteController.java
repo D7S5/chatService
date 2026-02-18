@@ -34,7 +34,7 @@ public class RoomInviteController {
             @PathVariable String roomId,
             @AuthenticationPrincipal UserPrincipal user
     ) throws AccessDeniedException {
-        String inviteCode = inviteService.issueInviteCode(roomId, user.getId());
+        String inviteCode = inviteService.generateInviteCode(roomId, user.getId());
 
         return new InviteCodeResponse(inviteCode);
     }

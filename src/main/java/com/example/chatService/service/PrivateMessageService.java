@@ -26,15 +26,4 @@ public class PrivateMessageService {
                 .build();
         return repository.save(pm);
     }
-
-    public List<PrivateMessage> getConversation(String userA, String userB) {
-        List<PrivateMessage> aToB = repository.findBySenderAndReceiverOrderBySentAtAsc(userA, userB);
-        List<PrivateMessage> bToA = repository.findBySenderAndReceiverOrderBySentAtAsc(userB, userA);
-
-        List<PrivateMessage> all = new ArrayList<>();
-        all.addAll(aToB);
-        all.addAll(bToA);
-        all.sort((m1, m2) -> m1.getSentAt().compareTo(m2.getSentAt()));
-        return all;
-    }
 }

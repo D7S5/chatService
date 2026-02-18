@@ -51,21 +51,23 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     @Transactional
     public void joinRoom(String roomId, String userId) {
 
-        boolean ownerUser = checkOwnerUser(roomId, userId);
-
-        boolean adminUser = checkAdminUser(roomId, userId);
-
         if (repository.existsByRoomIdAndUserIdAndIsBannedTrue(roomId, userId)) {
             throw new BannedFromRoomException(roomId);
         }
+        // 유저 권한 확인
+        RoomRole role = hasPermission(roomId, userId);
 
-        if (ownerUser) {
-            joinAsRole(roomId, userId, OWNER);
-        } else if (adminUser) {
-            joinAsRole(roomId, userId, ADMIN);
-        } else {
-            joinAsRole(roomId, userId, MEMBER);
-        }
+        joinAsRole(roomId, userId, role);
+        System.out.println(role);
+    }
+
+
+    public RoomRole hasPermission(String roomId, String userId) {
+        if (checkOwnerUser(roomId, userId)) {
+            return OWNER;
+        } else if (checkAdminUser(roomId, userId)) {
+            return ADMIN;
+        } else return MEMBER;
     }
 
     @Transactional

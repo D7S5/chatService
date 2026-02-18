@@ -48,7 +48,7 @@ public class RoomInviteService {
         return new JoinByInviteResponse(room.getRoomId());
     }
 
-    public String issueInviteCode(String roomId, String userId) throws AccessDeniedException {
+    public String generateInviteCode(String roomId, String userId) throws AccessDeniedException {
 
         if (!participantRepository.existsByRoomIdAndUserIdAndRoleIn(
                 roomId,
