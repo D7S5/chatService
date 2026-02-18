@@ -5,7 +5,7 @@ import com.example.chatService.dto.InviteJoinRequest;
 import com.example.chatService.dto.JoinByInviteResponse;
 import com.example.chatService.dto.RoomResponse;
 import com.example.chatService.security.UserPrincipal;
-import com.example.chatService.service.ChatRoomV2Service;
+import com.example.chatService.service.ChatRoomService;
 import com.example.chatService.service.RoomInviteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,7 +19,7 @@ import java.nio.file.AccessDeniedException;
 public class RoomInviteController {
 
     private final RoomInviteService inviteService;
-    private final ChatRoomV2Service service;
+    private final ChatRoomService service;
 
     @PostMapping("/join-by-invite")
     public JoinByInviteResponse joinByInvite(

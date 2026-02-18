@@ -40,12 +40,11 @@ public class ChatController {
     @GetMapping("/check-username")
     public ResponseEntity<Boolean> checkUsername(@RequestParam String username,
                                                  @AuthenticationPrincipal(expression = "username") String me) {
-        log.info("닉네임 중복 확인: username={}", username);
         try {
             boolean isAvailable = simpUserRegistry.getUsers().stream()
                     .filter(name -> !name.equals(me))
                     .noneMatch(name -> name.equals(username));
-            log.info("닉네임 사용 가능 여부: username={}, isAvailable={}", username, isAvailable);
+//            log.info("닉네임 사용 가능 여부: username={}, isAvailable={}", username, isAvailable);
             return ResponseEntity.ok(isAvailable);
         } catch (Exception e) {
             log.error("닉네임 중복 확인 실패: {}", e.getMessage(), e);

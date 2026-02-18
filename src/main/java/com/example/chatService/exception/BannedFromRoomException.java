@@ -9,5 +9,4 @@ public class BannedFromRoomException extends RuntimeException {
     public BannedFromRoomException(String roomId) {
         super("You are banned from room: " + roomId);
     }
-
 }

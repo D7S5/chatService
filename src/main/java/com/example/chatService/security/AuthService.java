@@ -79,7 +79,7 @@ public class AuthService {
 
         return res;
     }
-    public JwtResponse reissue(String oldRefreshToken, HttpServletResponse response) {
+    public JwtResponse refresh(String oldRefreshToken, HttpServletResponse response) {
 
         if ( oldRefreshToken == null || oldRefreshToken.isBlank() ) {
             throw new RuntimeException("Refresh Token missing");

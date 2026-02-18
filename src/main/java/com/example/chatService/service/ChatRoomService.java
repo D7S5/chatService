@@ -18,7 +18,7 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ChatRoomV2Service {
+public class ChatRoomService {
 
     private final StringRedisTemplate redis;
     private final ChatRoomV2Repository chatRoomV2Repository;

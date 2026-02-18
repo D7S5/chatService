@@ -34,5 +34,4 @@ public class Friend {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private FriendStatus status;
-
 }
