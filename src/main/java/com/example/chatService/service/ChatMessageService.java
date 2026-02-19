@@ -30,7 +30,7 @@ public class ChatMessageService {
             return; // drop
         }
 
-        // ✅ 밴이면 알림 보내고 반드시 차단
+        // 밴이면 알림 보내고 차단
         if (!chatRateLimiter.allowOrBan(senderIdFromPrincipal)) {
             long ttl = chatRateLimiter.getBanTtl(senderIdFromPrincipal);
 
@@ -44,7 +44,6 @@ public class ChatMessageService {
             );
             return;
         }
-
         groupMessageProducer.send(msg);
     }
 }

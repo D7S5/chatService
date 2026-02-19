@@ -1,5 +1,6 @@
 package com.example.chatService.controller;
 
+import com.example.chatService.dto.DmStartDto;
 import com.example.chatService.entity.DMMessage;
 import com.example.chatService.service.DMService;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +18,9 @@ import java.util.Map;
     private final DMService dmService;
 
     @PostMapping("/start")
-    public ResponseEntity<?> startDM(@RequestBody Map<String, String> payload) {
+    public ResponseEntity<?> startDM(@RequestBody DmStartDto dto) {
         return ResponseEntity.ok(
-                dmService.startOrGetRoom(payload.get("userA"), payload.get("userB")));
+                dmService.startOrGetRoom(dto.getUserA(), dto.getUserB()));
     }
     @GetMapping("/messages/{roomId}")
     public List<DMMessage> getMessages(@PathVariable String roomId) {
