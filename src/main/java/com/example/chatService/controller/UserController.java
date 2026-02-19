@@ -25,7 +25,8 @@ public class UserController {
             @AuthenticationPrincipal UserPrincipal principal,
             @RequestBody NicknameRequest request) {
 
-            String nickname = userService.setNickname(principal.getId(), request.nickname());
-            return ResponseEntity.ok(new NicknameDto(nickname));
+
+            String trimmed = userService.setNickname(principal.getId(), request.nickname());
+            return ResponseEntity.ok(new NicknameDto(trimmed));
     }
 }

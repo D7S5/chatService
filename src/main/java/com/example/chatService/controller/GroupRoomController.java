@@ -18,7 +18,6 @@ import java.util.List;
 @RequestMapping("/api/rooms")
 public class GroupRoomController {
 
-    private final ChatRoomV2Repository chatRoomV2Repository;
     private final GroupRoomService groupRoomService;
 
     @GetMapping("/{roomId}/messages")

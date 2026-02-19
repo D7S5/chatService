@@ -1,7 +1,12 @@
 package com.example.chatService.redis;
 
+import com.example.chatService.dto.WsTokenResponse;
+import com.example.chatService.security.CookieUtil;
+import com.example.chatService.security.JwtTokenProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -10,9 +15,13 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class WsTokenService {
-    private static final String KEY_PREFIX = "ws_token:";
-    private static final long TTL_SECONDS = 120;
 
+    private final WsTokenService wsTokenService;
+    private final CookieUtil cookieUtil;
+    private final JwtTokenProvider jwtTokenProvider;
+
+    private static final String KEY_PREFIX = "ws_token:";
+    private static final int TTL_SECONDS = 120;
     private final RedisTemplate<String, Object> redisTemplate;
 
     public String createTokenForUser(String userId) {

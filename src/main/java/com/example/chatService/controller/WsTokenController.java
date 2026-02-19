@@ -1,10 +1,12 @@
 package com.example.chatService.controller;
 
+import com.example.chatService.dto.WsTokenResponse;
 import com.example.chatService.redis.WsTokenService;
 import com.example.chatService.security.CookieUtil;
 import com.example.chatService.security.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,23 +21,26 @@ public class WsTokenController {
     private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/token")
-    public ResponseEntity<?> createWsToken(HttpServletRequest req) {
-        try {
+    public ResponseEntity<WsTokenResponse> createWsToken(HttpServletRequest req) {
 
         String refreshToken = cookieUtil.getRefreshToken(req);
+
         if (refreshToken == null) {
-            return ResponseEntity.status(401).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new WsTokenResponse(null, 0));
+        }
+
+        // refreshToken 유효성 검증 (필수)
+        if (!jwtTokenProvider.validateToken(refreshToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new WsTokenResponse(null, 0));
         }
 
         String userId = jwtTokenProvider.getSubject(refreshToken);
         String token = wsTokenService.createTokenForUser(userId);
 
-        return ResponseEntity.ok
-                (Map.of("wsToken", token,
-                        "expiresIn", 120));
-    } catch (Exception e ) {
-            return ResponseEntity.status(401).build();
-        }
+        return ResponseEntity.ok(
+                new WsTokenResponse(token, 120)
+        );
     }
 }
-
