@@ -16,9 +16,9 @@ public class UserService {
     private final StringRedisTemplate redisTemplate;
 
     @Transactional
-    public String setNickname(String userId, String nickname) {
+    public String setNickname(String userId, String username) {
 
-        String trimmed = nickname.trim();
+        String trimmed = username.trim();
         if (trimmed.isEmpty()) {
             throw new IllegalArgumentException("닉네임은 비어 있을 수 없습니다.");
         }

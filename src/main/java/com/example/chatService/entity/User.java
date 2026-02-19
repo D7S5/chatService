@@ -26,9 +26,6 @@ public class User implements UserDetails {
     @Column(nullable = true, unique = true)
     private String username;
 
-    @Column(nullable = true, unique = true)
-    private String nickName;
-
     @Builder.Default
     @Column(nullable = false)
     private boolean nicknameCompleted = false;

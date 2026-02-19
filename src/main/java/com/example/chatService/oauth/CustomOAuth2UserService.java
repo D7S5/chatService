@@ -42,14 +42,6 @@ public class CustomOAuth2UserService
                 .map(entity -> entity.updateOAuth(attributes))
                 .orElseGet(() -> userRepository.save(attributes.toEntity()));
 
-
-//        log.info("OAuth attributes = {}", oAuth2User.getAttributes());
-//        log.info("Parsed email={}, name={}, provider={}",
-//                attributes.getEmail(),
-//                attributes.getName(),
-//                attributes.getProvider());
-
-
         return UserPrincipal.create(user, oAuth2User.getAttributes());
     }
 }

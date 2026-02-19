@@ -2,7 +2,6 @@ package com.example.chatService.controller;
 
 import com.example.chatService.dto.*;
 import com.example.chatService.redis.OnlineStatusService;
-import com.example.chatService.redis.RoomUserCountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 public class RedisController {
 
     private final OnlineStatusService onlineStatusService;
-    private final RoomUserCountService roomUserCountService;
 
     @MessageMapping("/user.enter")
     public void userEnter(UserEnterDto dto, SimpMessageHeaderAccessor accessor) {

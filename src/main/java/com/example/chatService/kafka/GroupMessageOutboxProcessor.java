@@ -22,7 +22,7 @@ public class GroupMessageOutboxProcessor {
     private static final String TOPIC = "group-message-topic";
 
     @Transactional
-    @Scheduled(fixedDelay = 100)
+    @Scheduled(fixedDelay = 50)
     public void processOutbox() {
 
         List<GroupOutbox> list = outboxRepository
