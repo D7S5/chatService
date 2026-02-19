@@ -82,7 +82,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                                 .build()
                 ));
 
-        System.out.println("isActive = " + p.isActive());
+//        System.out.println("isActive = " + p.isActive());
 
         if (p.isActive()) {
             return;
@@ -282,15 +282,6 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
             throw new AccessDeniedException("ADMIN only");
         }
     }
-
-    public boolean checkOwnerUser(String roomId, String userId) {
-        return roomRepository.existsByRoomIdAndOwnerUserId(roomId, userId);
-    }
-
-    public boolean checkAdminUser(String roomId, String userId) {
-        return repository.existsByRoomIdAndUserIdAndRole(roomId, userId, ADMIN);
-    }
-
     @Override
     @Transactional(readOnly = true)
     public List<RoomParticipant> getActiveParticipants(String roomId) {
@@ -322,47 +313,10 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
             throw new SecurityException("Owner only");
         }
     }
-
-    private void autoTransferOwner(String roomId) {
-        List<RoomParticipant> actives =
-                repository.findAllByRoomIdAndIsActiveTrue(roomId);
-
-        actives.stream()
-                .filter(p -> p.getRole() == ADMIN)
-                .findFirst()
-                .or(() -> actives.stream().findFirst())
-                .ifPresent(newOwner -> {
-                    newOwner.changeRole(OWNER);
-                    repository.save(newOwner);
-
-                    publisher.broadcastOwnerChanged(
-                            roomId,
-                            newOwner.getUserId()
-                    );
-                });
-    }
-
-    public int getRedisCurrentCount(String roomId) {
-        Long count = redis.opsForSet()
-                .size("room:" + roomId + ":users");
-
-        return count != null ? count.intValue() : 0;
-    }
-
     @Override
     @Transactional
     public int getCurrentCount(String roomId) {
         return repository.countByRoomIdAndIsActiveTrue(roomId);
-    }
-
-    private void syncRedisJoin(String roomId, String userId) {
-        redis.opsForSet()
-                .add("room:" + roomId + ":users", userId);
-    }
-
-    private void syncRedisLeave(String roomId, String userId) {
-        redis.opsForSet()
-                .remove("room:" + roomId + ":users", userId);
     }
 
     private String loadUsername(String userId) {

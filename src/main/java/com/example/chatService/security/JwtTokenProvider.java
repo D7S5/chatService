@@ -137,15 +137,6 @@ public class JwtTokenProvider {
         return claims.get("roles", List.class);
     }
 
-    public String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
-    }
-
     public SecretKey getKey() {
         return key;
     }

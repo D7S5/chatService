@@ -34,7 +34,6 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
         }
         String userId = jwtProvider.getSubject(token);
 
-        // Principal 저장
         attributes.put("userId", userId);
 
         return true;
@@ -47,4 +46,3 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
                                Exception exception) {
     }
 }
-

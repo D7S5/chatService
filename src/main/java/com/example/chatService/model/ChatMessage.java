@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Data
 @Entity
@@ -23,11 +24,11 @@ public class ChatMessage {
     @Enumerated(EnumType.STRING)
     private MessageType type;
 
-    private LocalDateTime timestamp;
+    private OffsetDateTime timestamp;
 
     @PrePersist
     public void prePersist() {
-        timestamp = LocalDateTime.now();
+        timestamp = OffsetDateTime.now();
     }
 
     public ChatMessage(String content, String sender, MessageType type) {
