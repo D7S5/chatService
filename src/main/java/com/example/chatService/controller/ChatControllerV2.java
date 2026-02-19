@@ -1,27 +1,21 @@
 package com.example.chatService.controller;
 
-import com.example.chatService.component.ChatRateLimiter;
-import com.example.chatService.dto.CreateRoomRequest;
-import com.example.chatService.dto.GroupMessageDto;
-import com.example.chatService.dto.RoomResponse;
-import com.example.chatService.dto.RoomType;
+import com.example.chatService.dto.*;
 import com.example.chatService.entity.ChatRoomV2;
-import com.example.chatService.kafka.GroupMessageProducer;
 import com.example.chatService.security.UserPrincipal;
+import com.example.chatService.service.ChatMessageService;
 import com.example.chatService.service.ChatRoomService;
 import com.example.chatService.service.RoomInviteService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @Slf4j
@@ -29,41 +23,15 @@ import java.util.Map;
 @RequestMapping("/api/rooms")
 public class ChatControllerV2 {
 
-    private final SimpMessagingTemplate messagingTemplate;
-    private final StringRedisTemplate redis;
+    private final ChatMessageService chatMessageService;
     private final ChatRoomService chatRoomV2Service;
-    private final GroupMessageProducer groupMessageProducer;
     private final RoomInviteService inviteService;
-    private final ChatRateLimiter chatRateLimiter;
 
     @MessageMapping("/chat.send")
-    public void send(GroupMessageDto msg) {
-
-        if (!chatRateLimiter.allowUser(msg.getSenderId())) {
-//            log.info("chatRateLimiter = {} ", msg.getSenderId());
-            return ; // 조용히 drop
-        }
-
-        if (!chatRateLimiter.allowRoom(msg.getRoomId())) {
-//            log.info("chatRateLimiter roomId = {} ", msg.getRoomId());
-            return ;
-        }
-        if (!chatRateLimiter.allowOrBan(msg.getSenderId())) {
-
-            long ttl = chatRateLimiter.getBanTtl(msg.getSenderId());
-
-            // 본인에게 제한 알림
-            messagingTemplate.convertAndSendToUser(
-                    msg.getSenderId(),
-                    "/queue/rate-limit",
-                    Map.of(
-                            "type", "CHAT_BANNED",
-                            "retryAfter", ttl
-                    )
-            );
-//            return;
-        }
-        groupMessageProducer.send(msg);
+    public void send(GroupMessageDto msg,
+                     Principal principal) {
+        String senderId = principal.getName();
+        chatMessageService.handleSend(msg, senderId);
     }
 
     @PostMapping("/create")
@@ -80,14 +48,8 @@ public class ChatControllerV2 {
     @GetMapping("/invite/{token}")
     public ResponseEntity<?> enterByInvite(@PathVariable String token) {
 
-        String roomId = redis.opsForValue().get("room:invite:" + token);
-        if (roomId == null) {
-            return ResponseEntity.status(HttpStatus.GONE)
-                    .body("초대 링크가 만료되었습니다.");
-        }
-        return ResponseEntity.ok(
-                Map.of("roomId", roomId)
-        );
+        String roomId = inviteService.enterByInvite(token);
+        return ResponseEntity.ok(new InviteEnterResponse(roomId));
     }
 
     @GetMapping

@@ -8,8 +8,10 @@ import com.example.chatService.repository.ChatRoomV2Repository;
 import com.example.chatService.repository.RoomParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.nio.file.AccessDeniedException;
 import java.time.Duration;
@@ -73,5 +75,14 @@ public class RoomInviteService {
         );
 
         return inviteCode;
+    }
+
+    public String enterByInvite(String token) {
+
+        String roomId = redis.opsForValue().get("room:invite:" + token);
+        if (roomId == null) {
+            throw new ResponseStatusException(HttpStatus.GONE, "INVITE_EXPIRED");
+        }
+        return roomId;
     }
 }

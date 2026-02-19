@@ -30,23 +30,13 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<JwtResponse> refreshToken(HttpServletResponse response,
+    public ResponseEntity<?> refreshToken(HttpServletResponse response,
                                                     HttpServletRequest request) {
-        try {
             String refreshToken = cookieUtil.getRefreshToken(request);
 
-            if ( refreshToken == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(new JwtResponse(null));
-            }
+            JwtResponse res = authService.refresh(refreshToken, response);
 
-            JwtResponse reissue = authService.refresh(refreshToken, response);
-
-            return ResponseEntity.ok(reissue);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new JwtResponse(null));
-        }
+            return ResponseEntity.ok(res);
     }
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response, Authentication authentication,
