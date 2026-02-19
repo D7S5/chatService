@@ -26,8 +26,8 @@ public class RoomInviteService {
     private final StringRedisTemplate redis;
     private final ChatRoomV2Repository roomRepository;
     private final RoomParticipantService roomParticipantService;
-
     private final RoomParticipantRepository participantRepository;
+
     private static final Duration INVITE_TTL = Duration.ofMinutes(10);
 
     public JoinByInviteResponse joinByInvite(String inviteCode, String userId) {
@@ -66,6 +66,7 @@ public class RoomInviteService {
         if (room.getType() != RoomType.PRIVATE) {
             throw new IllegalStateException("비밀방 아님");
         }
+
         String inviteCode = UUID.randomUUID().toString();
 
         redis.opsForValue().set(

@@ -25,7 +25,6 @@ public class ChatController {
 
     @MessageMapping("/chat.sendMessage")
     public void sendMessage(ChatMessage chatMessage) {
-        // /topic/room.{roomId}로 동적 전송
         messagingTemplate.convertAndSend("/topic/room." + chatMessage.getRoomId(), chatMessage);
     }
 

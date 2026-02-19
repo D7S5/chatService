@@ -33,9 +33,7 @@ public class AuthController {
     public ResponseEntity<?> refreshToken(HttpServletResponse response,
                                                     HttpServletRequest request) {
             String refreshToken = cookieUtil.getRefreshToken(request);
-
             JwtResponse res = authService.refresh(refreshToken, response);
-
             return ResponseEntity.ok(res);
     }
     @PostMapping("/logout")
