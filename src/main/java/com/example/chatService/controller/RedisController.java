@@ -14,7 +14,7 @@ public class RedisController {
     private final OnlineStatusService onlineStatusService;
 
     @MessageMapping("/user.enter")
-    public void userEnter(UserEnterDto dto, SimpMessageHeaderAccessor accessor) {
+    public void userEnter(UserEnterDto dto) {
         if (dto.getUserId() == null || dto.getUsername() == null) return;
         onlineStatusService.markOnline(dto);
     }

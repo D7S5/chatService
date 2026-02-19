@@ -24,6 +24,7 @@ public class ChatRoomService {
     private final ChatRoomV2Repository chatRoomV2Repository;
     private final RoomParticipantRepository repository;
     private final RoomParticipantService service;
+    private final RoomInviteService inviteService;
 
     public List<ChatRoomV2> getAllRooms() {
         return chatRoomV2Repository.findAll();

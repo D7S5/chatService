@@ -1,5 +1,6 @@
 package com.example.chatService.controller;
 
+import com.example.chatService.dto.NicknameDto;
 import com.example.chatService.dto.NicknameRequest;
 import com.example.chatService.security.JwtTokenProvider;
 import com.example.chatService.security.UserPrincipal;
@@ -21,20 +22,10 @@ public class UserController {
 
     @PostMapping("/set-nickname")
     public ResponseEntity<?> setNickname(
-            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @AuthenticationPrincipal UserPrincipal principal,
             @RequestBody NicknameRequest request) {
 
-        String userId = userPrincipal.getId();
-
-        try {
-            String nickname = userService.setNickname(userId, request.nickname());
-            return ResponseEntity.ok(Map.of("nickname", nickname));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message", e.getMessage()));
-        } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message", e.getMessage()));
-        }
+            String nickname = userService.setNickname(principal.getId(), request.nickname());
+            return ResponseEntity.ok(new NicknameDto(nickname));
     }
 }

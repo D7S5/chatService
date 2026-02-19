@@ -16,7 +16,6 @@ public class KafkaDirectMessageController {
 
     @MessageMapping("/dm.send")
     public void send(DMMessageKafkaDto dto) {
-//        System.out.println("timestamp : " + dto.getSentAt()); debug
         if ( dto.getSentAt() == 0L)
             dto.setSentAt(System.currentTimeMillis());
 
