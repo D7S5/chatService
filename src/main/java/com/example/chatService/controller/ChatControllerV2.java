@@ -8,6 +8,7 @@ import com.example.chatService.dto.RoomType;
 import com.example.chatService.entity.ChatRoomV2;
 import com.example.chatService.kafka.GroupMessageProducer;
 import com.example.chatService.security.UserPrincipal;
+import com.example.chatService.service.ChatMessageService;
 import com.example.chatService.service.ChatRoomService;
 import com.example.chatService.service.RoomInviteService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -29,41 +31,17 @@ import java.util.Map;
 @RequestMapping("/api/rooms")
 public class ChatControllerV2 {
 
-    private final SimpMessagingTemplate messagingTemplate;
+    private final ChatMessageService chatMessageService;
     private final StringRedisTemplate redis;
     private final ChatRoomService chatRoomV2Service;
-    private final GroupMessageProducer groupMessageProducer;
     private final RoomInviteService inviteService;
-    private final ChatRateLimiter chatRateLimiter;
+
 
     @MessageMapping("/chat.send")
-    public void send(GroupMessageDto msg) {
-
-        if (!chatRateLimiter.allowUser(msg.getSenderId())) {
-//            log.info("chatRateLimiter = {} ", msg.getSenderId());
-            return ; // 조용히 drop
-        }
-
-        if (!chatRateLimiter.allowRoom(msg.getRoomId())) {
-//            log.info("chatRateLimiter roomId = {} ", msg.getRoomId());
-            return ;
-        }
-        if (!chatRateLimiter.allowOrBan(msg.getSenderId())) {
-
-            long ttl = chatRateLimiter.getBanTtl(msg.getSenderId());
-
-            // 본인에게 제한 알림
-            messagingTemplate.convertAndSendToUser(
-                    msg.getSenderId(),
-                    "/queue/rate-limit",
-                    Map.of(
-                            "type", "CHAT_BANNED",
-                            "retryAfter", ttl
-                    )
-            );
-//            return;
-        }
-        groupMessageProducer.send(msg);
+    public void send(GroupMessageDto msg,
+                     Principal principal) {
+        String senderId = principal.getName();
+        chatMessageService.handleSend(msg, senderId);
     }
 
     @PostMapping("/create")
