@@ -60,10 +60,8 @@ public class RoomAdminController {
             @Payload AdminGrantRequest request,
             Principal principal
     ) {
-        String requesterId = principal.getName();
-
         AdminChangedResponse result =
-                service.toggleAdmin(roomId, requesterId, request.getTargetUserId());
+                service.toggleAdmin(roomId, principal.getName(), request.getTargetUserId());
 
         messagingTemplate.convertAndSend(
                 "/topic/rooms/" + roomId + "/participants",

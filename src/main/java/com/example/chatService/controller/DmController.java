@@ -28,8 +28,8 @@ public class DmController {
     }
 
     @GetMapping("/list/{userId}")
-        public ResponseEntity<?> getUserDMs(@PathVariable String userId) {
-            return ResponseEntity.ok(dmService.getUserRoomsWithUnread(userId));
+    public ResponseEntity<?> getUserDMs(@PathVariable String userId) {
+        return ResponseEntity.ok(dmService.getUserRoomsWithUnread(userId));
     }
 
     @PutMapping("/messages/{roomId}/read")

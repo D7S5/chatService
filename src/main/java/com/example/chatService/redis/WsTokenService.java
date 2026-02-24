@@ -16,13 +16,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class WsTokenService {
 
-    private final WsTokenService wsTokenService;
-    private final CookieUtil cookieUtil;
-    private final JwtTokenProvider jwtTokenProvider;
-
+    private final RedisTemplate<String, Object> redisTemplate;
     private static final String KEY_PREFIX = "ws_token:";
     private static final int TTL_SECONDS = 120;
-    private final RedisTemplate<String, Object> redisTemplate;
 
     public String createTokenForUser(String userId) {
         String token = UUID.randomUUID().toString();

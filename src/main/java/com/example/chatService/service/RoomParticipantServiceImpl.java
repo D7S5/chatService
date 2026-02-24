@@ -290,7 +290,6 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
 
     @Override
     public List<ParticipantDto> getParticipants(@PathVariable String roomId) {
-
         return getActiveParticipants(roomId)
                 .stream()
                 .map(p -> new ParticipantDto(

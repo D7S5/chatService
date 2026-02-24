@@ -30,7 +30,6 @@ public class WsTokenController {
                     .body(new WsTokenResponse(null, 0));
         }
 
-        // refreshToken 유효성 검증 (필수)
         if (!jwtTokenProvider.validateToken(refreshToken)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new WsTokenResponse(null, 0));

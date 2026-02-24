@@ -16,7 +16,6 @@ import java.util.Map;
 @Slf4j
 public class ParticipantForcedExitListener {
     private final SimpMessagingTemplate messagingTemplate;
-    private final RoomParticipantService service;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handle(ParticipantForcedExitEvent event) {
