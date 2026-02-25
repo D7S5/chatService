@@ -18,14 +18,27 @@ public class GroupKafkaConsumerConfig {
 
     @Bean(name = "groupConsumerFactory")
     public ConsumerFactory<String, GroupMessageDto> groupConsumerFactory() {
-        Map<String, Object> props = new HashMap<>();
+        Map<String, Object> props =
+                new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-        return new DefaultKafkaConsumerFactory<>(props);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "group-chat-service");
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+
+        JsonDeserializer<GroupMessageDto> valueDeserializer =
+                new JsonDeserializer<>(GroupMessageDto.class);
+        valueDeserializer.addTrustedPackages("com.example.chatService.dto");
+        valueDeserializer.setUseTypeHeaders(false); // 타입 헤더 없이도 DTO 고정으로 역직렬화
+
+        return new DefaultKafkaConsumerFactory<>(
+                props,
+                new StringDeserializer(),
+                valueDeserializer
+        );
     }
 
-    @Bean
+    @Bean(name = "groupKafkaListenerContainerFactory")
     public ConcurrentKafkaListenerContainerFactory<String, GroupMessageDto>
     groupKafkaListenerContainerFactory() {
 

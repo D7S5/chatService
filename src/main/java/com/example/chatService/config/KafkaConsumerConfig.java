@@ -18,7 +18,7 @@ import java.util.Map;
 public class KafkaConsumerConfig {
 
     @Bean
-    public ConsumerFactory<String, DMMessageKafkaDto> consumerFactory() {
+    public ConsumerFactory<String, DMMessageKafkaDto> kafkaConsumerFactory() {
         JsonDeserializer<DMMessageKafkaDto> deserializer =
                 new JsonDeserializer<>(DMMessageKafkaDto.class);
         deserializer.addTrustedPackages("com.example.chatService.dto");
@@ -38,12 +38,12 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, DMMessageKafkaDto>
-    kafkaListenerContainerFactory() {
+    DMKafkaListenerContainerFactory() {
 
         ConcurrentKafkaListenerContainerFactory<String, DMMessageKafkaDto> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
 
-        factory.setConsumerFactory(consumerFactory());
+        factory.setConsumerFactory(kafkaConsumerFactory());
         return factory;
     }
 }

@@ -18,6 +18,11 @@ spring:
     consumer:
       key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.trusted.packages: com.example.chatService.dto,com.example.chatService.model
+        spring.json.use.type.headers: false
 
 
   security:
@@ -76,3 +81,9 @@ jwt:
   refresh-token-expiry: 604800000 # 7일
 server:
   port: 9090
+
+chat:
+  kafka:
+    # 서버마다 다르게 설정해야 함
+    # 예: chat-ws-node-1 / chat-ws-node-2 / chat-ws-node-3
+    consumer-group-id: chat-ws-node-1

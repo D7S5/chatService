@@ -20,7 +20,8 @@ public class GroupMessageConsumer {
 
     @KafkaListener(
             topics = TOPIC,
-            groupId = "group-chat-server"
+            groupId = "group-chat-server",
+            containerFactory = "groupKafkaListenerContainerFactory"
     )
     public void consume(GroupMessageDto dto) {
 
