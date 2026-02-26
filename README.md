@@ -2,7 +2,7 @@ ChatService BE코드입니다.
 
 ChatService FE https://github.com/D7S5/chatService-FE
 
-의존성 kafka, redis docker
+의존성 Kafka, Redis 
 
 sudo docker compose up -d
 
