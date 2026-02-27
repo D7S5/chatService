@@ -30,11 +30,9 @@ public class DMOutboxProcessor {
     @Scheduled(fixedDelay = 50)
     public void processOutbox() throws Exception {
 
-        // 1) 선점
         int claimed = outboxRepository.claimBatch(workerId, BATCH_SIZE);
         if (claimed == 0) return;
 
-        // 2) 내가 선점한 것만 가져오기
         List<DMOutbox> list = outboxRepository
                 .findByStatusAndLockedByOrderByIdAsc(MessagingStatus.PROCESSING, workerId);
 
@@ -47,18 +45,14 @@ public class DMOutboxProcessor {
                         .sentAt(box.getEventTimestamp())
                         .build();
 
-                // 전송 성공 확인(포트폴리오용으로 명확)
                 kafkaTemplate.send(TOPIC, box.getRoomId(), message).get();
 
-                // 3) 성공 → SENT
                 box.setStatus(MessagingStatus.SENT);
                 box.setLockedBy(null);
                 box.setLockedAt(null);
 
             } catch (Exception e) {
-                log.error("DMOutbox processing failed for id={}", box.getId(), e);
-
-                // 실패 → 다시 NEW로 풀어서 재시도 가능하게
+                // 실패시 다시 NEW
                 box.setStatus(MessagingStatus.NEW);
                 box.setLockedBy(null);
                 box.setLockedAt(null);
