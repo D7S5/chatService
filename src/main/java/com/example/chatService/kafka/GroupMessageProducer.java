@@ -1,6 +1,7 @@
 package com.example.chatService.kafka;
 
 import com.example.chatService.dto.GroupMessageDto;
+import com.example.chatService.dto.MessagingStatus;
 import com.example.chatService.entity.GroupOutbox;
 import com.example.chatService.repository.GroupMessageOutboxRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class GroupMessageProducer {
                         .senderName(dto.getSenderName())
                         .content(dto.getContent())
                         .eventTimestamp(dto.getSentAt())
-                        .processed(false)
+                        .status(MessagingStatus.NEW)
                         .createAt(OffsetDateTime.now())
                         .build();
 
