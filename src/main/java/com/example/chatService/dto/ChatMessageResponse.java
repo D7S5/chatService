@@ -14,7 +14,7 @@ public class ChatMessageResponse {
     private String senderId;
     private String senderName;
     private String content;
-    private long createdAt;
+    private long sentAt;
 
     public static ChatMessageResponse from(GroupMessageEntity e) {
         return ChatMessageResponse.builder()
@@ -22,7 +22,7 @@ public class ChatMessageResponse {
                 .senderId(e.getSenderId())
                 .senderName(e.getSenderName())
                 .content(e.getContent())
-                .createdAt(e.getCreatedAt().toInstant().toEpochMilli())
+                .sentAt(e.getCreatedAt().toInstant().toEpochMilli())
                 .build();
 
     }

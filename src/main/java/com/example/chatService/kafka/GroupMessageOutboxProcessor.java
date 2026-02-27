@@ -6,6 +6,7 @@ import com.example.chatService.entity.GroupOutbox;
 import com.example.chatService.repository.GroupMessageOutboxRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -26,12 +27,14 @@ public class GroupMessageOutboxProcessor {
     private static final String TOPIC = "group-message-topic";
 
     // 인스턴스 고유 식별자
-    private final String workerId = UUID.randomUUID().toString();
+    @Value("${app.instance-id}")
+    private String workerId;
+
     @Transactional
     @Scheduled(fixedDelay = 50)
     public void processOutbox() {
 
-        // 1) 먼저 선점 (다중 인스턴스 중복 방지 핵심)
+        // 1) 선점
         //  UPDATE SET status = PROCESSING
         int claimed = outboxRepository.claimBatch(workerId, BATCH_SIZE);
         if (claimed == 0) return;
@@ -57,6 +60,9 @@ public class GroupMessageOutboxProcessor {
 
             } catch (Exception e) {
                 log.error("GroupOutbox processing failed for id=" + box.getId(), e);
+                box.setStatus(MessagingStatus.NEW);
+                box.setLockedBy(null);
+                box.setLockedAt(null);
             }
         }
     }

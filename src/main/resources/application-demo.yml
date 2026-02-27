@@ -2,8 +2,8 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/chatService_demo?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: 1234
+    username: austin
+    password: austinmysql
 
   jpa:
     hibernate:
@@ -91,3 +91,6 @@ chat:
     # 서버마다 다르게 설정해야 함
     # 예: chat-ws-node-1 / chat-ws-node-2 / chat-ws-node-3
     consumer-group-id: chat-ws-node-1
+
+app:
+  instance-id: chat-1

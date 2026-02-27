@@ -25,6 +25,5 @@ public class GroupMessageStoreConsumer {
     public void store(GroupMessageDto dto) {
         GroupMessageEntity message = GroupMessageEntity.from(dto);
         groupMessageRepository.save(message);
-        log.debug("Stored group message. roomId={}, senderId={}", dto.getRoomId(), dto.getSenderId());
     }
 }

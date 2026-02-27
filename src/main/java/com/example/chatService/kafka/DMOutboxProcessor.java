@@ -6,6 +6,7 @@ import com.example.chatService.entity.DMOutbox;
 import com.example.chatService.repository.DMOutboxRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,8 @@ public class DMOutboxProcessor {
     private static final String TOPIC = "dm-messages";
     private static final int BATCH_SIZE = 100;
 
-    private final String workerId = java.util.UUID.randomUUID().toString();
+    @Value("${app.instance-id")
+    private String workerId;
 
     @Transactional
     @Scheduled(fixedDelay = 50)

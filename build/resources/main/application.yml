@@ -90,3 +90,6 @@ chat:
 
     # dm-ws-node-1 / dm-ws-node-2 / dm-ws-node-3
     dm-consumer-group-id : dm-ws-node-1
+
+app:
+  instance-id: chat-1

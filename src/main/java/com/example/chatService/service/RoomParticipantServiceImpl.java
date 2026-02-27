@@ -34,7 +34,8 @@ import static com.example.chatService.dto.RoomRole.*;
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
-public class RoomParticipantServiceImpl implements RoomParticipantService {
+public class
+RoomParticipantServiceImpl implements RoomParticipantService {
 
     private final RoomParticipantRepository repository;
     private final UserRepository userRepository;
