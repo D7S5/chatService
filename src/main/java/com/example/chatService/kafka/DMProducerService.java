@@ -1,6 +1,7 @@
 package com.example.chatService.kafka;
 
 import com.example.chatService.dto.DMMessageKafkaDto;
+import com.example.chatService.dto.MessagingStatus;
 import com.example.chatService.entity.DMOutbox;
 import com.example.chatService.repository.DMOutboxRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class DMProducerService {
                     .senderId(dto.getSenderId())
                     .content(dto.getContent())
                     .eventTimestamp(dto.getSentAt())
-                    .processed(false)
+                    .status(MessagingStatus.NEW)
                     .createAt(OffsetDateTime.now())
                     .build();
 

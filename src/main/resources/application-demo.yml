@@ -85,3 +85,9 @@ server:
 #  level:
 #    org.springframework.security: INFO
 #    org.hibernate.SQL: DEBUG
+
+chat:
+  kafka:
+    # 서버마다 다르게 설정해야 함
+    # 예: chat-ws-node-1 / chat-ws-node-2 / chat-ws-node-3
+    consumer-group-id: chat-ws-node-1

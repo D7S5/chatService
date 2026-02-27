@@ -36,7 +36,7 @@ public class KafkaConsumerConfig {
         );
     }
 
-    @Bean
+    @Bean(name = "DMKafkaListenerContainerFactory")
     public ConcurrentKafkaListenerContainerFactory<String, DMMessageKafkaDto>
     DMKafkaListenerContainerFactory() {
 

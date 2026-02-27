@@ -1,6 +1,7 @@
 package com.example.chatService.kafka;
 
 import com.example.chatService.dto.DMMessageKafkaDto;
+import com.example.chatService.dto.MessagingStatus;
 import com.example.chatService.entity.DMOutbox;
 import com.example.chatService.repository.DMOutboxRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,18 +22,23 @@ public class DMOutboxProcessor {
     private final KafkaTemplate<String, DMMessageKafkaDto> kafkaTemplate;
 
     private static final String TOPIC = "dm-messages";
+    private static final int BATCH_SIZE = 100;
+
+    private final String workerId = java.util.UUID.randomUUID().toString();
 
     @Transactional
     @Scheduled(fixedDelay = 50)
-    public void processOutbox() {
+    public void processOutbox() throws Exception {
 
+        // 1) 선점
+        int claimed = outboxRepository.claimBatch(workerId, BATCH_SIZE);
+        if (claimed == 0) return;
+
+        // 2) 내가 선점한 것만 가져오기
         List<DMOutbox> list = outboxRepository
-                            .findTop100ByProcessedFalseOrderByIdAsc();
-
-        if (list.isEmpty()) return;
+                .findByStatusAndLockedByOrderByIdAsc(MessagingStatus.PROCESSING, workerId);
 
         for (DMOutbox box : list) {
-
             try {
                 DMMessageKafkaDto message = DMMessageKafkaDto.builder()
                         .roomId(box.getRoomId())
@@ -41,12 +47,21 @@ public class DMOutboxProcessor {
                         .sentAt(box.getEventTimestamp())
                         .build();
 
-                kafkaTemplate.send(TOPIC, box.getRoomId() , message);
+                // 전송 성공 확인(포트폴리오용으로 명확)
+                kafkaTemplate.send(TOPIC, box.getRoomId(), message).get();
 
-                box.setProcessed(true); // 멱등처리
+                // 3) 성공 → SENT
+                box.setStatus(MessagingStatus.SENT);
+                box.setLockedBy(null);
+                box.setLockedAt(null);
 
             } catch (Exception e) {
-                log.error("Outbox processing failed for id=" + box.getId(), e);
+                log.error("DMOutbox processing failed for id={}", box.getId(), e);
+
+                // 실패 → 다시 NEW로 풀어서 재시도 가능하게
+                box.setStatus(MessagingStatus.NEW);
+                box.setLockedBy(null);
+                box.setLockedAt(null);
             }
         }
     }

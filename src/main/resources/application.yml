@@ -87,3 +87,6 @@ chat:
     # 서버마다 다르게 설정해야 함
     # 예: chat-ws-node-1 / chat-ws-node-2 / chat-ws-node-3
     consumer-group-id: chat-ws-node-1
+
+    # dm-ws-node-1 / dm-ws-node-2 / dm-ws-node-3
+    dm-consumer-group-id : dm-ws-node-1

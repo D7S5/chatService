@@ -1,5 +1,6 @@
 package com.example.chatService.entity;
 
+import com.example.chatService.dto.MessagingStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,7 +26,15 @@ public class DMOutbox {
 
     private long eventTimestamp;
 
-    private boolean processed;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private MessagingStatus status; // NEW/PROCESSING/SENT
+
+    @Column(name = "locked_by", length = 64)
+    private String lockedBy;
+
+    @Column(name = "locked_at")
+    private OffsetDateTime lockedAt;
 
     private OffsetDateTime createAt;
 
