@@ -62,7 +62,9 @@ public class ChatRoomService {
                     room.getRoomId(),
                     Duration.ofMinutes(10) // 초대만료
             );
+            inviteService.joinByInvite(inviteToken, userId);
         }
+
         RoomResponse res = RoomResponse.of(room, inviteToken);
 
         return res;
