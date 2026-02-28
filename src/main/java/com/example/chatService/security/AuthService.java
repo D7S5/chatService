@@ -79,7 +79,9 @@ public class AuthService {
 
         return res;
     }
-    public JwtResponse refresh(String oldRefreshToken, HttpServletResponse response) {
+    public JwtResponse refresh(HttpServletRequest request, HttpServletResponse response) {
+
+        String oldRefreshToken = cookieUtil.getRefreshToken(request);
 
         if ( oldRefreshToken == null || oldRefreshToken.isBlank() ) {
             throw new RuntimeException("Refresh Token missing");
