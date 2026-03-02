@@ -1,5 +1,6 @@
 package com.example.chatService.controller;
 
+import com.example.chatService.dto.CurrentCountResponse;
 import com.example.chatService.dto.ParticipantDto;
 import com.example.chatService.security.UserPrincipal;
 import com.example.chatService.service.ChatRoomService;
@@ -45,8 +46,7 @@ public class RoomParticipantController {
         return service.getParticipants(roomId);
     }
     @GetMapping("/{roomId}/count")
-    public Map<String, Integer> getRoomCount(@PathVariable String roomId) {
-        return Map.of(
-                "current", service.getCurrentCount(roomId));
+    public CurrentCountResponse getRoomCount(@PathVariable String roomId) {
+        return new CurrentCountResponse(service.getCurrentCount(roomId));
     }
 }

@@ -33,7 +33,7 @@ public class RoomInviteController {
     public InviteCodeResponse reissueInvite(
             @PathVariable String roomId,
             @AuthenticationPrincipal UserPrincipal user
-    ) throws AccessDeniedException {
+    ) {
         String inviteCode = inviteService.generateInviteCode(roomId, user.getId());
 
         return new InviteCodeResponse(inviteCode);

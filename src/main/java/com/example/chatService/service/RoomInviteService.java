@@ -3,17 +3,16 @@ package com.example.chatService.service;
 import com.example.chatService.dto.JoinByInviteResponse;
 import com.example.chatService.dto.RoomRole;
 import com.example.chatService.dto.RoomType;
-import com.example.chatService.entity.ChatRoomV2;
+import com.example.chatService.entity.ChatRoom;
 import com.example.chatService.repository.ChatRoomV2Repository;
 import com.example.chatService.repository.RoomParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.nio.file.AccessDeniedException;
 import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
@@ -39,7 +38,7 @@ public class RoomInviteService {
             throw new IllegalArgumentException("초대 코드가 유효하지 않습니다.");
         }
 
-        ChatRoomV2 room = roomRepository.findById(roomId)
+        ChatRoom room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("방이 존재하지 않습니다."));
 
         if (room.getType() != RoomType.PRIVATE) {
@@ -50,7 +49,7 @@ public class RoomInviteService {
         return new JoinByInviteResponse(room.getRoomId());
     }
 
-    public String generateInviteCode(String roomId, String userId) throws AccessDeniedException {
+    public String generateInviteCode(String roomId, String userId) {
 
         if (!participantRepository.existsByRoomIdAndUserIdAndRoleIn(
                 roomId,
@@ -60,7 +59,7 @@ public class RoomInviteService {
             throw new AccessDeniedException("권한 없음");
         }
 
-        ChatRoomV2 room = roomRepository.findById(roomId)
+        ChatRoom room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new IllegalStateException("방 없음"));
 
         if (room.getType() != RoomType.PRIVATE) {

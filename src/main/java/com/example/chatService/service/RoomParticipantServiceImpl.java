@@ -4,7 +4,7 @@ import com.example.chatService.dto.AdminChangedResponse;
 import com.example.chatService.dto.ParticipantDto;
 import com.example.chatService.dto.RoomCountDto;
 import com.example.chatService.dto.RoomRole;
-import com.example.chatService.entity.ChatRoomV2;
+import com.example.chatService.entity.ChatRoom;
 import com.example.chatService.entity.RoomParticipant;
 import com.example.chatService.event.ParticipantForcedExitEvent;
 import com.example.chatService.event.RoomParticipantsChangedEvent;
@@ -89,7 +89,7 @@ RoomParticipantServiceImpl implements RoomParticipantService {
             return;
         }
 
-        ChatRoomV2 room = roomRepository.findByIdForUpdate(roomId);
+        ChatRoom room = roomRepository.findByIdForUpdate(roomId);
 //        System.out.println("[BEFORE] room currentCount = " + room.getCurrentCount());
         room.increaseCount();
 //        System.out.println("[AFTER] room currentCount = " + room.getCurrentCount());
@@ -106,7 +106,7 @@ RoomParticipantServiceImpl implements RoomParticipantService {
     @Transactional
     public void leaveRoom(String roomId, String userId) {
 
-        ChatRoomV2 room = roomRepository.findByIdForUpdate(roomId);
+        ChatRoom room = roomRepository.findByIdForUpdate(roomId);
         room.decreaseCount();
 
         RoomParticipant participant = getParticipant(roomId, userId);
@@ -142,7 +142,7 @@ RoomParticipantServiceImpl implements RoomParticipantService {
 
         repository.save(target);
 
-        ChatRoomV2 room = roomRepository.findByIdForUpdate(roomId);
+        ChatRoom room = roomRepository.findByIdForUpdate(roomId);
         room.decreaseCount();
 
         eventPublisher.publishEvent(
@@ -177,7 +177,7 @@ RoomParticipantServiceImpl implements RoomParticipantService {
 
         target.ban(reason);   // isBanned=true, isActive=false
 
-        ChatRoomV2 room = roomRepository.findByIdForUpdate(roomId);
+        ChatRoom room = roomRepository.findByIdForUpdate(roomId);
         room.decreaseCount();
 
         repository.save(target);
@@ -253,7 +253,7 @@ RoomParticipantServiceImpl implements RoomParticipantService {
     ) {
         requireOwner(roomId, byUserId);
 
-        ChatRoomV2 room = roomRepository.findByIdForUpdate(roomId);
+        ChatRoom room = roomRepository.findByIdForUpdate(roomId);
 
         if (!room.getOwnerUserId().equals(byUserId)) {
             new SecurityException("Owner only");
@@ -267,7 +267,7 @@ RoomParticipantServiceImpl implements RoomParticipantService {
     }
 
     private void requireOwner(String roomId, String userId) {
-        ChatRoomV2 room = roomRepository.findById(roomId).orElseThrow();
+        ChatRoom room = roomRepository.findById(roomId).orElseThrow();
 
         if (!room.getOwnerUserId().equals(userId)) {
             throw new SecurityException("OWNER only");
@@ -351,7 +351,7 @@ RoomParticipantServiceImpl implements RoomParticipantService {
     public void broadcast(String roomId) {
         int current = getCurrentCount(roomId);
 
-        ChatRoomV2 room = roomRepository.findById(roomId)
+        ChatRoom room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new RuntimeException("broadcast"));
 
         messagingTemplate.convertAndSend(

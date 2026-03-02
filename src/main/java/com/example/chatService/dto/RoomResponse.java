@@ -1,6 +1,6 @@
 package com.example.chatService.dto;
 
-import com.example.chatService.entity.ChatRoomV2;
+import com.example.chatService.entity.ChatRoom;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
@@ -23,7 +23,7 @@ public class RoomResponse {
     private String ownerUserId;
     private String inviteToken; // PRIVATE일 때만
 
-    public static RoomResponse from(ChatRoomV2 r) {
+    public static RoomResponse from(ChatRoom r) {
         return new RoomResponse(
                 r.getRoomId(),
                 r.getName(),
@@ -38,7 +38,7 @@ public class RoomResponse {
         );
     }
 
-    public static RoomResponse of(ChatRoomV2 room, String inviteToken) {
+    public static RoomResponse of(ChatRoom room, String inviteToken) {
         return new RoomResponse(
                 room.getRoomId(),
                 room.getName(),
@@ -52,7 +52,7 @@ public class RoomResponse {
                 inviteToken
         );
     }
-    public static RoomResponse inaccessible(ChatRoomV2 room, String reason) {
+    public static RoomResponse inaccessible(ChatRoom room, String reason) {
         return new RoomResponse(
                 room.getRoomId(),
                 room.getName(),

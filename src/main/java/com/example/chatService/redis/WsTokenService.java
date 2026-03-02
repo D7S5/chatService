@@ -27,7 +27,6 @@ public class WsTokenService {
         return token;
     }
 
-    // 조회 (and delete to enforce 1회용)
     public String consumeToken(String token) {
         String key = KEY_PREFIX + token;
         String userId = (String) redisTemplate.opsForValue().get(key);

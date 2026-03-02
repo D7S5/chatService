@@ -1,9 +1,12 @@
 package com.example.chatService.service;
 
-import com.example.chatService.dto.*;
-import com.example.chatService.entity.ChatRoomV2;
+import com.example.chatService.dto.CreateRoomRequest;
+import com.example.chatService.dto.RoomResponse;
+import com.example.chatService.dto.RoomRole;
+import com.example.chatService.dto.RoomType;
+import com.example.chatService.entity.ChatRoom;
 import com.example.chatService.entity.RoomParticipant;
-import com.example.chatService.repository.ChatRoomV2Repository;
+import com.example.chatService.repository.ChatRoomRepository;
 import com.example.chatService.repository.RoomParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,22 +24,22 @@ import java.util.UUID;
 public class ChatRoomService {
 
     private final StringRedisTemplate redis;
-    private final ChatRoomV2Repository chatRoomV2Repository;
+    private final ChatRoomRepository chatRoomV2Repository;
     private final RoomParticipantRepository repository;
     private final RoomParticipantService service;
     private final RoomInviteService inviteService;
 
-    public List<ChatRoomV2> getAllRooms() {
+    public List<ChatRoom> getAllRooms() {
         return chatRoomV2Repository.findAll();
     }
 
     @Transactional
-    public RoomResponse createV2(CreateRoomRequest req, String userId) {
+    public RoomResponse create(CreateRoomRequest req, String userId) {
         if (req.getMaxParticipants() < 2) {
             throw new IllegalArgumentException("최소 인원은 2명입니다.");
         }
 
-        ChatRoomV2 room = ChatRoomV2.create(
+        ChatRoom room = ChatRoom.create(
                 req.getName(),
                 req.getType(),
                 req.getMaxParticipants(),
@@ -71,7 +74,7 @@ public class ChatRoomService {
     }
 
     public RoomResponse getRoom(String roomId, String userId) {
-        ChatRoomV2 room = chatRoomV2Repository.findById(roomId)
+        ChatRoom room = chatRoomV2Repository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("Room not found"));
 
         if (room.getType() == RoomType.PRIVATE) {
@@ -84,7 +87,7 @@ public class ChatRoomService {
     }
 
     public void joinRoom(String roomId, String userId) {
-        ChatRoomV2 room = chatRoomV2Repository.findById(roomId)
+        ChatRoom room = chatRoomV2Repository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("Room not found"));
         service.joinRoom(roomId, userId);
     }

@@ -1,6 +1,6 @@
 package com.example.chatService.repository;
 
-import com.example.chatService.entity.ChatRoomV2;
+import com.example.chatService.entity.ChatRoom;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -9,16 +9,16 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface ChatRoomV2Repository extends JpaRepository<ChatRoomV2, String> {
+public interface ChatRoomV2Repository extends JpaRepository<ChatRoom, String> {
 
-    List<ChatRoomV2> findAll();
+    List<ChatRoom> findAll();
 
     boolean existsByRoomIdAndOwnerUserId(String roomId, String ownerId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select r from ChatRoomV2 r where r.roomId = :roomId")
-    ChatRoomV2 findByIdForUpdate(@Param("roomId") String roomId);
+    @Query("select r from ChatRoom r where r.roomId = :roomId")
+    ChatRoom findByIdForUpdate(@Param("roomId") String roomId);
 
-    @Query("select r.roomId from ChatRoomV2 r")
+    @Query("select r.roomId from ChatRoom r")
     List<String> findAllRoomIds();
 }

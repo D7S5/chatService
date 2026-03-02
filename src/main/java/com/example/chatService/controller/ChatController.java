@@ -1,7 +1,7 @@
 package com.example.chatService.controller;
 
 import com.example.chatService.dto.*;
-import com.example.chatService.entity.ChatRoomV2;
+import com.example.chatService.entity.ChatRoom;
 import com.example.chatService.security.UserPrincipal;
 import com.example.chatService.service.ChatMessageService;
 import com.example.chatService.service.ChatRoomService;
@@ -21,7 +21,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/rooms")
-public class ChatControllerV2 {
+public class ChatController {
 
     private final ChatMessageService chatMessageService;
     private final ChatRoomService chatRoomV2Service;
@@ -37,7 +37,7 @@ public class ChatControllerV2 {
     @PostMapping("/create")
     public RoomResponse create(@RequestBody CreateRoomRequest request,
                                @AuthenticationPrincipal UserPrincipal user) {
-        RoomResponse room = chatRoomV2Service.createV2(request, user.getId());
+        RoomResponse room = chatRoomV2Service.create(request, user.getId());
         return room;
     }
 
@@ -49,9 +49,9 @@ public class ChatControllerV2 {
     }
 
     @GetMapping
-    public ResponseEntity<List<ChatRoomV2>> getChatRooms() {
+    public ResponseEntity<List<ChatRoom>> getChatRooms() {
         try {
-            List<ChatRoomV2> rooms = chatRoomV2Service.getAllRooms();
+            List<ChatRoom> rooms = chatRoomV2Service.getAllRooms();
             return ResponseEntity.ok(rooms);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

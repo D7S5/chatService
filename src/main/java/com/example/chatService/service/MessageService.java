@@ -1,14 +1,11 @@
 package com.example.chatService.service;
 
-import com.example.chatService.entity.ChatRoom;
 import com.example.chatService.entity.Message;
 import com.example.chatService.entity.User;
 import com.example.chatService.repository.MessageRepository;
 import com.example.chatService.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
