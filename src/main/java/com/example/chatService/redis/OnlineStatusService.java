@@ -86,12 +86,7 @@ public class OnlineStatusService {
         }
 
         if (changed) {
-            Map<Object, Object> onlineUsers = redisTemplate.opsForHash().entries(ONLINE_HASH);
-
-            messagingTemplate.convertAndSend(
-                    "/topic/online-users",
-                    onlineUsers
-            );
+            broadcastOnlineUsers();
         }
     }
 }
