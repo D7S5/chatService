@@ -25,6 +25,7 @@ public class DMMessage {
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
+
     @Builder.Default
     private OffsetDateTime sentAt = OffsetDateTime.now();
 

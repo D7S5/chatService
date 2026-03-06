@@ -18,7 +18,7 @@ public class ChatMessageService {
     private final SimpMessagingTemplate messagingTemplate;
     private final GroupMessageProducer groupMessageProducer;
 
-    public void handleSend(GroupMessageDto msg, String senderIdFromPrincipal) {
+    public void send(GroupMessageDto msg, String senderIdFromPrincipal) {
 
         msg.setSenderId(senderIdFromPrincipal);
 

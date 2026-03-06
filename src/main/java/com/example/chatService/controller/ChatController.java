@@ -31,7 +31,7 @@ public class ChatController {
     public void send(GroupMessageDto msg,
                      Principal principal) {
         String senderId = principal.getName();
-        chatMessageService.handleSend(msg, senderId);
+        chatMessageService.send(msg, senderId);
     }
 
     @PostMapping("/create")

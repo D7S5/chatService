@@ -30,6 +30,7 @@ public class WsHandshakeInterceptor implements HandshakeInterceptor {
 
         String wsToken = req.getParameter("ws-token");
         if (wsToken == null) { return false; }
+
         // 1회용 소비
         String userId = wsTokenService.consumeToken(wsToken);
         if (userId == null) { return false; }
