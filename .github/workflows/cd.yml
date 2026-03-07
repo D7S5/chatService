@@ -101,4 +101,8 @@ jobs:
               -Dspring.profiles.active=${{ vars.SPRING_PROFILE }} \
               ${{ vars.APP_ROOT }}/app/app.jar \
               > ${{ vars.APP_ROOT }}/app/logs/app-8080.log 2>&1 &
+<<<<<<< HEAD
           "
+=======
+          "
+>>>>>>> 24f48f05dd47faf5493853db39a97d4d527601e9
