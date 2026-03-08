@@ -17,11 +17,11 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: '17'
           cache: gradle
 
       - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+        run: chmod +x ./gradlew
 
       - name: Build bootJar
         run: ./gradlew clean bootJar -x test
@@ -34,49 +34,46 @@ jobs:
 
       - name: Add EC2 host to known_hosts
         run: |
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
 
       - name: Ensure app directory exists on EC2
         run: |
-          ssh -i ~/.ssh/ec2_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
-            mkdir -p ${{ secrets.APP_DIR }}
-          "
+          ssh -i ~/.ssh/ec2_key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "mkdir -p '${{ secrets.APP_DIR }}'"
 
       - name: Upload jar to EC2
         run: |
-          scp -i ~/.ssh/ec2_key.pem build/libs/*.jar \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.APP_DIR }}/app.jar
+          scp -i ~/.ssh/ec2_key.pem build/libs/*.jar "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.APP_DIR }}/app.jar"
 
       - name: Write .env on EC2
         run: |
-          ssh -i ~/.ssh/ec2_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            cat > ${{ secrets.APP_DIR }}/.env << 'EOT'
-  DB_URL=${{ secrets.DB_URL }}
-  DB_USERNAME=${{ secrets.DB_USERNAME }}
-  DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-  JWT_SECRET=${{ secrets.JWT_SECRET }}
-  GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
-  GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
-  NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}
-  NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}
-  KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}
-  KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}
-  EOT
-  chmod 600 ${{ secrets.APP_DIR }}/.env
-  EOF
+          ssh -i ~/.ssh/ec2_key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "
+            printf '%s\n' \
+            'DB_URL=${{ secrets.DB_URL }}' \
+            'DB_USERNAME=${{ secrets.DB_USERNAME }}' \
+            'DB_PASSWORD=${{ secrets.DB_PASSWORD }}' \
+            'JWT_SECRET=${{ secrets.JWT_SECRET }}' \
+            'GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}' \
+            'GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}' \
+            'NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}' \
+            'NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}' \
+            'KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}' \
+            'KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}' \
+            > '${{ secrets.APP_DIR }}/.env'
+            chmod 600 '${{ secrets.APP_DIR }}/.env'
+          "
 
-- name: Stop old app and start new app
-  run: |
-    ssh -i ~/.ssh/ec2_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-      pkill -f 'java.*app.jar' || true
-      sleep 3
-      cd ${{ secrets.APP_DIR }}
-      nohup java -Dspring.profiles.active=prod -jar app.jar > app.log 2>&1 &
-    EOF
+      - name: Stop old app and start new app
+        run: |
+          ssh -i ~/.ssh/ec2_key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "
+            pkill -f 'java.*app.jar' || true
+            sleep 3
+            cd '${{ secrets.APP_DIR }}'
+            nohup java -Dspring.profiles.active=prod -jar app.jar > app.log 2>&1 &
+          "
 
-- name: Check deploy result
-  run: |
-    ssh -i ~/.ssh/ec2_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
-      sleep 5
-      tail -n 50 ${{ secrets.APP_DIR }}/app.log
-    "
+      - name: Check deploy result
+        run: |
+          ssh -i ~/.ssh/ec2_key.pem "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "
+            sleep 5
+            tail -n 50 '${{ secrets.APP_DIR }}/app.log'
+          "
