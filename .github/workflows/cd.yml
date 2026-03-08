@@ -75,7 +75,7 @@ jobs:
             pkill -f 'java.*app.jar' || true
             sleep 3
             cd '${{ secrets.APP_DIR }}'
-            nohup java -jar app.jar > app.log 2>&1 &
+            nohup java -Dspring.profiles.active=prod -jar app.jar > app.log 2>&1 < /dev/null &
           "
 
       - name: Check deploy result
