@@ -37,7 +37,7 @@ public class CookieUtil {
                 .sameSite("Lax")
                 .build();
 
-        response.addHeader("Set-cookie", cookie.toString());
+        response.addHeader("Set-Cookie", cookie.toString());
     }
 
     public String getRefreshToken(HttpServletRequest request) {
