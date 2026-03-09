@@ -140,6 +140,10 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
             throw new IllegalStateException("OWNER는 강퇴할 수 없습니다.");
         }
 
+        if (!target.isActive()) {
+            return;
+        }
+
         target.deactivate();
 
         repository.save(target);
@@ -177,23 +181,27 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
             throw new IllegalStateException("Cannot ban OWNER");
         }
 
+        boolean wasActive = target.isActive();
         target.ban(reason);   // isBanned=true, isActive=false
 
-        ChatRoom room = roomRepository.findByIdForUpdate(roomId);
-        room.decreaseCount();
 
-        repository.save(target);
+        if (wasActive) {
+            ChatRoom room = roomRepository.findByIdForUpdate(roomId);
+            room.decreaseCount();
 
-        eventPublisher.publishEvent(
-                new ParticipantForcedExitEvent(
-                        roomId,
-                        targetUserId,
-                        reason
-                )
-        );
-        eventPublisher.publishEvent(
-                new RoomParticipantsChangedEvent(roomId)
-        );
+            repository.save(target);
+
+            eventPublisher.publishEvent(
+                    new ParticipantForcedExitEvent(
+                            roomId,
+                            targetUserId,
+                            reason
+                    )
+            );
+            eventPublisher.publishEvent(
+                    new RoomParticipantsChangedEvent(roomId)
+            );
+        }
     }
 
     @Override
