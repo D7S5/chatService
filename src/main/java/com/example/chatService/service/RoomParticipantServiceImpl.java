@@ -105,10 +105,13 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     @Transactional
     public void leaveRoom(String roomId, String userId) {
 
+        RoomParticipant participant = getParticipant(roomId, userId);
+        if (!participant.isActive()) {
+            return;
+        }
+
         ChatRoom room = roomRepository.findByIdForUpdate(roomId);
         room.decreaseCount();
-
-        RoomParticipant participant = getParticipant(roomId, userId);
 
         participant.deactivate();
         repository.save(participant);
