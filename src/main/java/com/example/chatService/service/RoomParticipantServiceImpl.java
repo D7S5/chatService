@@ -315,7 +315,9 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     @Override
     @Transactional
     public int getCurrentCount(String roomId) {
-        return repository.countByRoomIdAndIsActiveTrue(roomId);
+        return roomRepository.findById(roomId)
+                .orElseThrow()
+                .getCurrentCount();
     }
 
     private String loadUsername(String userId) {

@@ -5,8 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a450b2f7-d39b-44fb-8aa0-ae68f60caeb7" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.github/workflows/cd.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/cd.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/component/WebSocketDisconnectListener.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/controller/RoomSocketController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/dto/UserRoomSession.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/redis/UserSessionRegistry.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/controller/ChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/controller/ChatController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/service/RoomParticipantServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/service/RoomParticipantServiceImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -151,7 +156,7 @@
       <workItem from="1772432265268" duration="9337000" />
       <workItem from="1772628032475" duration="3020000" />
       <workItem from="1772772847402" duration="2311000" />
-      <workItem from="1772782104750" duration="12897000" />
+      <workItem from="1772782104750" duration="20437000" />
     </task>
     <servers />
   </component>
