@@ -4,7 +4,7 @@ pipeline {
     environment {
         REMOTE_HOST = '43.202.136.248'
         REMOTE_USER = 'ubuntu'
-        REMOTE_APP_DIR = '/home/ubuntu/chatservice/app'
+        REMOTE_APP_DIR = '/home/ubuntu/chatService/app'
         JAR_NAME = 'app.jar'
     }
 
