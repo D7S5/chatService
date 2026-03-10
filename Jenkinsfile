@@ -78,18 +78,7 @@ EOF
             }
         }
 
-        stage('Start Infra on Remote') {
-            steps {
-                sshagent(credentials: ['chat-prod-ssh']) {
-                    sh '''
-                        ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} << EOF
-                          cd ${REMOTE_APP_DIR}
-                          docker compose up -d
-EOF
-                    '''
-                }
-            }
-        }
+
 
         stage('Restart App on Remote') {
             steps {
