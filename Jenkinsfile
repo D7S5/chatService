@@ -31,10 +31,6 @@ pipeline {
                         scp -o StrictHostKeyChecking=no \
                           build/libs/app.jar \
                           ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_APP_DIR}/${JAR_NAME}
-
-                        scp -o StrictHostKeyChecking=no \
-                          docker-compose.yml \
-                          ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_APP_DIR}/docker-compose.yml
                     '''
                 }
             }
