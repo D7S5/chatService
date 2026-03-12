@@ -32,6 +32,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     @Value("${jwt.refresh-token-expiry}")
     private long jwtRefreshTokenExpiry;
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
     private static final String REDIS_CURRENT_PREFIX = "RT:current:";
 
     @Override
@@ -61,10 +63,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         cookieUtil.addRefreshTokenCookie(response, refreshToken);
 
         String encoded = URLEncoder.encode(accessToken, StandardCharsets.UTF_8);
-
         String redirectUrl = !user.isNicknameCompleted()
-                ? "http://localhost:3000/oauth/nickname?token=" + encoded
-                : "http://localhost:3000/oauth/success?token=" + encoded;
+                ? frontendUrl + "/oauth/nickname?token=" + encoded
+                : frontendUrl + "/oauth/success?token=" + encoded;
 
         clearAuthenticationAttributes(request);
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
