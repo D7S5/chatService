@@ -99,4 +99,4 @@ chat:
 
 app:
   instance-id: chat-1
-  frontend-url: https://chatsservice.com
+  frontend-url: http://chatsservice.com
