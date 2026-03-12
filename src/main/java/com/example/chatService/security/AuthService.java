@@ -130,12 +130,7 @@ public class AuthService {
                 TimeUnit.MILLISECONDS
         );
 
-        Cookie cookie = new Cookie("refreshToken", newRefreshToken);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(60 * 60 * 24 * 7);
-        response.addCookie(cookie);
+        cookieUtil.addRefreshTokenCookie(response, newRefreshToken);
 
         return new JwtResponse(newAccessToken);
     }
