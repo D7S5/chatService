@@ -92,5 +92,7 @@ chat:
     # 예: chat-ws-node-1 / chat-ws-node-2 / chat-ws-node-3
     consumer-group-id: chat-ws-node-1
 
+
 app:
   instance-id: chat-1
+  frontend-url: localhost:3000
