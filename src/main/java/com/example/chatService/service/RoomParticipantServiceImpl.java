@@ -36,7 +36,7 @@ import static com.example.chatService.dto.RoomRole.*;
 @Slf4j
 public class RoomParticipantServiceImpl implements RoomParticipantService {
 
-    private final RoomParticipantRepository repository;
+    private final RoomParticipantRepository roomParticipantrepository;
     private final UserRepository userRepository;
     private final StringRedisTemplate redis;
     private final ChatRoomV2Repository roomRepository;
@@ -52,7 +52,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     @Transactional
     public void joinRoom(String roomId, String userId) {
 
-        if (repository.existsByRoomIdAndUserIdAndIsBannedTrue(roomId, userId)) {
+        if (roomParticipantrepository.existsByRoomIdAndUserIdAndIsBannedTrue(roomId, userId)) {
             throw new BannedFromRoomException(roomId);
         }
         // 유저 권한 확인
@@ -64,7 +64,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
 
     public RoomRole hasPermission(String roomId, String userId) {
         Optional<RoomParticipant> member =
-                repository.findByRoomIdAndUserId(roomId, userId);
+                roomParticipantrepository.findByRoomIdAndUserId(roomId, userId);
 
         if (member.isEmpty()) return MEMBER;
 
@@ -73,8 +73,8 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     @Transactional
     public void joinAsRole(String roomId, String userId, RoomRole roomRole) {
 
-        RoomParticipant p = repository.findByRoomIdAndUserId(roomId, userId)
-                .orElseGet(() -> repository.save(
+        RoomParticipant p = roomParticipantrepository.findByRoomIdAndUserId(roomId, userId)
+                .orElseGet(() -> roomParticipantrepository.save(
                         RoomParticipant.builder()
                                 .roomId(roomId)
                                 .userId(userId)
@@ -94,7 +94,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
 //        System.out.println("[AFTER] room currentCount = " + room.getCurrentCount());
 
         p.activate();
-        repository.save(p);
+        roomParticipantrepository.save(p);
 
         eventPublisher.publishEvent(
                 new RoomParticipantsChangedEvent(roomId)
@@ -114,7 +114,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         room.decreaseCount();
 
         participant.deactivate();
-        repository.save(participant);
+        roomParticipantrepository.save(participant);
 
         eventPublisher.publishEvent(
                 new RoomParticipantsChangedEvent(roomId)
@@ -146,7 +146,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
 
         target.deactivate();
 
-        repository.save(target);
+        roomParticipantrepository.save(target);
 
         ChatRoom room = roomRepository.findByIdForUpdate(roomId);
         room.decreaseCount();
@@ -173,7 +173,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
             throw new IllegalStateException("Cannot ban yourself");
         }
 
-        RoomParticipant target = repository
+        RoomParticipant target = roomParticipantrepository
                 .findByRoomIdAndUserId(roomId, targetUserId)
                 .orElseThrow(() -> new IllegalStateException("Target not in room"));
 
@@ -189,7 +189,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
             ChatRoom room = roomRepository.findByIdForUpdate(roomId);
             room.decreaseCount();
 
-            repository.save(target);
+            roomParticipantrepository.save(target);
 
             eventPublisher.publishEvent(
                     new ParticipantForcedExitEvent(
@@ -217,7 +217,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         RoomParticipant target = getParticipant(roomId, targetUserId);
         target.changeRole(role);
 
-        repository.save(target);
+        roomParticipantrepository.save(target);
     }
 
     @Override
@@ -227,14 +227,14 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
             String requesterId,
             String targetUserId
     ) {
-        RoomParticipant requester = repository
+        RoomParticipant requester = roomParticipantrepository
                 .findByRoomIdAndUserId(roomId, requesterId)
                 .orElseThrow();
 
         if (requester.getRole() != RoomRole.OWNER)
             throw new AccessDeniedException("OWNER만 가능");
 
-        RoomParticipant target = repository
+        RoomParticipant target = roomParticipantrepository
                 .findByRoomIdAndUserId(roomId, targetUserId)
                 .orElseThrow();
 
@@ -245,7 +245,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                 target.getRole() == ADMIN ? MEMBER : ADMIN
         );
 
-        repository.save(target);
+        roomParticipantrepository.save(target);
 
         return new AdminChangedResponse(
                 targetUserId,
@@ -285,7 +285,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     }
 
     private void requireAdmin(String roomId, String userId) {
-        RoomParticipant p = repository
+        RoomParticipant p = roomParticipantrepository
                 .findByRoomIdAndUserId(roomId, userId)
                 .orElseThrow(() -> new AccessDeniedException("Not in room"));
 
@@ -296,7 +296,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     @Override
     @Transactional(readOnly = true)
     public List<RoomParticipant> getActiveParticipants(String roomId) {
-        return repository.findAllByRoomIdAndIsActiveTrue(roomId);
+        return roomParticipantrepository.findAllByRoomIdAndIsActiveTrue(roomId);
     }
 
     @Override
@@ -312,7 +312,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     }
 
     private RoomParticipant getParticipant(String roomId, String userId) {
-        return repository.findByRoomIdAndUserId(roomId, userId)
+        return roomParticipantrepository.findByRoomIdAndUserId(roomId, userId)
                 .orElseThrow(() ->
                         new IllegalStateException("Participant not found"));
     }
@@ -381,6 +381,6 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         );
     }
     public boolean isParticipant(String roomId, String userId) {
-        return repository.existsByRoomIdAndUserId(roomId, userId);
+        return roomParticipantrepository.existsByRoomIdAndUserId(roomId, userId);
     }
 }
