@@ -97,7 +97,7 @@ public class FriendService {
 
         List<Friend> friends = friendRepository.findFriendRelation(userA, userB);
 
-        friends.forEach(friendRepository::delete);
+        friendRepository.deleteAll(friends);
     }
     @Transactional
     public String acceptFriendRequest(Long requestId) {
@@ -108,21 +108,21 @@ public class FriendService {
             throw new IllegalStateException("이미 처리된 요청입니다");
         }
 
-        User userA = request.getFriend(); // 요청 보낸사람
-        User userB = request.getUser(); // 요청 받은사람
+        User sender = request.getFriend(); // 요청 보낸사람
+        User receiver = request.getUser(); // 요청 받은사람
 
         request.setStatus(FriendStatus.ACCEPTED);
         friendRepository.save(request);
 
         Friend friendA = Friend.builder()
-                .user(userA)
-                .friend(userB)
+                .user(sender)
+                .friend(receiver)
                 .status(FriendStatus.ACCEPTED)
                 .build();
 
         Friend friendB = Friend.builder()
-                .user(userB)
-                .friend(userA)
+                .user(receiver)
+                .friend(sender)
                 .status(FriendStatus.ACCEPTED)
                 .build();
 
@@ -132,15 +132,15 @@ public class FriendService {
         PublishAcceptFriendEvent publishAcceptFriendEvent =
                         PublishAcceptFriendEvent.builder()
                             .type(FriendEventType.FRIEND_ACCEPT)
-                            .friendId(userB.getId()).build();
+                            .friendId(receiver.getId()).build();
 
         eventPublisher.publishAcceptFriendEvent(
-                            userA.getId(),
+                            sender.getId(),
                             publishAcceptFriendEvent);
 
         return "친구 신청 수락 완료";
     }
-    /** 친구 요청 거절 */
+
     @Transactional
     public String reject(Long requestId) {
         Friend req = friendRepository.findById(requestId)
