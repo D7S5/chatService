@@ -59,6 +59,7 @@ public class GroupMessageOutboxProcessor {
                 box.setLockedAt(null);
 
             } catch (Exception e) {
+                // 실패시 복구
                 log.error("GroupOutbox processing failed for id=" + box.getId(), e);
                 box.setStatus(MessagingStatus.NEW);
                 box.setLockedBy(null);
