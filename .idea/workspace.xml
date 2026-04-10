@@ -6,7 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="a450b2f7-d39b-44fb-8aa0-ae68f60caeb7" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/kafka/GroupMessageOutboxProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/kafka/GroupMessageOutboxProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/problems/problems-report.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/problems/problems-report.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/component/ChatRateLimiter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/component/ChatRateLimiter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/oauth/OAuth2FailureHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/oauth/OAuth2FailureHandler.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,7 +59,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;extract.method.default.visibility&quot;: &quot;private&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/austin/IdeaProjects/chatService/src/main/resources&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/austin/chatService-kotlin&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -159,7 +161,22 @@
       <workItem from="1773300968074" duration="389000" />
       <workItem from="1773380609704" duration="5051000" />
       <workItem from="1773467112487" duration="7270000" />
-      <workItem from="1773550317940" duration="431000" />
+      <workItem from="1773550317940" duration="2254000" />
+      <workItem from="1773553713990" duration="210000" />
+      <workItem from="1773557314638" duration="16000" />
+      <workItem from="1773812787221" duration="2840000" />
+      <workItem from="1773895364351" duration="731000" />
+      <workItem from="1773976717560" duration="936000" />
+      <workItem from="1773978322534" duration="917000" />
+      <workItem from="1773988029918" duration="754000" />
+      <workItem from="1773989406654" duration="356000" />
+      <workItem from="1774241280693" duration="1141000" />
+      <workItem from="1775013838994" duration="839000" />
+      <workItem from="1775186034137" duration="1473000" />
+      <workItem from="1775188635938" duration="751000" />
+      <workItem from="1775546454381" duration="94000" />
+      <workItem from="1775628479025" duration="25000" />
+      <workItem from="1775716678089" duration="34000" />
     </task>
     <servers />
   </component>

@@ -20,7 +20,7 @@ public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler 
             AuthenticationException exception
     ) throws IOException {
 
-        log.error("🔥 OAuth2 Login Failed");
+        log.error("OAuth2 Login Failed");
         log.error("Exception class: {}", exception.getClass().getName());
         log.error("Message: {}", exception.getMessage(), exception);
 

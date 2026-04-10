@@ -42,7 +42,7 @@ public class ChatRateLimiter {
 
         Long count = redis.opsForValue().increment(rateKey(userId));
 
-        if ( count != null && count == 1) {
+        if (count != null && count == 1) {
             redis.expire(rateKey(userId), Duration.ofSeconds(1));
         }
 
