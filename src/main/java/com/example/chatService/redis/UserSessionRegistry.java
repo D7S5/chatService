@@ -13,8 +13,9 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class UserSessionRegistry {
 
-    private static final String PREFIX = "ws:session:";
-    private static final Duration TTL = Duration.ofHours(6);
+    private static final String DATA_PREFIX = "ws:session:data:";
+    private static final String TTL_PREFIX = "ws:session:ttl:";
+    private static final Duration TTL = Duration.ofMinutes(2);
 
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
@@ -24,14 +25,15 @@ public class UserSessionRegistry {
 
         try {
             String json = objectMapper.writeValueAsString(value);
-            redisTemplate.opsForValue().set(key(sessionId), json, TTL);
+            redisTemplate.opsForValue().set(dataKey(sessionId), json);
+            redisTemplate.opsForValue().set(ttlKey(sessionId), "1", TTL);
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("웹소켓 세션 저장 실패", e);
         }
     }
 
     public UserRoomSession get(String sessionId) {
-        String json = redisTemplate.opsForValue().get(key(sessionId));
+        String json = redisTemplate.opsForValue().get(dataKey(sessionId));
         if (json == null) {
             return null;
         }
@@ -44,14 +46,16 @@ public class UserSessionRegistry {
     }
 
     public UserRoomSession remove(String sessionId) {
-        String redisKey = key(sessionId);
+        String redisKey = dataKey(sessionId);
         String json = redisTemplate.opsForValue().get(redisKey);
 
         if (json == null) {
+            redisTemplate.delete(ttlKey(sessionId));
             return null;
         }
 
         redisTemplate.delete(redisKey);
+        redisTemplate.delete(ttlKey(sessionId));
 
         try {
             return objectMapper.readValue(json, UserRoomSession.class);
@@ -60,7 +64,30 @@ public class UserSessionRegistry {
         }
     }
 
-    private String key(String sessionId) {
-        return PREFIX + sessionId;
+    public void refreshTtl(String sessionId) {
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(dataKey(sessionId)))) {
+            redisTemplate.opsForValue().set(ttlKey(sessionId), "1", TTL);
+        }
+    }
+
+    public UserRoomSession removeByTtlKey(String redisKey) {
+        if (!redisKey.startsWith(TTL_PREFIX)) {
+            return null;
+        }
+
+        String sessionId = redisKey.substring(TTL_PREFIX.length());
+        return remove(sessionId);
+    }
+
+    public boolean isTtlKey(String redisKey) {
+        return redisKey.startsWith(TTL_PREFIX);
+    }
+
+    private String dataKey(String sessionId) {
+        return DATA_PREFIX + sessionId;
+    }
+
+    private String ttlKey(String sessionId) {
+        return TTL_PREFIX + sessionId;
     }
 }
