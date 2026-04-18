@@ -95,4 +95,4 @@ chat:
 
 app:
   instance-id: chat-1
-  frontend-url: localhost:3000
+  frontend-url: http://localhost:3000

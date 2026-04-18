@@ -99,4 +99,5 @@ chat:
 
 app:
   instance-id: chat-1
-  frontend-url: http://chatsservice.com
+  frontend-url: http://localhost:3000
+#  frontend-url: http://chatsservice.com
