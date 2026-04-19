@@ -59,7 +59,6 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         RoomRole role = hasPermission(roomId, userId);
 
         joinAsRole(roomId, userId, role);
-//        System.out.println(role);
     }
 
     public RoomRole hasPermission(String roomId, String userId) {
@@ -82,16 +81,12 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                                 .build()
                 ));
 
-//        System.out.println("isActive = " + p.isActive());
-
         if (p.isActive()) {
             return;
         }
 
         ChatRoom room = roomRepository.findByIdForUpdate(roomId);
-//        System.out.println("[BEFORE] room currentCount = " + room.getCurrentCount());
         room.increaseCount();
-//        System.out.println("[AFTER] room currentCount = " + room.getCurrentCount());
 
         p.activate();
         roomParticipantRepository.save(p);
