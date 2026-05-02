@@ -23,6 +23,8 @@ public class DMMessage {
     @Column(length = 36, nullable = false)
     private String senderId;
 
+    @Column(name = "sender_name", nullable = false)
+    private String senderName;
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 

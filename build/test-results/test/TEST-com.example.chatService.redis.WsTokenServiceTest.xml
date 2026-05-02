@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.example.chatService.redis.WsTokenServiceTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-05-02T06:49:23.273Z" hostname="austin-750XGK" time="0.013">
+<testsuite name="com.example.chatService.redis.WsTokenServiceTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-05-02T07:30:49.668Z" hostname="austin-750XGK" time="0.017">
   <properties/>
-  <testcase name="createTokenForUserStoresUserIdWithTwoMinuteTtl()" classname="com.example.chatService.redis.WsTokenServiceTest" time="0.007"/>
+  <testcase name="createTokenForUserStoresUserIdWithTwoMinuteTtl()" classname="com.example.chatService.redis.WsTokenServiceTest" time="0.011"/>
   <testcase name="consumeTokenReturnsUserIdAndDeletesTokenWhenFound()" classname="com.example.chatService.redis.WsTokenServiceTest" time="0.001"/>
   <testcase name="consumeTokenDoesNotDeleteMissingToken()" classname="com.example.chatService.redis.WsTokenServiceTest" time="0.001"/>
   <testcase name="peekTokenReadsWithoutDeleting()" classname="com.example.chatService.redis.WsTokenServiceTest" time="0.001"/>

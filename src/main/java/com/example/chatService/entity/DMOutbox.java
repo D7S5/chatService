@@ -21,6 +21,9 @@ public class DMOutbox {
     private String roomId;
     private String senderId;
 
+    @Column(name = "sender_name", nullable = false)
+    private String senderName;
+
     @Column(columnDefinition = "TEXT")
     private String content;
 
@@ -36,6 +39,6 @@ public class DMOutbox {
     @Column(name = "locked_at")
     private OffsetDateTime lockedAt;
 
-    private OffsetDateTime createAt;
+    private OffsetDateTime createdAt;
 
 }

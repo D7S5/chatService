@@ -25,7 +25,7 @@ public class DMOutboxProcessor {
     private static final String TOPIC = "dm-messages";
     private static final int BATCH_SIZE = 100;
 
-    @Value("${app.instance-id")
+    @Value("${app.instance-id}")
     private String workerId;
 
     @Transactional
@@ -43,6 +43,7 @@ public class DMOutboxProcessor {
                 DMMessageKafkaDto message = DMMessageKafkaDto.builder()
                         .roomId(box.getRoomId())
                         .senderId(box.getSenderId())
+                        .senderName(box.getSenderName())
                         .content(box.getContent())
                         .sentAt(box.getEventTimestamp())
                         .build();

@@ -40,6 +40,7 @@ public class DMStoreConsumer {
                 .room(room)
                 .senderId(dto.getSenderId())
                 .content(dto.getContent())
+                .senderName(dto.getSenderName())
                 .sentAt(sentAt)
                 .isRead(false)
                 .build();

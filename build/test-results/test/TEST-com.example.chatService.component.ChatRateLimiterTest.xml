@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.example.chatService.component.ChatRateLimiterTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-05-02T06:49:23.247Z" hostname="austin-750XGK" time="0.023">
+<testsuite name="com.example.chatService.component.ChatRateLimiterTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-05-02T07:30:49.557Z" hostname="austin-750XGK" time="0.106">
   <properties/>
-  <testcase name="allowRoomRejectsAfterRoomLimit()" classname="com.example.chatService.component.ChatRateLimiterTest" time="0.011"/>
-  <testcase name="allowOrBanRejectsAlreadyBannedUserWithoutIncrementingRate()" classname="com.example.chatService.component.ChatRateLimiterTest" time="0.002"/>
+  <testcase name="allowRoomRejectsAfterRoomLimit()" classname="com.example.chatService.component.ChatRateLimiterTest" time="0.086"/>
+  <testcase name="allowOrBanRejectsAlreadyBannedUserWithoutIncrementingRate()" classname="com.example.chatService.component.ChatRateLimiterTest" time="0.004"/>
   <testcase name="allowRoomAllowsUpToRoomLimit()" classname="com.example.chatService.component.ChatRateLimiterTest" time="0.001"/>
-  <testcase name="allowOrBanSetsOneSecondWindowOnFirstMessage()" classname="com.example.chatService.component.ChatRateLimiterTest" time="0.005"/>
+  <testcase name="allowOrBanSetsOneSecondWindowOnFirstMessage()" classname="com.example.chatService.component.ChatRateLimiterTest" time="0.009"/>
   <testcase name="allowOrBanBansUserAfterLimitIsExceeded()" classname="com.example.chatService.component.ChatRateLimiterTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
