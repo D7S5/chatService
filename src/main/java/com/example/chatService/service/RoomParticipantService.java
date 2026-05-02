@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface RoomParticipantService {
 
-    void joinRoom(String roomId, String userId);
+    int joinRoom(String roomId, String userId);
 
     void leaveRoom(String roomId, String userId);
 

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.chatService.service.RoomParticipantServiceImplTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-05-02T06:49:23.086Z" hostname="austin-750XGK" time="0.117">
+  <properties/>
+  <testcase name="joinRoomRejectsBannedUser()" classname="com.example.chatService.service.RoomParticipantServiceImplTest" time="0.086"/>
+  <testcase name="joinAsRoleCreatesAndActivatesParticipantAndIncrementsRoomCount()" classname="com.example.chatService.service.RoomParticipantServiceImplTest" time="0.008"/>
+  <testcase name="transferOwnershipRejectsNonOwner()" classname="com.example.chatService.service.RoomParticipantServiceImplTest" time="0.003"/>
+  <testcase name="kickDeactivatesTargetDecrementsCountAndPublishesEvents()" classname="com.example.chatService.service.RoomParticipantServiceImplTest" time="0.002"/>
+  <testcase name="leaveRoomDoesNothingWhenParticipantAlreadyInactive()" classname="com.example.chatService.service.RoomParticipantServiceImplTest" time="0.002"/>
+  <testcase name="transferOwnershipUpdatesRoomAndBroadcastsWhenOwnerRequests()" classname="com.example.chatService.service.RoomParticipantServiceImplTest" time="0.005"/>
+  <testcase name="kickRequiresAdminOrOwner()" classname="com.example.chatService.service.RoomParticipantServiceImplTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

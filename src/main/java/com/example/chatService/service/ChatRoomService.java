@@ -86,9 +86,9 @@ public class ChatRoomService {
         return RoomResponse.from(room);
     }
 
-    public void joinRoom(String roomId, String userId) {
-        ChatRoom room = chatRoomV2Repository.findById(roomId)
+    public int joinRoom(String roomId, String userId) {
+        chatRoomV2Repository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("Room not found"));
-        service.joinRoom(roomId, userId);
+        return service.joinRoom(roomId, userId);
     }
 }

@@ -23,12 +23,12 @@ public class RoomParticipantController {
 
 
     @PostMapping("/{roomId}/participants")
-    public ResponseEntity<Void> join(
+    public ResponseEntity<CurrentCountResponse> join(
             @PathVariable String roomId,
             @AuthenticationPrincipal UserPrincipal user
     ) {
-        chatRoomService.joinRoom(roomId, user.getId());
-        return ResponseEntity.ok().build();
+        int count = chatRoomService.joinRoom(roomId, user.getId());
+        return ResponseEntity.ok(new CurrentCountResponse(count));
     }
 
     @DeleteMapping("/{roomId}/participants")

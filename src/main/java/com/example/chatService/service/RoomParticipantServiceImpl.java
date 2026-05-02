@@ -50,15 +50,14 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
             maxAttempts = 3
     )
     @Transactional
-    public void joinRoom(String roomId, String userId) {
+    public int joinRoom(String roomId, String userId) {
 
         if (roomParticipantRepository.existsByRoomIdAndUserIdAndIsBannedTrue(roomId, userId)) {
             throw new BannedFromRoomException(roomId);
         }
-        // 유저 권한 확인
         RoomRole role = hasPermission(roomId, userId);
 
-        joinAsRole(roomId, userId, role);
+        return joinAsRole(roomId, userId, role);
     }
 
     public RoomRole hasPermission(String roomId, String userId) {
@@ -69,8 +68,9 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
 
         return member.get().getRole();
     }
+
     @Transactional
-    public void joinAsRole(String roomId, String userId, RoomRole roomRole) {
+    public int joinAsRole(String roomId, String userId, RoomRole roomRole) {
 
         RoomParticipant p = roomParticipantRepository.findByRoomIdAndUserId(roomId, userId)
                 .orElseGet(() -> roomParticipantRepository.save(
@@ -81,19 +81,22 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                                 .build()
                 ));
 
+        ChatRoom room = roomRepository.findByIdForUpdate(roomId);
+
         if (p.isActive()) {
-            return;
+            return room.getCurrentCount();
         }
 
-        ChatRoom room = roomRepository.findByIdForUpdate(roomId);
         room.increaseCount();
 
         p.activate();
         roomParticipantRepository.save(p);
 
         eventPublisher.publishEvent(
-                new RoomParticipantsChangedEvent(roomId)
+                new RoomParticipantsChangedEvent(roomId, room.getCurrentCount(), room.getMaxParticipants())
         );
+
+        return room.getCurrentCount();
     }
 
     @Override
@@ -112,7 +115,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         roomParticipantRepository.save(participant);
 
         eventPublisher.publishEvent(
-                new RoomParticipantsChangedEvent(roomId)
+                new RoomParticipantsChangedEvent(roomId, room.getCurrentCount(), room.getMaxParticipants())
         );
     }
 
@@ -155,7 +158,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         );
 
         eventPublisher.publishEvent(
-                new RoomParticipantsChangedEvent(roomId)
+                new RoomParticipantsChangedEvent(roomId, room.getCurrentCount(), room.getMaxParticipants())
         );
     }
 
@@ -194,7 +197,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
                     )
             );
             eventPublisher.publishEvent(
-                    new RoomParticipantsChangedEvent(roomId)
+                    new RoomParticipantsChangedEvent(roomId, room.getCurrentCount(), room.getMaxParticipants())
             );
         }
     }
