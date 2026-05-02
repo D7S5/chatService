@@ -261,7 +261,7 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         ChatRoom room = roomRepository.findByIdForUpdate(roomId);
 
         if (!room.getOwnerUserId().equals(byUserId)) {
-            new SecurityException("Owner only");
+            throw new SecurityException("Owner only");
         }
 
         if (byUserId.equals(newOwnerId)) return;
