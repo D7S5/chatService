@@ -141,7 +141,6 @@ public class AuthService {
 
         if (authentication != null && authentication.getPrincipal() instanceof UserPrincipal principal) {
             userId = principal.getId(); // getId
-//            System.out.println("authentication userId = " + userId);
         }
 
         if (userId == null) {
