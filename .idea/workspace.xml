@@ -5,12 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a450b2f7-d39b-44fb-8aa0-ae68f60caeb7" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gradle/8.14.3/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.14.3/executionHistory/executionHistory.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/8.14.3/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.14.3/fileHashes/fileHashes.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/file-system.probe" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/security/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/security/AuthService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/repository/FriendRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/repository/FriendRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/service/PrivateMessageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/service/PrivateMessageService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -187,7 +184,7 @@
       <workItem from="1777782523495" duration="517000" />
       <workItem from="1777878481970" duration="12000" />
       <workItem from="1778398817049" duration="226000" />
-      <workItem from="1779682160297" duration="472000" />
+      <workItem from="1779682160297" duration="951000" />
     </task>
     <servers />
   </component>

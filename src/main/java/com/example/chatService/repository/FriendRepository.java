@@ -25,7 +25,6 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
             @Param("me") User me,
             @Param("target") User target
     );
-    // 또는 더 안전하게 @Query 사용 (추천!)
     @Query("SELECT f FROM Friend f JOIN FETCH f.user u WHERE f.friend.id = :userId AND f.status = 'PENDING'")
     List<Friend> findPendingRequestsReceivedByUserId(@Param("userId") String userId);
 
