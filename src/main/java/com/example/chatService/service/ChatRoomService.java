@@ -6,7 +6,6 @@ import com.example.chatService.dto.RoomRole;
 import com.example.chatService.dto.RoomType;
 import com.example.chatService.entity.ChatRoom;
 import com.example.chatService.entity.RoomParticipant;
-import com.example.chatService.repository.ChatRoomRepository;
 import com.example.chatService.repository.RoomParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

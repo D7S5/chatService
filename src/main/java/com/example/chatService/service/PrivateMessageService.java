@@ -1,7 +1,6 @@
 package com.example.chatService.service;
 
 import com.example.chatService.entity.PrivateMessage;
-import com.example.chatService.repository.PrivateMessageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
