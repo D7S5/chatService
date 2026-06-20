@@ -6,6 +6,7 @@ import com.example.chatService.dto.RoomRole;
 import com.example.chatService.dto.RoomType;
 import com.example.chatService.entity.ChatRoom;
 import com.example.chatService.entity.RoomParticipant;
+import com.example.chatService.repository.ChatRoomV2Repository;
 import com.example.chatService.repository.RoomParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,7 @@ import java.util.UUID;
 public class ChatRoomService {
 
     private final StringRedisTemplate redis;
-    private final ChatRoomRepository chatRoomV2Repository;
+    private final ChatRoomV2Repository chatRoomV2Repository;
     private final RoomParticipantRepository repository;
     private final RoomParticipantService service;
     private final RoomInviteService inviteService;

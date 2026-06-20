@@ -42,6 +42,11 @@ public class DMBroadcastConsumer {
                 .room(room)
                 .senderId(dto.getSenderId())
                 .content(dto.getContent())
+                .senderName(dto.getSenderName())
+                .messageType(dto.getMessageType() == null
+                        ? com.example.chatService.dto.ChatMessageType.TEXT
+                        : dto.getMessageType())
+                .imageUrl(dto.getImageUrl())
                 .sentAt(sentAt)
                 .isRead(false)
                 .build();

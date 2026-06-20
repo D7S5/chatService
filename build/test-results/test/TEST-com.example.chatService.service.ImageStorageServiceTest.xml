@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.chatService.service.ImageStorageServiceTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-06-20T00:03:01.495Z" hostname="austin-750XGK" time="0.02">
+  <properties/>
+  <testcase name="rejectsNonImageFile()" classname="com.example.chatService.service.ImageStorageServiceTest" time="0.007"/>
+  <testcase name="storesChatImageAndReturnsChatImageUrl()" classname="com.example.chatService.service.ImageStorageServiceTest" time="0.01"/>
+  <testcase name="storesProfileImageAndReturnsPublicUrl()" classname="com.example.chatService.service.ImageStorageServiceTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

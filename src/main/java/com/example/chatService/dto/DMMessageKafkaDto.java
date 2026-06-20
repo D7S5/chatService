@@ -12,5 +12,8 @@ public class DMMessageKafkaDto {
     private String senderId;
     private String senderName;
     private String content;
+    @Builder.Default
+    private ChatMessageType messageType = ChatMessageType.TEXT;
+    private String imageUrl;
     private long sentAt;
 }

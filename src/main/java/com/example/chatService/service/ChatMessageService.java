@@ -17,10 +17,16 @@ public class ChatMessageService {
     private final ChatRateLimiter chatRateLimiter;
     private final SimpMessagingTemplate messagingTemplate;
     private final GroupMessageProducer groupMessageProducer;
+    private final ChatMessageValidator chatMessageValidator;
 
     public void send(GroupMessageDto msg, String senderIdFromPrincipal) {
 
         msg.setSenderId(senderIdFromPrincipal);
+        msg.setMessageType(chatMessageValidator.validate(
+                msg.getMessageType(), msg.getContent(), msg.getImageUrl(), senderIdFromPrincipal));
+        if (msg.getSentAt() == 0L) {
+            msg.setSentAt(System.currentTimeMillis());
+        }
 
         if (!chatRateLimiter.allowUser(senderIdFromPrincipal)) {
             return; // drop

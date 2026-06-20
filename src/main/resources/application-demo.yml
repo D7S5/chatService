@@ -96,3 +96,7 @@ chat:
 app:
   instance-id: chat-1
   frontend-url: http://localhost:3000
+  upload:
+    dir: ${APP_UPLOAD_DIR:uploads}
+    public-url-prefix: /uploads
+    max-image-size-bytes: 10485760

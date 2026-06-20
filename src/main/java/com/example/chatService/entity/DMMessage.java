@@ -1,5 +1,6 @@
 package com.example.chatService.entity;
 
+import com.example.chatService.dto.ChatMessageType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,8 +26,17 @@ public class DMMessage {
 
     @Column(name = "sender_name", nullable = false)
     private String senderName;
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String content;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "message_type", nullable = false, length = 10,
+            columnDefinition = "varchar(10) default 'TEXT'")
+    @Builder.Default
+    private ChatMessageType messageType = ChatMessageType.TEXT;
+
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;
 
     @Builder.Default
     private OffsetDateTime sentAt = OffsetDateTime.now();

@@ -19,9 +19,12 @@ public class DMProducerService {
 
     private final DMOutboxRepository outboxRepository;
     private final UserRepository userRepository;
+    private final com.example.chatService.service.ChatMessageValidator chatMessageValidator;
 
     @Transactional
     public void publish(DMMessageKafkaDto dto) {
+        dto.setMessageType(chatMessageValidator.validate(
+                dto.getMessageType(), dto.getContent(), dto.getImageUrl(), dto.getSenderId()));
         String senderName = dto.getSenderName();
         if (senderName == null || senderName.isBlank()) {
             senderName = userRepository.findUsernameById(dto.getSenderId());
@@ -36,6 +39,8 @@ public class DMProducerService {
                 .senderId(dto.getSenderId())
                 .senderName(senderName)
                 .content(dto.getContent())
+                .messageType(dto.getMessageType())
+                .imageUrl(dto.getImageUrl())
                 .eventTimestamp(dto.getSentAt())
                 .status(MessagingStatus.NEW)
                 .createdAt(OffsetDateTime.now())

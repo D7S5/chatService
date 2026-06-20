@@ -40,6 +40,10 @@ public class DMStoreConsumer {
                 .room(room)
                 .senderId(dto.getSenderId())
                 .content(dto.getContent())
+                .messageType(dto.getMessageType() == null
+                        ? com.example.chatService.dto.ChatMessageType.TEXT
+                        : dto.getMessageType())
+                .imageUrl(dto.getImageUrl())
                 .senderName(dto.getSenderName())
                 .sentAt(sentAt)
                 .isRead(false)

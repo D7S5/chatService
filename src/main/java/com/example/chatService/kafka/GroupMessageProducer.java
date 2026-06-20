@@ -22,6 +22,8 @@ public class GroupMessageProducer {
                         .senderId(dto.getSenderId())
                         .senderName(dto.getSenderName())
                         .content(dto.getContent())
+                        .messageType(dto.getMessageType())
+                        .imageUrl(dto.getImageUrl())
                         .eventTimestamp(dto.getSentAt())
                         .status(MessagingStatus.NEW)
                         .createAt(OffsetDateTime.now())

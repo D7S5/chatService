@@ -50,6 +50,8 @@ public class GroupMessageOutboxProcessor {
                         .senderName(box.getSenderName())
                         .sentAt(box.getEventTimestamp())
                         .content(box.getContent())
+                        .messageType(box.getMessageType())
+                        .imageUrl(box.getImageUrl())
                         .build();
 
                 kafkaTemplate.send(TOPIC, box.getRoomId(), message);

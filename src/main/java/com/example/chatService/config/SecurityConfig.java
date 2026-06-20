@@ -68,6 +68,8 @@ public class SecurityConfig {
                         .requestMatchers("/topic/**", "/app/**").permitAll()
                         .requestMatchers("/api/dm-start").authenticated()
                         .requestMatchers("/api/dm/**").authenticated()
+                        .requestMatchers("/api/user/profile-image").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/chat/images").authenticated()
                         .requestMatchers("/api/user/friends/**").authenticated()
                          .anyRequest().permitAll()
                 )
@@ -103,4 +105,3 @@ public class SecurityConfig {
         }
 
 }
-

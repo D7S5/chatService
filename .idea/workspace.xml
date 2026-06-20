@@ -5,7 +5,45 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a450b2f7-d39b-44fb-8aa0-ae68f60caeb7" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gradle/8.14.3/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.14.3/executionHistory/executionHistory.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.14.3/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.14.3/fileHashes/fileHashes.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.14.3/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.14.3/fileHashes/fileHashes.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.14.3/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.14.3/fileHashes/resourceHashesCache.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/file-system.probe" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/problems/problems-report.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/problems/problems-report.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/DMBroadcastConsumer.class.uniqueId0" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/DMMessage$DMMessageBuilder.class.uniqueId5" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/DMMessage.class.uniqueId1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/DMMessageRepository.class.uniqueId3" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/DMService.class.uniqueId2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/DMStoreConsumer.class.uniqueId4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/DmController.class.uniqueId6" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/ChatServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/ChatServiceApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/controller/KafkaDirectMessageController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/controller/KafkaDirectMessageController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/dto/ChatMessageResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/dto/ChatMessageResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/dto/DMMessageKafkaDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/dto/DMMessageKafkaDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/dto/GroupMessageDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/dto/GroupMessageDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/entity/DMMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/entity/DMMessage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/entity/DMOutbox.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/entity/DMOutbox.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/entity/GroupMessageEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/entity/GroupMessageEntity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/entity/GroupOutbox.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/entity/GroupOutbox.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/kafka/DMBroadcastConsumer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/kafka/DMBroadcastConsumer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/kafka/DMOutboxProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/kafka/DMOutboxProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/kafka/DMProducerService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/kafka/DMProducerService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/kafka/DMStoreConsumer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/kafka/DMStoreConsumer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/kafka/GroupMessageOutboxProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/kafka/GroupMessageOutboxProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/kafka/GroupMessageProducer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/kafka/GroupMessageProducer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/repository/MessageRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/service/ChatMessageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/service/ChatMessageService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/service/ChatRoomService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/service/ChatRoomService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/service/PrivateMessageService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application-demo.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application-demo.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application-prod.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application-prod.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -184,6 +222,7 @@
       <workItem from="1778398817049" duration="226000" />
       <workItem from="1779682160297" duration="1183000" />
       <workItem from="1780101520713" duration="67000" />
+      <workItem from="1781911056745" duration="3023000" />
     </task>
     <servers />
   </component>

@@ -11,6 +11,10 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
   kafka:
     consumer:
@@ -100,3 +104,7 @@ chat:
 app:
   instance-id: chat-1
   frontend-url: http://chatsservice.com
+  upload:
+    dir: ${APP_UPLOAD_DIR:uploads}
+    public-url-prefix: /uploads
+    max-image-size-bytes: 10485760

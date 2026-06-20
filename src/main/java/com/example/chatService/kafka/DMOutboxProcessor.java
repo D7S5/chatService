@@ -45,6 +45,8 @@ public class DMOutboxProcessor {
                         .senderId(box.getSenderId())
                         .senderName(box.getSenderName())
                         .content(box.getContent())
+                        .messageType(box.getMessageType())
+                        .imageUrl(box.getImageUrl())
                         .sentAt(box.getEventTimestamp())
                         .build();
 
