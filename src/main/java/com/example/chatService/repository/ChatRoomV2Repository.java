@@ -11,8 +11,6 @@ import java.util.List;
 
 public interface ChatRoomV2Repository extends JpaRepository<ChatRoom, String> {
 
-    List<ChatRoom> findAll();
-
     boolean existsByRoomIdAndOwnerUserId(String roomId, String ownerId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)

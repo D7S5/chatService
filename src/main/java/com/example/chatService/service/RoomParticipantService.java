@@ -13,8 +13,6 @@ public interface RoomParticipantService {
 
     void leaveRoom(String roomId, String userId);
 
-    void reconnect(String roomId, String userId);
-
     void kick(String roomId, String targetUserId, String byUserId);
 
     void ban(String roomId, String targetUserId, String byUserId, String reason);

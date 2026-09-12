@@ -24,7 +24,7 @@ public class FriendService {
     private final FriendRepository friendRepository;
     private final WebSocketEventPublisher eventPublisher;
 
-    @Transactional
+
     public FriendRequestResponseDto sendFriendRequest(String fromUserId, String toUserId) {
         User from = userRepository.findById(fromUserId)
                 .orElseThrow(() -> new IllegalArgumentException("From user not found"));
@@ -62,7 +62,6 @@ public class FriendService {
                 .build();
     }
 
-    @Transactional
     public List<FriendRequestDto> getReceivedRequests(String userId) {
         List<Friend> requests = friendRepository.findPendingRequestsReceivedByUserId(userId);
 
@@ -87,7 +86,6 @@ public class FriendService {
                 .toList();
     }
 
-    @Transactional
     public void removeFriend(String me, String target) {
 
         User userA = userRepository.findById(me)
@@ -99,7 +97,7 @@ public class FriendService {
 
         friendRepository.deleteAll(friends);
     }
-    @Transactional
+
     public String acceptFriendRequest(Long requestId) {
         Friend request = friendRepository.findById(requestId)
                 .orElseThrow(() -> new IllegalArgumentException("요청을 찾을 수 없습니다"));
@@ -141,7 +139,6 @@ public class FriendService {
         return "친구 신청 수락 완료";
     }
 
-    @Transactional
     public String reject(Long requestId) {
         Friend req = friendRepository.findById(requestId)
                 .orElseThrow(() -> new IllegalArgumentException("요청 없음"));

@@ -120,10 +120,6 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
     }
 
     @Override
-    public void reconnect(String roomId, String userId) {
-    }
-
-    @Override
     @Transactional
     public void kick(String roomId, String targetUserId, String byUserId) {
         requireAdmin(roomId, byUserId);
