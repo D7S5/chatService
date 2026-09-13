@@ -19,7 +19,7 @@ public class GroupRoomService {
     private final ChatRoomV2Repository chatRoomV2Repository;
     private final GroupMessageRepository groupMessageRepository;
 
-    public List<ChatMessageResponse> messages(String roomId,  int limit) {
+    public List<ChatMessageResponse> messages(String roomId, int limit) {
         int size = Math.min(limit, 200); // abuse 방지
 
         List<GroupMessageEntity> entities =

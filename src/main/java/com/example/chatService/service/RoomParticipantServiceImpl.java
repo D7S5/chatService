@@ -178,7 +178,6 @@ public class RoomParticipantServiceImpl implements RoomParticipantService {
         boolean wasActive = target.isActive();
         target.ban(reason);   // isBanned=true, isActive=false
 
-
         if (wasActive) {
             ChatRoom room = roomRepository.findByIdForUpdate(roomId);
             room.decreaseCount();

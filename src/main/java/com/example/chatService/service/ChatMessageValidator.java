@@ -19,7 +19,7 @@ public class ChatMessageValidator {
         ChatMessageType resolvedType = messageType == null ? ChatMessageType.TEXT : messageType;
 
         if (resolvedType == ChatMessageType.TEXT && (content == null || content.isBlank())) {
-            throw new IllegalArgumentException("텍스트 메시지 내용이 필요합니다.");
+            throw new IllegalArgumentException("메시지를 입력해주세요.");
         }
 
         if (resolvedType == ChatMessageType.IMAGE) {
