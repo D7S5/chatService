@@ -121,7 +121,6 @@ http://localhost:9090/ws?ws-token=<one-time-token>
 | GET | `/api/me` | 현재 사용자 조회 |
 | POST | `/api/user/set-nickname` | 닉네임 설정 |
 | POST | `/api/user/oauth/nickname` | OAuth 사용자 닉네임 설정 |
-| POST | `/api/user/profile-image` | 프로필 이미지 업로드 (`multipart/form-data`, `image`) |
 | POST | `/api/ws/token` | WebSocket 1회용 토큰 발급 |
 
 소셜 로그인 시작 주소는 `/oauth2/authorization/google`, `/oauth2/authorization/kakao`, `/oauth2/authorization/naver`입니다.
