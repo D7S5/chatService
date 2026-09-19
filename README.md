@@ -46,7 +46,7 @@ Spring Boot 기반의 실시간 채팅 백엔드입니다. 일반 로그인과 �
 ### 1. 저장소 실행 준비
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/D7S5/chatService.git
 cd chatService
 chmod +x gradlew
 ```
