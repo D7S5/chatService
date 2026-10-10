@@ -18,4 +18,8 @@ public interface DMMessageRepository extends JpaRepository<DMMessage, Long> {
     @Modifying
     @Query("update DMMessage m set m.isRead = true where m.room.roomId = :roomId and m.senderId <> :userId and m.isRead = false")
     void markAsReadByRoomAndReceiver(@Param("roomId") String roomId, @Param("userId") String userId);
+
+    @Modifying
+    @Query("delete from DMMessage m where m.room.roomId in :roomIds")
+    int deleteAllByRoomIds(@Param("roomIds") List<String> roomIds);
 }

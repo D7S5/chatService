@@ -14,4 +14,14 @@ public interface DMRoomRepository extends JpaRepository<DMRoom, String> {
     @Query("SELECT r FROM DMRoom r WHERE r.userAId = :userId OR r.userBId = :userId ORDER BY r.lastMessageTime DESC")
     List<DMRoom> findByUser(@Param("userId") String userId);
 
+    @Query("""
+            SELECT r FROM DMRoom r
+            WHERE (r.userAId = :userAId AND r.userBId = :userBId)
+               OR (r.userAId = :userBId AND r.userBId = :userAId)
+            """)
+    List<DMRoom> findAllBetweenUsers(
+            @Param("userAId") String userAId,
+            @Param("userBId") String userBId
+    );
+
 }

@@ -48,7 +48,7 @@ public class FriendRequestController {
             Authentication authentication
     ) {
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
-        friendService.removeFriend(principal.getId(), friendUserId);
+        friendService.removeFriendAndDMRoom(principal.getId(), friendUserId);
 
         return ResponseEntity.ok().build();
     }

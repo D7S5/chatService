@@ -24,4 +24,8 @@ public interface DMOutboxRepository extends JpaRepository<DMOutbox, Long> {
     int claimBatch(@Param("workerId") String workerId, @Param("limit") int limit);
 
     List<DMOutbox> findByStatusAndLockedByOrderByIdAsc(MessagingStatus status, String lockedBy);
+
+    @Modifying
+    @Query("delete from DMOutbox o where o.roomId in :roomIds")
+    int deleteAllByRoomIds(@Param("roomIds") List<String> roomIds);
 }

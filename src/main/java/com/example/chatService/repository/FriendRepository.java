@@ -4,6 +4,7 @@ import com.example.chatService.dto.FriendStatus;
 import com.example.chatService.entity.Friend;
 import com.example.chatService.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -25,6 +26,15 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
             @Param("me") User me,
             @Param("target") User target
     );
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+            DELETE FROM Friend f
+            WHERE (f.user.id = :me AND f.friend.id = :target)
+               OR (f.user.id = :target AND f.friend.id = :me)
+            """)
+    int deleteFriendRelation(@Param("me") String me, @Param("target") String target);
+
     @Query("SELECT f FROM Friend f JOIN FETCH f.user u WHERE f.friend.id = :userId AND f.status = 'PENDING'")
     List<Friend> findPendingRequestsReceivedByUserId(@Param("userId") String userId);
 

@@ -2,11 +2,10 @@ package com.example.chatService.service;
 
 import com.example.chatService.component.WebSocketEventPublisher;
 import com.example.chatService.dto.*;
+import com.example.chatService.entity.DMRoom;
 import com.example.chatService.entity.Friend;
 import com.example.chatService.entity.User;
-import com.example.chatService.repository.FriendRepository;
-import com.example.chatService.repository.FriendRequestRepository;
-import com.example.chatService.repository.UserRepository;
+import com.example.chatService.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,6 +22,10 @@ public class FriendService {
     private final UserRepository userRepository;
     private final FriendRepository friendRepository;
     private final WebSocketEventPublisher eventPublisher;
+
+    private final DMRoomRepository dmRoomRepository;
+    private final DMMessageRepository dmMessageRepository;
+    private final DMOutboxRepository dmOutboxRepository;
 
 
     public FriendRequestResponseDto sendFriendRequest(String fromUserId, String toUserId) {
@@ -86,16 +89,25 @@ public class FriendService {
                 .toList();
     }
 
-    public void removeFriend(String me, String target) {
+    public void removeFriendAndDMRoom(String me, String target) {
 
         User userA = userRepository.findById(me)
                 .orElseThrow(() -> new IllegalArgumentException("user not found, me = "  + me + " target id = " + target));
         User userB = userRepository.findById(target)
                 .orElseThrow(() -> new IllegalArgumentException("user not found, me = "  + me + " target id = " + target));
 
-        List<Friend> friends = friendRepository.findFriendRelation(userA, userB);
+        List<DMRoom> dmRooms = dmRoomRepository.findAllBetweenUsers(me, target);
+        if (!dmRooms.isEmpty()) {
+            List<String> roomIds = dmRooms.stream()
+                    .map(DMRoom::getRoomId)
+                    .toList();
 
-        friendRepository.deleteAll(friends);
+            dmMessageRepository.deleteAllByRoomIds(roomIds);
+            dmOutboxRepository.deleteAllByRoomIds(roomIds);
+            dmRoomRepository.deleteAll(dmRooms);
+        }
+
+        friendRepository.deleteFriendRelation(userA.getId(), userB.getId());
     }
 
     public String acceptFriendRequest(Long requestId) {
@@ -106,26 +118,11 @@ public class FriendService {
             throw new IllegalStateException("이미 처리된 요청입니다");
         }
 
-        User sender = request.getFriend(); // 요청 보낸사람
-        User receiver = request.getUser(); // 요청 받은사람
+        User sender = request.getUser();
+        User receiver = request.getFriend();
 
         request.setStatus(FriendStatus.ACCEPTED);
         friendRepository.save(request);
-
-        Friend friendA = Friend.builder()
-                .user(sender)
-                .friend(receiver)
-                .status(FriendStatus.ACCEPTED)
-                .build();
-
-        Friend friendB = Friend.builder()
-                .user(receiver)
-                .friend(sender)
-                .status(FriendStatus.ACCEPTED)
-                .build();
-
-        friendRepository.save(friendA);
-        friendRepository.save(friendB);
 
         PublishAcceptFriendEvent publishAcceptFriendEvent =
                         PublishAcceptFriendEvent.builder()
