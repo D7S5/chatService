@@ -37,6 +37,10 @@ Spring Boot 기반의 실시간 채팅 백엔드입니다. 일반 로그인과 �
 그룹 메시지는 `group-message-topic`, DM은 `dm-messages` Kafka 토픽을 사용합니다. Outbox processor가 미발행 메시지를 Kafka로 전달하고, 저장 consumer와 WebSocket broadcast consumer가 각각 영속화와 실시간 전송을 담당합니다.
 
 
+![Uploading Screenshot from 2026-10-11 12-49-46.png…]()
+
+
+
 ### 요구 사항
 
 - JDK 17
