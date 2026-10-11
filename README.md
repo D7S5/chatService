@@ -1,8 +1,11 @@
-# ChatService Backend
+<img width="1168" height="543" alt="image" src="https://github.com/user-attachments/assets/50fbe556-239f-4e80-9351-db5e586c9150" /><img width="1168" height="543" alt="image" src="https://github.com/user-attachments/assets/0da9aff6-cf72-463d-9178-39c9b4f8caeb" /># ChatService Backend
 
 Spring Boot 기반의 실시간 채팅 백엔드입니다. 일반 로그인과 소셜 로그인, 친구 관리, 공개/비공개 그룹 채팅방, 1:1 DM, 이미지 전송, 참여자 및 운영자 관리를 제공합니다.
 
 프론트엔드 저장소: [D7S5/chatService-FE](https://github.com/D7S5/chatService-FE)
+
+<img width="1168" height="543" alt="Screenshot from 2026-10-11 12-38-30" src="https://github.com/user-attachments/assets/3da9bc88-fb74-4a4b-baac-f6209b898a6a" />
+
 
 ## 주요 기능
 
