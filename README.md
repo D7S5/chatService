@@ -4,6 +4,9 @@ Spring Boot 기반의 실시간 채팅 백엔드입니다. 일반 로그인과 �
 
 프론트엔드 저장소: [D7S5/chatService-FE](https://github.com/D7S5/chatService-FE)
 
+<img width="1168" height="543" alt="Screenshot from 2026-10-11 12-38-30" src="https://github.com/user-attachments/assets/3da9bc88-fb74-4a4b-baac-f6209b898a6a" />
+
+
 ## 주요 기능
 
 - 이메일/비밀번호 회원가입 및 로그인
@@ -32,6 +35,9 @@ Spring Boot 기반의 실시간 채팅 백엔드입니다. 일반 로그인과 �
 
 
 그룹 메시지는 `group-message-topic`, DM은 `dm-messages` Kafka 토픽을 사용합니다. Outbox processor가 미발행 메시지를 Kafka로 전달하고, 저장 consumer와 WebSocket broadcast consumer가 각각 영속화와 실시간 전송을 담당합니다.
+
+
+<img width="1640" height="747" alt="Screenshot from 2026-10-11 12-49-46" src="https://github.com/user-attachments/assets/c859d100-afc6-4f08-b0f2-4582952af87a" />
 
 
 ### 요구 사항
