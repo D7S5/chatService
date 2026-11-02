@@ -21,7 +21,6 @@ public class DMOutboxProcessor {
 
     private final DMOutboxRepository outboxRepository;
     private final KafkaTemplate<String, DMMessageKafkaDto> kafkaTemplate;
-
     private static final String TOPIC = "dm-messages";
     private static final int BATCH_SIZE = 100;
 

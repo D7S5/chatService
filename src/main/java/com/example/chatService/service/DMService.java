@@ -44,24 +44,6 @@ public class DMService {
         return dmMessageRepository.findByRoomOrderBySentAtAsc(room);
     }
 
-    public DMMessage sendMessage(String roomId, String senderId, String content) {
-        DMRoom room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new RuntimeException("Room not found"));
-
-        DMMessage msg = DMMessage.builder()
-                .room(room)
-                .senderId(senderId)
-                .content(content)
-                .sentAt(OffsetDateTime.now())
-                .isRead(false)
-                .build();
-
-        room.setLastMessageTime(OffsetDateTime.now());
-        roomRepository.save(room);
-
-        return dmMessageRepository.save(msg);
-    }
-
     public String getReceiverId(String roomId, String senderId) {
         DMRoom room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("Room not found"));

@@ -11,7 +11,6 @@ public class OAuthAttributes {
 
     private final Map<String, Object> attributes;
     private final String nameAttributeKey;
-
     private final String email;
     private final String username;
     private final String providerId;
