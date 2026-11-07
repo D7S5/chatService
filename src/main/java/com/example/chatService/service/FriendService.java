@@ -29,6 +29,7 @@ public class FriendService {
 
 
     public FriendRequestResponseDto sendFriendRequest(String fromUserId, String toUserId) {
+
         User from = userRepository.findById(fromUserId)
                 .orElseThrow(() -> new IllegalArgumentException("From user not found"));
 

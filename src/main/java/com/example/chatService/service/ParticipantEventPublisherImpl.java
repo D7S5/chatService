@@ -16,61 +16,6 @@ public class ParticipantEventPublisherImpl implements ParticipantEventPublisher 
     private final SimpMessagingTemplate messagingTemplate;
 
     @Override
-    public void broadcastJoin(
-            String roomId,
-            ParticipantDto dto) {
-        messagingTemplate.convertAndSend(
-                "/topic/rooms/" + roomId + "/participants",
-                new ParticipantEvent(
-                        ParticipantEventType.JOIN,
-                        roomId,
-                        dto,
-                        null
-                )
-        );
-    }
-
-    @Override
-    public void broadcastLeave(
-            String roomId,
-            ParticipantDto dto
-    ) {
-        messagingTemplate.convertAndSend(
-                "/topic/rooms/" + roomId + "/participants",
-                new ParticipantEvent(
-                        ParticipantEventType.LEAVE,
-                        roomId,
-                        dto,
-                        null
-                )
-        );
-    }
-
-    @Override
-    public void broadcastLeave(
-            String roomId,
-            ParticipantDto dto,
-            String reason
-    ) {
-        messagingTemplate.convertAndSend(
-                "/topic/rooms/" + roomId + "/participants",
-                new ParticipantEvent(
-                        ParticipantEventType.LEAVE,
-                        roomId,
-                        dto,
-                        reason
-                )
-        );
-        if (reason != null) {
-            messagingTemplate.convertAndSendToUser(
-                    dto.getUserId(),
-                    "/queue/room-force-exit",
-                    new RoomForceExitDto(roomId, reason)
-            );
-        }
-    }
-
-    @Override
     public void broadcastOwnerChanged(String roomId, String newOwnerId) {
         messagingTemplate.convertAndSend(
                 "/topic/room/" + roomId + "/owner",

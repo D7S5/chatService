@@ -5,12 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a450b2f7-d39b-44fb-8aa0-ae68f60caeb7" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/uploads/chat-images/cc6f8185-06dc-4244-861f-9285597cf3b5/5a6286eb-9ccf-4ba8-99d5-0908d3937904.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/uploads/chat-images/cc6f8185-06dc-4244-861f-9285597cf3b5/c3001f26-010c-4752-9705-1a4e7e98d526.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/uploads/chat-images/cc6f8185-06dc-4244-861f-9285597cf3b5/d88dc35e-ce20-4717-9e62-bbe0e0ef83ba.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/uploads/chat-images/cc6f8185-06dc-4244-861f-9285597cf3b5/e3f7b24c-90d4-4f29-9d84-9fb91f74e3e3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/service/FriendService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/service/FriendService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/service/ParticipantEventPublisher.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/service/ParticipantEventPublisher.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chatService/service/ParticipantEventPublisherImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chatService/service/ParticipantEventPublisherImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -199,7 +197,8 @@
       <workItem from="1791694284981" duration="913000" />
       <workItem from="1792215692647" duration="10000" />
       <workItem from="1793331690696" duration="1914000" />
-      <workItem from="1793601010463" duration="216000" />
+      <workItem from="1793601010463" duration="827000" />
+      <workItem from="1794038361070" duration="325000" />
     </task>
     <servers />
   </component>
